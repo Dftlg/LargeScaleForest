@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D90D415A-889C-4AAF-B4BA-BC203C5EC938}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>interactiveDeformableSimulator</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseIntelMKL>Parallel</UseIntelMKL>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseIntelMKL>Parallel</UseIntelMKL>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\libraries\libraries.props" />
+    <Import Project="..\debug-libs.props" />
+    <Import Project="..\utilities.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\libraries\libraries.props" />
+    <Import Project="..\release-libs.props" />
+    <Import Project="..\utilities.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>$(SolutionDir)libraries\glui\glui-2.35\src\msvc\lib\Debug;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>$(SolutionDir)libraries\glui\glui-2.35\src\msvc\lib\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\libraries\basicAlgorithms;$(SolutionDir)\libraries\camera;$(SolutionDir)\libraries\configFile;$(SolutionDir)\libraries\constrainedDOFs;$(SolutionDir)\libraries\corotationalLinearFEM;$(SolutionDir)\libraries\forceModel;$(SolutionDir)\libraries\getopts;$(SolutionDir)\libraries\graph;$(SolutionDir)\libraries\imageIO;$(SolutionDir)\libraries\integrator;$(SolutionDir)\libraries\integratorSparse;$(SolutionDir)\libraries\isotropicHyperelasticFEM;$(SolutionDir)\libraries\lighting;$(SolutionDir)\libraries\listIO;$(SolutionDir)\libraries\macros;$(SolutionDir)\libraries\massSpringSystem;$(SolutionDir)\libraries\matrix;$(SolutionDir)\libraries\matrixIO;$(SolutionDir)\libraries\minivector;$(SolutionDir)\libraries\objMesh;$(SolutionDir)\libraries\performanceCounter;$(SolutionDir)\libraries\polarDecomposition;$(SolutionDir)\libraries\sceneObject;$(SolutionDir)\libraries\sparseMatrix;$(SolutionDir)\libraries\sparseSolver;$(SolutionDir)\libraries\stencilForceModel;$(SolutionDir)\libraries\stvk;$(SolutionDir)\libraries\volumetricMesh;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>basicAlgorithms.lib;camera.lib;configFile.lib;constrainedDOFs.lib;corotationalLinearFEM.lib;forceModel.lib;getopts.lib;graph.lib;imageIO.lib;integrator.lib;integratorSparse.lib;isotropicHyperelasticFEM.lib;lighting.lib;listIO.lib;massSpringSystem.lib;matrixIO.lib;mesh.lib;minivector.lib;objMesh.lib;openGLHelper.lib;performanceCounter.lib;polarDecomposition.lib;sceneObject.lib;sparseMatrix.lib;sparseSolver.lib;stencilForceModel.lib;stvk.lib;volumetricMesh.lib;GLUI.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>GLUI_NO_LIB_PRAGMA;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\libraries\basicAlgorithms;$(SolutionDir)\libraries\camera;$(SolutionDir)\libraries\configFile;$(SolutionDir)\libraries\constrainedDOFs;$(SolutionDir)\libraries\corotationalLinearFEM;$(SolutionDir)\libraries\forceModel;$(SolutionDir)\libraries\getopts;$(SolutionDir)\libraries\graph;$(SolutionDir)\libraries\imageIO;$(SolutionDir)\libraries\integrator;$(SolutionDir)\libraries\integratorSparse;$(SolutionDir)\libraries\isotropicHyperelasticFEM;$(SolutionDir)\libraries\lighting;$(SolutionDir)\libraries\listIO;$(SolutionDir)\libraries\macros;$(SolutionDir)\libraries\massSpringSystem;$(SolutionDir)\libraries\matrix;$(SolutionDir)\libraries\matrixIO;$(SolutionDir)\libraries\minivector;$(SolutionDir)\libraries\objMesh;$(SolutionDir)\libraries\performanceCounter;$(SolutionDir)\libraries\polarDecomposition;$(SolutionDir)\libraries\sceneObject;$(SolutionDir)\libraries\sparseMatrix;$(SolutionDir)\libraries\sparseSolver;$(SolutionDir)\libraries\stencilForceModel;$(SolutionDir)\libraries\stvk;$(SolutionDir)\libraries\volumetricMesh;$(SolutionDir)\libraries\include%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>basicAlgorithms.lib;camera.lib;configFile.lib;constrainedDOFs.lib;corotationalLinearFEM.lib;forceModel.lib;getopts.lib;graph.lib;imageIO.lib;integrator.lib;integratorSparse.lib;isotropicHyperelasticFEM.lib;lighting.lib;listIO.lib;massSpringSystem.lib;matrixIO.lib;mesh.lib;minivector.lib;objMesh.lib;openGLHelper.lib;performanceCounter.lib;polarDecomposition.lib;sceneObject.lib;sparseMatrix.lib;sparseSolver.lib;stencilForceModel.lib;stvk.lib;volumetricMesh.lib;GLUI.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="initGraphics.cpp" />
+    <ClCompile Include="interactiveDeformableSimulator.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="initGraphics.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\VegaRendering\Common\Common.vcxproj">
+      <Project>{ffe4174e-9a25-4028-b22f-8d29a453ee6f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\VegaRendering\RenderingProcess\RenderingProcess.vcxproj">
+      <Project>{dbd25957-7e9f-40a3-ad16-17fc2dc796ef}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\VegaRendering\VegaFemFactory\VegaFemFactory.vcxproj">
+      <Project>{4d8480d7-7834-40a2-97ea-e34a72da8a63}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\..\packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets" Condition="Exists('..\..\packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" />
+    <Import Project="..\..\packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets" Condition="Exists('..\..\packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" />
+    <Import Project="..\..\..\..\vc_packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets" Condition="Exists('..\..\..\..\vc_packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" />
+    <Import Project="..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets" Condition="Exists('..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" />
+    <Import Project="..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets" Condition="Exists('..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets')" />
+    <Import Project="..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets" Condition="Exists('..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets')" />
+    <Import Project="..\..\..\..\vc_packages\glm.0.9.9.800\build\native\glm.targets" Condition="Exists('..\..\..\..\vc_packages\glm.0.9.9.800\build\native\glm.targets')" />
+    <Import Project="..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets" Condition="Exists('..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" />
+    <Import Project="..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets" Condition="Exists('..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets')" />
+    <Import Project="..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets" Condition="Exists('..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets')" />
+    <Import Project="..\..\..\..\vc_packages\glew.1.9.0.1\build\native\glew.targets" Condition="Exists('..\..\..\..\vc_packages\glew.1.9.0.1\build\native\glew.targets')" />
+    <Import Project="..\..\..\..\vc_packages\glfw.3.3.2\build\native\glfw.targets" Condition="Exists('..\..\..\..\vc_packages\glfw.3.3.2\build\native\glfw.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\glm.0.9.9.500\build\native\glm.targets" Condition="Exists('..\..\..\..\..\vc_packages\glm.0.9.9.500\build\native\glm.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\glfw.3.3.0.1\build\native\glfw.targets" Condition="Exists('..\..\..\..\..\vc_packages\glfw.3.3.0.1\build\native\glfw.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets" Condition="Exists('..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets" Condition="Exists('..\..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets" Condition="Exists('..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets" Condition="Exists('..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets" Condition="Exists('..\..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets" Condition="Exists('..\..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\vc_packages\glm.0.9.9.800\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\glm.0.9.9.800\build\native\glm.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\vc_packages\glew.1.9.0.1\build\native\glew.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\glew.1.9.0.1\build\native\glew.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\vc_packages\glfw.3.3.2\build\native\glfw.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\glfw.3.3.2\build\native\glfw.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\vc_packages\glm.0.9.9.500\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\glm.0.9.9.500\build\native\glm.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\vc_packages\glfw.3.3.0.1\build\native\glfw.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\glfw.3.3.0.1\build\native\glfw.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets'))" />
+  </Target>
+</Project>

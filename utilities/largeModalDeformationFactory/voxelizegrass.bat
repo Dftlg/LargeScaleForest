@@ -1,0 +1,1 @@
+../reducedDynamicSolver-rt/reducedDynamicSolver-rt realtime/voxelizegrass/voxelizegrass.config

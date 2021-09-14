@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <SourceDir>$(ProjectDir)</SourceDir>
+    <DistInclude>$(SolutionDir)\libraries\include</DistInclude>
+  </PropertyGroup>
+  <PropertyGroup>
+    <IncludePath>$(IntelSWTools)\mkl\include;$(Pre-built)\include;$(CGAL)\include;$(CGAL)\auxiliary\gmp\include;$(Boost);$(eigen);$(libigl)\include;$(IncludePath)</IncludePath>
+    <ExecutablePath>$(IntelSWTools)\mkl\bin;$(ExecutablePath)</ExecutablePath>
+    <LibraryPath>$(IntelSWTools)\mkl\lib\intel64_win;$(IntelSWTools)\compiler\lib\intel64_win;$(Pre-built)\lib\x64;$(Boost)\libs;$(CGAL)\auxiliary\gmp\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <PostBuildEvent>
+      <Command>xcopy /c /y "$(SourceDir)*.h" "$(DistInclude)"</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>mkl_intel_lp64.lib;mkl_intel_thread.lib;mkl_core.lib;libiomp5md.lib;pthreadVC2.lib;libgmp-10.lib;libmpfr-4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="SourceDir">
+      <Value>$(SourceDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="DistInclude">
+      <Value>$(DistInclude)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

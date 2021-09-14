@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{881F26F5-71EA-49C8-8E83-2F8D1963E8B9}</ProjectGuid>
+    <RootNamespace>VegaInterpolationRendering</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir)VegaRendering\Imgui\backends;$(SolutionDir)VegaRendering\Imgui;$(SolutionDir)libraries\include;$(SolutionDir)VegaRendering\Common;$(SolutionDir)VegaRendering\VegaFemFactory;$(SolutionDir)VegaRendering\RenderingProcess;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)x64\Debug;$(SolutionDir)libraries\lib\Debug;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir)libraries\include;$(SolutionDir)VegaRendering\Common;$(SolutionDir)VegaRendering\RenderingProcess;$(SolutionDir)VegaRendering\VegaFemFactory;$(SolutionDir)VegaRendering\Imgui;$(SolutionDir)VegaRendering\Imgui\backends;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)libraries\lib\Release;$(SolutionDir)x64\Release;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <OpenMPSupport>true</OpenMPSupport>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>freeglut.lib;Common.lib;VegaFemFactory.lib;RenderingProcess.lib;basicAlgorithms.lib;camera.lib;configFile.lib;constrainedDOFs.lib;corotationalLinearFEM.lib;forceModel.lib;getopts.lib;graph.lib;imageIO.lib;integrator.lib;integratorSparse.lib;isotropicHyperelasticFEM.lib;lighting.lib;listIO.lib;massSpringSystem.lib;matrixIO.lib;mesh.lib;minivector.lib;objMesh.lib;openGLHelper.lib;performanceCounter.lib;polarDecomposition.lib;sceneObject.lib;sparseMatrix.lib;sparseSolver.lib;stencilForceModel.lib;stvk.lib;volumetricMesh.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>Common.lib;VegaFemFactory.lib;basicAlgorithms.lib;camera.lib;configFile.lib;constrainedDOFs.lib;corotationalLinearFEM.lib;forceModel.lib;getopts.lib;graph.lib;imageIO.lib;integrator.lib;integratorSparse.lib;isotropicHyperelasticFEM.lib;lighting.lib;listIO.lib;massSpringSystem.lib;matrixIO.lib;mesh.lib;minivector.lib;objMesh.lib;openGLHelper.lib;performanceCounter.lib;polarDecomposition.lib;sceneObject.lib;sparseMatrix.lib;sparseSolver.lib;stencilForceModel.lib;stvk.lib;volumetricMesh.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Imgui\backends\imgui_impl_dx10.cpp" />
+    <ClCompile Include="..\Imgui\backends\imgui_impl_dx11.cpp" />
+    <ClCompile Include="..\Imgui\backends\imgui_impl_dx12.cpp" />
+    <ClCompile Include="..\Imgui\backends\imgui_impl_dx9.cpp" />
+    <ClCompile Include="..\Imgui\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\Imgui\backends\imgui_impl_glut.cpp" />
+    <ClCompile Include="..\Imgui\backends\imgui_impl_opengl2.cpp" />
+    <ClCompile Include="..\Imgui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\Imgui\backends\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\Imgui\imgui.cpp" />
+    <ClCompile Include="..\Imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\Imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\Imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\Imgui\imgui_widgets.cpp" />
+    <ClCompile Include="InitMultipleTypeTree.cpp" />
+    <ClCompile Include="LoadWindAndTreeConfig.cpp" />
+    <ClCompile Include="RenderStaticSence.cpp" />
+    <ClCompile Include="VegaInterpolationRendering.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Imgui\backends\imgui_impl_metal.mm" />
+    <None Include="..\Imgui\backends\imgui_impl_osx.mm" />
+    <None Include="..\Imgui\backends\vulkan\generate_spv.sh" />
+    <None Include="..\Imgui\backends\vulkan\glsl_shader.frag" />
+    <None Include="..\Imgui\backends\vulkan\glsl_shader.vert" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="grass.frag" />
+    <None Include="grass.vert" />
+    <None Include="grass_shadows_depth.vert" />
+    <None Include="point_shadows_depth.frag" />
+    <None Include="point_shadows_depth.gs" />
+    <None Include="point_shadows_depth.vert" />
+    <None Include="scene_shadows.frag" />
+    <None Include="scene_shadows.gs" />
+    <None Include="scene_shadows.vert" />
+    <None Include="skybox.frag" />
+    <None Include="skybox.vert" />
+    <None Include="Tree.frag" />
+    <None Include="Tree.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{ffe4174e-9a25-4028-b22f-8d29a453ee6f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\RenderingProcess\RenderingProcess.vcxproj">
+      <Project>{dbd25957-7e9f-40a3-ad16-17fc2dc796ef}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\VegaFemFactory\VegaFemFactory.vcxproj">
+      <Project>{4d8480d7-7834-40a2-97ea-e34a72da8a63}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Imgui\backends\imgui_impl_dx10.h" />
+    <ClInclude Include="..\Imgui\backends\imgui_impl_dx11.h" />
+    <ClInclude Include="..\Imgui\backends\imgui_impl_dx12.h" />
+    <ClInclude Include="..\Imgui\backends\imgui_impl_dx9.h" />
+    <ClInclude Include="..\Imgui\backends\imgui_impl_glfw.h" />
+    <ClInclude Include="..\Imgui\backends\imgui_impl_glut.h" />
+    <ClInclude Include="..\Imgui\backends\imgui_impl_metal.h" />
+    <ClInclude Include="..\Imgui\backends\imgui_impl_opengl2.h" />
+    <ClInclude Include="..\Imgui\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="..\Imgui\backends\imgui_impl_osx.h" />
+    <ClInclude Include="..\Imgui\backends\imgui_impl_win32.h" />
+    <ClInclude Include="..\Imgui\imconfig.h" />
+    <ClInclude Include="..\Imgui\imgui.h" />
+    <ClInclude Include="..\Imgui\imgui_internal.h" />
+    <ClInclude Include="..\Imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\Imgui\imstb_textedit.h" />
+    <ClInclude Include="..\Imgui\imstb_truetype.h" />
+    <ClInclude Include="InitMultipleTypeTree.h" />
+    <ClInclude Include="LoadWindAndTreeConfig.h" />
+    <ClInclude Include="RenderStaticSence.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets" Condition="Exists('..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets')" />
+    <Import Project="..\..\..\..\vc_packages\glm.0.9.9.800\build\native\glm.targets" Condition="Exists('..\..\..\..\vc_packages\glm.0.9.9.800\build\native\glm.targets')" />
+    <Import Project="..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets" Condition="Exists('..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" />
+    <Import Project="..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets" Condition="Exists('..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets')" />
+    <Import Project="..\..\..\..\vc_packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets" Condition="Exists('..\..\..\..\vc_packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" />
+    <Import Project="..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets" Condition="Exists('..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" />
+    <Import Project="..\..\..\..\vc_packages\tbb.redist.4.2.3.1\build\native\tbb.redist.targets" Condition="Exists('..\..\..\..\vc_packages\tbb.redist.4.2.3.1\build\native\tbb.redist.targets')" />
+    <Import Project="..\..\..\..\vc_packages\tbb.4.2.3.1\build\native\tbb.targets" Condition="Exists('..\..\..\..\vc_packages\tbb.4.2.3.1\build\native\tbb.targets')" />
+    <Import Project="..\..\..\..\vc_packages\intelopenmp.redist.win.2020.4.311\build\native\intelopenmp.redist.win.targets" Condition="Exists('..\..\..\..\vc_packages\intelopenmp.redist.win.2020.4.311\build\native\intelopenmp.redist.win.targets')" />
+    <Import Project="..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets" Condition="Exists('..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets')" />
+    <Import Project="..\..\..\..\vc_packages\boost_thread-vc141.1.72.0.0\build\boost_thread-vc141.targets" Condition="Exists('..\..\..\..\vc_packages\boost_thread-vc141.1.72.0.0\build\boost_thread-vc141.targets')" />
+    <Import Project="..\..\..\..\vc_packages\boost_date_time-vc141.1.72.0.0\build\boost_date_time-vc141.targets" Condition="Exists('..\..\..\..\vc_packages\boost_date_time-vc141.1.72.0.0\build\boost_date_time-vc141.targets')" />
+    <Import Project="..\..\..\..\vc_packages\boost_chrono-vc141.1.72.0.0\build\boost_chrono-vc141.targets" Condition="Exists('..\..\..\..\vc_packages\boost_chrono-vc141.1.72.0.0\build\boost_chrono-vc141.targets')" />
+    <Import Project="..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets" Condition="Exists('..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets')" />
+    <Import Project="..\..\..\..\vc_packages\glfw.3.3.0.1\build\native\glfw.targets" Condition="Exists('..\..\..\..\vc_packages\glfw.3.3.0.1\build\native\glfw.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\glm.0.9.9.500\build\native\glm.targets" Condition="Exists('..\..\..\..\..\vc_packages\glm.0.9.9.500\build\native\glm.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\glfw.3.3.0.1\build\native\glfw.targets" Condition="Exists('..\..\..\..\..\vc_packages\glfw.3.3.0.1\build\native\glfw.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets" Condition="Exists('..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\boost_chrono-vc141.1.72.0.0\build\boost_chrono-vc141.targets" Condition="Exists('..\..\..\..\..\vc_packages\boost_chrono-vc141.1.72.0.0\build\boost_chrono-vc141.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\boost_date_time-vc141.1.72.0.0\build\boost_date_time-vc141.targets" Condition="Exists('..\..\..\..\..\vc_packages\boost_date_time-vc141.1.72.0.0\build\boost_date_time-vc141.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\boost_thread-vc141.1.72.0.0\build\boost_thread-vc141.targets" Condition="Exists('..\..\..\..\..\vc_packages\boost_thread-vc141.1.72.0.0\build\boost_thread-vc141.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets" Condition="Exists('..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets" Condition="Exists('..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets" Condition="Exists('..\..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets" Condition="Exists('..\..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets')" />
+  </ImportGroup>
+</Project>
