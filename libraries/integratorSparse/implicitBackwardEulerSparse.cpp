@@ -38,6 +38,8 @@
 #include "constrainedDOFs.h"
 #include "implicitBackwardEulerSparse.h"
 
+#pragma optimize("", off)
+
 ImplicitBackwardEulerSparse::ImplicitBackwardEulerSparse(int r, double timestep, SparseMatrix * massMatrix_, ForceModel * forceModel_, int numConstrainedDOFs_, int * constrainedDOFs_, double dampingMassCoef, double dampingStiffnessCoef, int maxIterations, double epsilon, int numSolverThreads_): ImplicitNewmarkSparse(r, timestep, massMatrix_, forceModel_, numConstrainedDOFs_, constrainedDOFs_, dampingMassCoef, dampingStiffnessCoef, maxIterations, epsilon, 0.25, 0.5, numSolverThreads_)
 {
 }
@@ -65,7 +67,7 @@ int ImplicitBackwardEulerSparse::DoTimestep()
   double error0 = 0; // error after the first step
   double errorQuotient;
 
-  // store current amplitudesÕñ·ù and set initial guesses for qaccel, qvel¼ÓËÙ¶ÈºÍËÙ¶È qÊÇĞÎ±äÕñ·ù
+  // store current amplitudesæŒ¯å¹… and set initial guesses for qaccel, qvelåŠ é€Ÿåº¦å’Œé€Ÿåº¦ qæ˜¯å½¢å˜æŒ¯å¹…
   for(int i=0; i<r; i++)
   {
     qaccel_1[i] = qaccel[i] = 0; // acceleration is actually not used in this integrator
@@ -76,8 +78,8 @@ int ImplicitBackwardEulerSparse::DoTimestep()
   do
   {
     PerformanceCounter counterForceAssemblyTime;
-	//ÔÚÕâÀïÁÙÊ±ËãµÄinternalforceºÍtangentstiffness
-	//µ÷ÓÃµ½forcessModelAssember.cpp»ñÈ¡
+	//åœ¨è¿™é‡Œä¸´æ—¶ç®—çš„internalforceå’Œtangentstiffness
+	//è°ƒç”¨åˆ°forcessModelAssember.cppè·å–
     forceModel->GetForceAndMatrix(q, internalForces, tangentStiffnessMatrix);
     counterForceAssemblyTime.StopCounter();
     forceAssemblyTime = counterForceAssemblyTime.GetElapsedTime();
@@ -103,14 +105,14 @@ int ImplicitBackwardEulerSparse::DoTimestep()
     printf("\n");
 */
 
-    // scale stiffness matrix Ó¦¸ÃÊÇK¾ØÕó
+    // scale stiffness matrix åº”è¯¥æ˜¯KçŸ©é˜µ
     *tangentStiffnessMatrix *= internalForceScalingFactor;
 
     memset(qresidual, 0, sizeof(double) * r);
 
     if (useStaticSolver)
     {
-		//Õâ¸öqdeltaÊÇÊ²Ã´
+		//è¿™ä¸ªqdeltaæ˜¯ä»€ä¹ˆ
       // fint + K * qdelta = fext
 
       // add externalForces, internalForces
@@ -123,8 +125,8 @@ int ImplicitBackwardEulerSparse::DoTimestep()
     else
     {
       // compute D_Rayleigh = dampingStiffnessCoef * tangentStiffnessMatrix + dampingMassCoef * massMatrix
-		//¼ÆËãÈğÀû×èÄádampingMassCoefÈğÀû×èÄáaÖµ,dampingstiffnessCoefÈğÀû×èÄá¦ÂÖµ¡£
-		//tangentStiffnessMatrixÎªÇĞÏß¸Õ¶È¾ØÕóK
+		//è®¡ç®—ç‘åˆ©é˜»å°¼dampingMassCoefç‘åˆ©é˜»å°¼aå€¼,dampingstiffnessCoefç‘åˆ©é˜»å°¼Î²å€¼ã€‚
+		//tangentStiffnessMatrixä¸ºåˆ‡çº¿åˆšåº¦çŸ©é˜µK
       tangentStiffnessMatrix->ScalarMultiply(dampingStiffnessCoef, rayleighDampingMatrix);
       rayleighDampingMatrix->AddSubMatrix(dampingMassCoef, *massMatrix);
 
@@ -133,14 +135,14 @@ int ImplicitBackwardEulerSparse::DoTimestep()
 
       // build effective stiffness: 
       // Keff = M + h D + h^2 * K
-      // compute force residual, store it into aux variable qresidual ²Ğ²î
-	  //¡øt(fext-fint(ut)-(¡øt K+D)vt)
+      // compute force residual, store it into aux variable qresidual æ®‹å·®
+	  //â–²t(fext-fint(ut)-(â–²t K+D)vt)
       // qresidual = h * (-D qdot - fint + fext - h * K * qdot)) // this is semi-implicit Euler
       // qresidual = M (qvel_1 - qvel) + h * (-D qdot - fint + fext - K * (q_1 - q + h qdot) )) // for fully implicit Euler
 
       if (numIter != 0) // can skip on first iteration (zero contribution)
       {
-		 //K*¡øu
+		 //K*â–²u
         // add K * (q_1 - q) to qresidual (will multiply by -h later)
         for(int i=0; i<r; i++)
           buffer[i] = q_1[i] - q[i];
@@ -148,26 +150,26 @@ int ImplicitBackwardEulerSparse::DoTimestep()
       }
 
       //add mass matrix and damping matrix to tangentStiffnessMatrix
-	  //ÓÃÀ´¼ÆËãAÕâ¸öSystem Matrix¾ØÕó
+	  //ç”¨æ¥è®¡ç®—Aè¿™ä¸ªSystem MatrixçŸ©é˜µ
       *tangentStiffnessMatrix *= timestep; //K= t * K
       *tangentStiffnessMatrix += *rayleighDampingMatrix; //K=K+D_RayLeigh= t * K + D_Rayleigh
       tangentStiffnessMatrix->AddSubMatrix(1.0, *dampingMatrix, 1); // at this point, tangentStiffnessMatrix = t * K + (D_Rayleigh + D_exteral)
 
 	  // K=K+dampingMatrix=t*K+D_Rayleigh + D_dampMatrix=  t*k+C 
 
-	  //qresidual = K * v = (t*K + C)v  ´ËÊ±qresidualÎª(t*K+C)v
+	  //qresidual = K * v = (t*K + C)v  æ­¤æ—¶qresidualä¸º(t*K+C)v
       tangentStiffnessMatrix->MultiplyVectorAdd(qvel, qresidual);//(t*K+D)v  
 
 	  //K=t(t*K+C)
       *tangentStiffnessMatrix *= timestep; // h^2 * K + h * (D_Rayleigh + D_externnal)
-	  //K=t(t*K+C)+M=t^2K+tC+M  ´ËÊ±µÄtangentStiffnessMatrixÎªA¾ØÕó
+	  //K=t(t*K+C)+M=t^2K+tC+M  æ­¤æ—¶çš„tangentStiffnessMatrixä¸ºAçŸ©é˜µ
       tangentStiffnessMatrix->AddSubMatrix(1.0, *massMatrix); // h^2 * K + h * (D_Rayleigh + D_external) + M
 
 
 	  //tangentStiffnessMatrix->Save("D:\\GraduationProject\\LargeScaleForest\\models\\8.10\\test\\K3.txt");
       // add externalForces, internalForces
 	  // qresidual=qresidual + Fint-Fext= (t*K+C)v+Fint-Fext
-	  //qresidual=-t[(t*K+C)v+Fint-Fext]=t[-(t*K+C)v-Fint+Fext] ´ËÊ±ÓëÒşÊ½Å·À­residual²½ÖèÏàÍ¬
+	  //qresidual=-t[(t*K+C)v+Fint-Fext]=t[-(t*K+C)v-Fint+Fext] æ­¤æ—¶ä¸éšå¼æ¬§æ‹‰residualæ­¥éª¤ç›¸åŒ
       for(int i=0; i<r; i++)
       {
         qresidual[i] += internalForces[i] - externalForces[i];
@@ -350,19 +352,19 @@ void ImplicitBackwardEulerSparse::WriteKRFextVMartixToFile(const std::string & v
 		}*/
 
 
-		//Êä³öÖ¡ºÅ
+		//è¾“å‡ºå¸§å·
 		connectionFile << vFrameIndex << std::endl;
 		connectionFile << "u" << std::endl;
 		for (int i = 0; i < r; i++)
 			connectionFile << q[i] << " ";
 		connectionFile << std::endl;
-		//Êä³öÄÚÁ¦
+		//è¾“å‡ºå†…åŠ›
 		connectionFile << "internalForces" << std::endl;
 		for (int i = 0; i < r; i++)
 			connectionFile << internalForces[i] << " ";
 		connectionFile << std::endl;
 		connectionFile << "Kmatrix" << std::endl;
-		//Êä³ö¸Õ¶È¾ØÕó»òÕßÊä³öA¾ØÕó
+		//è¾“å‡ºåˆšåº¦çŸ©é˜µæˆ–è€…è¾“å‡ºAçŸ©é˜µ
 		int temRows = temptangentStiffnessMatrix->GetNumRows();
 
 		for (int i = 0; i < temptangentStiffnessMatrix->GetNumRows(); i++)
@@ -378,7 +380,7 @@ void ImplicitBackwardEulerSparse::WriteKRFextVMartixToFile(const std::string & v
 			connectionFile << "\n";
 		}
 			
-		//Êä³öËÙ¶È
+		//è¾“å‡ºé€Ÿåº¦
 		connectionFile << "velocity" << std::endl;
 		for (int i = 0; i < r; i++)
 			connectionFile << qvel[i] << " ";
@@ -401,10 +403,10 @@ void ImplicitBackwardEulerSparse::WriteSpecificKRFextVMattixToFile(const std::st
 
 	if (connectionFile.is_open())
 	{
-		//Êä³öÌåËØ¸öÊı
+		//è¾“å‡ºä½“ç´ ä¸ªæ•°
 		connectionFile << "ElementSize" << std::endl;
 		connectionFile << vElementIndex.size() << std::endl;
-		//Êä³öÖ¡ºÅ
+		//è¾“å‡ºå¸§å·
 
 		connectionFile << "FrameIndex" << std::endl;
 		connectionFile << vFrameIndex << std::endl;
@@ -420,12 +422,12 @@ void ImplicitBackwardEulerSparse::WriteSpecificKRFextVMattixToFile(const std::st
 		std::map<int, std::vector<double>> vertexVel;
 		for (int i = 0; i < vElementIndex.size(); i++)
 		{
-			//¸ù¾İÔªËØµÄË÷ÒıºÅ»ñÈ¡ÔªËØµÄ°Ë¸ö¶¥µãË÷Òı
+			//æ ¹æ®å…ƒç´ çš„ç´¢å¼•å·è·å–å…ƒç´ çš„å…«ä¸ªé¡¶ç‚¹ç´¢å¼•
 			const int *vIndices=forceModel->GetStencilForceModel()->GetStencilVertexIndices(0,vElementIndex[i]);
 			for (int v = 0; v < ElementNumber; v++)
 			{
 				//std::vector<int> RowLengthsInElement;
-				//´æ´¢µ±Ç°eleµÄÄ³¸ö¶¥µãÄÚÁ¦Öµ
+				//å­˜å‚¨å½“å‰eleçš„æŸä¸ªé¡¶ç‚¹å†…åŠ›å€¼
 				if (vertexPos.count(vIndices[v]) == 0)
 				{
 					std::vector<double> tempForcesxyz;
@@ -444,7 +446,7 @@ void ImplicitBackwardEulerSparse::WriteSpecificKRFextVMattixToFile(const std::st
 					vertexVel.insert(std::make_pair(vIndices[v], tempVelsxyz));
 				}
 
-				//´æ´¢µ±Ç°eleµÄÄ³¸ö¶¥µãÏà¹ØµÄÄ³Ò»Î¬¶ÈÏà¹Ø¶¥µãÎ¬¶ÈµÄÊı¾İ
+				//å­˜å‚¨å½“å‰eleçš„æŸä¸ªé¡¶ç‚¹ç›¸å…³çš„æŸä¸€ç»´åº¦ç›¸å…³é¡¶ç‚¹ç»´åº¦çš„æ•°æ®
 				for (int j = 0; j < 3; j++)
 				{
 					int RowLength= temptangentStiffnessMatrix->GetRowLength(vIndices[v] * 3+j);
@@ -488,3 +490,4 @@ void ImplicitBackwardEulerSparse::WriteSpecificKRFextVMattixToFile(const std::st
 
 }
 
+#pragma optimize("", on)

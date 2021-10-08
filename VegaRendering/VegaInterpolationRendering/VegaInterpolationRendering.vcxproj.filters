@@ -24,9 +24,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="VegaInterpolationRendering.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="LoadWindAndTreeConfig.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -76,6 +73,9 @@
       <Filter>Imgui\backends</Filter>
     </ClCompile>
     <ClCompile Include="RenderStaticSence.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="VegaInterpolationRendering.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

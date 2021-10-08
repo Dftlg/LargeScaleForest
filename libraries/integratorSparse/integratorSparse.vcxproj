@@ -111,28 +111,11 @@
     <Import Project="..\..\..\..\..\vc_packages\glm.0.9.9.500\build\native\glm.targets" Condition="Exists('..\..\..\..\..\vc_packages\glm.0.9.9.500\build\native\glm.targets')" />
     <Import Project="..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets" Condition="Exists('..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets')" />
     <Import Project="..\..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets" Condition="Exists('..\..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets')" />
-    <Import Project="..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets" Condition="Exists('..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets')" />
-    <Import Project="..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets" Condition="Exists('..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets')" />
     <Import Project="..\..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets" Condition="Exists('..\..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" />
     <Import Project="..\..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets" Condition="Exists('..\..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets" Condition="Exists('..\..\..\..\..\vc_packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets" Condition="Exists('..\..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets" Condition="Exists('..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets" Condition="Exists('..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets')" />
   </ImportGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\vc_packages\glew.1.9.0.1\build\native\glew.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\glew.1.9.0.1\build\native\glew.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\vc_packages\glm.0.9.9.800\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\glm.0.9.9.800\build\native\glm.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\..\vc_packages\glm.0.9.9.500\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\glm.0.9.9.500\build\native\glm.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets'))" />
-  </Target>
 </Project>

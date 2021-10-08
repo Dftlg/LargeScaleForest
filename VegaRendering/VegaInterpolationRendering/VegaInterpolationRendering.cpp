@@ -1,9 +1,10 @@
 #include <iostream>
+//#define GLFW_EXPOSE_NATIVE_GLX
 #include <GL/glew.h>
 #include<glm/glm.hpp>
 #include<glm/gtc/type_ptr.hpp>
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb_image_write.h>
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
+//#include <stb_image_write.h>
 #include<glm/gtc/matrix_transform.hpp>
 #include <GLFW/glfw3.h>
 #include <vector>
@@ -19,19 +20,20 @@
 #include "../Common/ExtraTool.h"
 #include "RenderStaticSence.h"
 
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#include <stdio.h>
+//#include "imgui.h"
+//#include "imgui_impl_glfw.h"
+//#include "imgui_impl_opengl3.h"
+//#include <stdio.h>
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
-#pragma comment(lib, "legacy_stdio_definitions")
-#endif
 
-static void glfw_error_callback(int error, const char* description)
-{
-	fprintf(stderr, "Glfw Error %d: %s\n", error, description);
-}
+//#if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
+//#pragma comment(lib, "legacy_stdio_definitions")
+//#endif
+//
+//static void glfw_error_callback(int error, const char* description)
+//{
+//	fprintf(stderr, "Glfw Error %d: %s\n", error, description);
+//}
 
 void write2File();
 void renderPlane(CShader& vShader, const unsigned int& VAOId, const unsigned int& vTextureId, const unsigned int& vTextureOpacityId);
@@ -194,7 +196,7 @@ int main()
 	//Camera.Positionfile("G:\\GraduationProject\\Camera\\position1.txt");
 
 #pragma region initialize and configure glfw
-	glfwSetErrorCallback(glfw_error_callback);
+	//glfwSetErrorCallback(glfw_error_callback);
 	glfwInit();
 	const char* glsl_version = "#version 430";
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -319,7 +321,7 @@ int main()
 	};
 
 	glm::vec3 lightPosition[] = {
-		glm::vec3(0.0f,5.0f,0.0f)
+		glm::vec3(0.0f,3.5f,0.0f)
 	};
 	glm::vec3 lightPointColors[] = {
 		glm::vec3(1.0f, 1.0f, 1.0f),
@@ -430,13 +432,13 @@ int main()
 	///////////////////////////////
 	glm::mat4 lightProjection, lightView;
 	glm::mat4 lightSpaceMatrix;
-	float near_plane = 1.0f, far_plane = 10.0f;
+	float near_plane = 1.0f, far_plane = 5.0f;
 
 
 	//Each time change*************
-	//lightProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, near_plane, far_plane);
+	lightProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, near_plane, far_plane);
 	//End Each time change*************
-	lightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, near_plane, far_plane);
+	//lightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, near_plane, far_plane);
 	//***************
 
 
@@ -739,25 +741,25 @@ int main()
 
 	////////////////////////
 	// Setup Dear ImGui context
-	IMGUI_CHECKVERSION();
+	/*IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGuiIO& io = ImGui::GetIO(); (void)io;*/
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
 	// Setup Dear ImGui style
-	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsDark();
 	//ImGui::StyleColorsClassic();
 
 	// Setup Platform/Renderer backends
-	ImGui_ImplGlfw_InitForOpenGL(Window, true);
+	/*ImGui_ImplGlfw_InitForOpenGL(Window, true);
 	ImGui_ImplOpenGL3_Init(glsl_version);
-
+*/
 
 	// Our state
 	bool show_demo_window = true;
 	bool show_another_window = false;
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	std::vector<float> tempFrame;
 	std::vector<Common::SConnectedFemFiles> vAllReallyLoadConnectedFem = (MultipleTypeTree.getSpecificFemFactory(0))->getAllReallyLoadConnectedFem();
@@ -773,61 +775,61 @@ int main()
 	{
 #pragma region Imgui 
 		// Start the Dear ImGui frame
-		ImGui_ImplOpenGL3_NewFrame();
+		/*ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
+		ImGui::NewFrame();*/
 
 		//// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 		/*if (show_demo_window)
 			ImGui::ShowDemoWindow(&show_demo_window);*/
 
 		//// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-		{
-			static float f = 0.0f;
-			static int counter = 0;
+		//{
+		//	static float f = 0.0f;
+		//	static int counter = 0;
 
-			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+		//	ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
-			ImGui::Text("FrameIndex:%d",frameIndex);               // Display some text (you can use a format strings too)
-			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-			ImGui::Checkbox("Another Window", &show_another_window);
+		//	ImGui::Text("FrameIndex:%d",frameIndex);               // Display some text (you can use a format strings too)
+		//	ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+		//	ImGui::Checkbox("Another Window", &show_another_window);
 
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+		//	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+		//	ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
-			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-				counter++;
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
+		//	if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+		//		counter++;
+		//	ImGui::SameLine();
+		//	ImGui::Text("counter = %d", counter);
 
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-			ImGui::End();
-		}
-		//std::cout << ImGui::GetIO().Framerate << std::endl;
-		tempFrame.push_back(ImGui::GetIO().Framerate);
-		// 3. Show another simple window.
-		if (show_another_window)
-		{
-			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-			ImGui::Text("Hello from another window!");
-			if (ImGui::Button("Close Me"))
-				show_another_window = false;
-			ImGui::End();
-		}
+		//	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		//	ImGui::End();
+		//}
+		////std::cout << ImGui::GetIO().Framerate << std::endl;
+		//tempFrame.push_back(ImGui::GetIO().Framerate);
+		//// 3. Show another simple window.
+		//if (show_another_window)
+		//{
+		//	ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+		//	ImGui::Text("Hello from another window!");
+		//	if (ImGui::Button("Close Me"))
+		//		show_another_window = false;
+		//	ImGui::End();
+		//}
 
-		//// Rendering
-		ImGui::Render();
-		int display_w, display_h;
-		glfwGetFramebufferSize(Window, &display_w, &display_h);
-		glViewport(0, 0, display_w, display_h);
-		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-		glClear(GL_COLOR_BUFFER_BIT);
-#pragma endregion
-		if (automoveCamera == true)
-		{
-			Camera.UpdataCameraPosition(FrameNumber);
-		}
-
+		////// Rendering
+		//ImGui::Render();
+//		int display_w, display_h;
+//		glfwGetFramebufferSize(Window, &display_w, &display_h);
+//		glViewport(0, 0, display_w, display_h);
+//		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+//		glClear(GL_COLOR_BUFFER_BIT);
+//#pragma endregion
+//		if (automoveCamera == true)
+//		{
+//			Camera.UpdataCameraPosition(FrameNumber);
+//		}
+//
 
 
 		//////////////////
@@ -922,11 +924,7 @@ int main()
 			renderTree(*(MultipleTypeTree.getSpecificScenceDepthShader(i)), *(MultipleTypeTree.getSpecificTreeModel(i)));
 			glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		}
-
-
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
 
 		//2.render Scene
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
@@ -966,7 +964,7 @@ int main()
 		frameIndex++;
 		glDepthFunc(GL_LESS); // set depth function back to default
 
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(Window);
 		glfwPollEvents();
@@ -987,9 +985,9 @@ int main()
 	//glDeleteBuffers(1, &SSBO);
 	MultipleTypeTree.getSpecificTreeModel(0)->Clear();
 	// Cleanup
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
+	//ImGui_ImplOpenGL3_Shutdown();
+	//ImGui_ImplGlfw_Shutdown();
+	//ImGui::DestroyContext();
 
 	glfwDestroyWindow(Window);
 
@@ -1114,7 +1112,7 @@ bool initWindow(GLFWwindow*& vWindow, int vScreenWidth, int vScreenHeight)
 //FUNCTION:
 int captureScreen2Img(const std::string& vFileName, int vQuality)
 {
-	size_t Start = vFileName.find_last_of('.');
+	/*size_t Start = vFileName.find_last_of('.');
 	std::string FilePostfix = vFileName.substr(Start + 1, vFileName.size() - Start);
 	int WindowWidth = 0, WindowHeight = 0;
 	WindowWidth = SCR_WIDTH;
@@ -1131,7 +1129,7 @@ int captureScreen2Img(const std::string& vFileName, int vQuality)
 	else if (FilePostfix == "bmp")
 		return stbi_write_bmp(vFileName.c_str(), WindowWidth, WindowHeight, 4, pScreenData.get());
 	else if (FilePostfix == "jpg")
-		return stbi_write_jpg(vFileName.c_str(), WindowWidth, WindowHeight, 4, pScreenData.get(), vQuality);
+		return stbi_write_jpg(vFileName.c_str(), WindowWidth, WindowHeight, 4, pScreenData.get(), vQuality);*/
 	return -1;
 }
 

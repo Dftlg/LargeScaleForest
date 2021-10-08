@@ -50,7 +50,7 @@ void CMesh::setGroupAndAssimpIndex(std::vector<int>& vGroupIndex, int vLastCapac
 }
 
 //****************************************************************************************************
-//必有instance导致每次重复了很多instance旋转矩阵
+//蹇呮湁instance瀵艰嚧姣忔閲嶅浜嗗緢澶歩nstance鏃嬭浆鐭╅樀
 void CMesh::draw(const CShader& vShader) const
 {
 	// bind appropriate textures

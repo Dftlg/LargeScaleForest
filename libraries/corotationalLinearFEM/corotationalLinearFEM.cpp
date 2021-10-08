@@ -43,6 +43,8 @@
 #include <cstdlib>
 #include <cassert>
 #include <iostream>
+
+#pragma optimize("", off)
 using namespace std;
 
 // Corotational linear FEM for tet meshes is implemented by following:
@@ -71,7 +73,7 @@ using namespace std;
 
 //X对s的求导文中的 w是det(F)
 //这里W应该是形变梯度？和det(F)关系，det(F)用来描述体积形变比率，是变形梯度的行列式。
-// W = \partial{X} / \partial{s} is the scaling matrix from natural to material space.//这个是做什么的？
+// W = \partial{X} / \partial{s} is the scaling matrix from natural to material space.//这个是做什么的？ //正常坐标系与自然坐标系之间的变化
 
 // For cubic meshes, W can be just a scaled identity, W = w I.
 
@@ -88,7 +90,7 @@ using namespace std;
 // So, Ke = \sum_q w_q B(s_q)^T E B(s_q) w .
 //
 // Shape functions are:
-//形状函数
+//形状函数 可以获得六面体内部的任意点位移，通过给定s1,s2,s3为x,y，z轴占比，N_1,N_2等为形状函数中的值作为一个矩阵。给定六面体8个节点的位移，可以得到六面体内部任意一点的位移。
 // n=1, i,j,k = 1,1,1, N_1 = (1-s1)(1-s2)(1-s3) / 8
 // n=2, i,j,k = 1,1,2, N_2 = (1-s1)(1-s2)(1+s3) / 8
 // n=3, i,j,k = 1,2,1, N_3 = (1-s1)(1+s2)(1-s3) / 8
@@ -202,7 +204,7 @@ CorotationalLinearFEM::CorotationalLinearFEM(VolumetricMesh * volumetricMesh_) :
         M[4 * dim + vtx] = undeformedPositions[3 * vtxIndex[vtx] + dim];
     M[12] = M[13] = M[14] = M[15] = 1.0;
 
-    // invert M and cache inverse (see [Mueller 2004])
+    // invert M and cache inverse (see [Mueller 2004]) 
     MInverse[el] = (double*) malloc (sizeof(double) * 16);
 	//求M的逆矩阵 M是每个体素的四个顶点的三维信息
     inverse4x4(M, MInverse[el]);
@@ -285,6 +287,7 @@ CorotationalLinearFEM::CorotationalLinearFEM(VolumetricMesh * volumetricMesh_) :
     int x[8] = {-1, 1, 1,-1,-1, 1, 1,-1};
     int y[8] = {-1,-1, 1, 1,-1,-1, 1, 1};
     int z[8] = {-1,-1,-1,-1, 1, 1, 1, 1};
+    //一种特殊的second-order Gaussian quadrature 方法通过求解8个s_q点的刚度值可累加处该体素的刚度值
     for(int q = 0; q < 8; q++)
     {
       // s_q = ((-1)^i, (-1)^j, (-1)^k)^T / \sqrt(3), q = 4(i-1) + 2(j-1) + k, for i,j,k = {1,2}
@@ -341,7 +344,7 @@ CorotationalLinearFEM::CorotationalLinearFEM(VolumetricMesh * volumetricMesh_) :
       for(int q = 0; q < 8; q++)
       {
         double weight_q = 1.0;
-        // Ke = \sum_q weight_q B(s_q)^T E B(s_q) w
+        // Ke = \sum_q weight_q B(s_q)^T E B(s_q) w //也就是ke需要求解8个位置的s_q的刚度矩阵累加和
 
         // EB = E * B
         double EB[6*24];
@@ -629,7 +632,7 @@ void CorotationalLinearFEM::ComputeElementEnergyAndForceAndStiffnessMatrix(int e
     for(int j=0; j<4; j++)
       P[12 + j] = 1.0;
 
-    // F = P * Inverse(M)
+    // F = P * Inverse(M) F为论文中2004年论文中A矩阵
 	//M未形变时的3，4，1，6号顶点数据
     double F[9]; // upper-left 3x3 block
     for(int i=0; i<3; i++) 
@@ -865,9 +868,9 @@ void CorotationalLinearFEM::ComputeElementEnergyAndForceAndStiffnessMatrix(int e
 void CorotationalLinearFEM::AddEnergyAndForceAndStiffnessMatrixOfSubmesh(const double * u, double * energy, double * f, SparseMatrix * stiffnessMatrix, int warp, int elementLo, int elementHi)
 {
   const int maxNumElementVertices = 8;
-  const int maxNumElementDOFs = maxNumElementVertices * 3;
+  const int maxNumElementDOFs = maxNumElementVertices * 3; //一个体素24个值，8个节点，3维
 
-  int numElementVertices = volumetricMesh->getNumElementVertices();
+  int numElementVertices = volumetricMesh->getNumElementVertices(); //总体素
 
   int numElementDOFs = numElementVertices * 3;
   int elementStiffnessMatrixSpace = numElementDOFs * numElementDOFs;
@@ -1253,3 +1256,4 @@ void CorotationalLinearFEM::inverse4x4(double * A, double * AInv)
     AInv[i] *= invDet;
 }
 
+#pragma optimize("", on)

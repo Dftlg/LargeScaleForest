@@ -92,12 +92,12 @@ void main()
 			/*************version1******************/
 			vec4 windDirection = vec4(1.0,0.0,0.0,1.0);
 			
-			//////////////////////////ÈçºÎ¼ÆËãÃ¿Ò»Æ¬Ò¶×ÓµÄÁ¦µÄ´óĞ¡£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿
+			//////////////////////////å¦‚ä½•è®¡ç®—æ¯ä¸€ç‰‡å¶å­çš„åŠ›çš„å¤§å°ï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿ
 			float force = sin(0.1* time*v2f_WorldPos.x)+1;
-			float phase = 0.05;//ÆµÂÊ
-			float flutter = 1.0;//°Ú¶¯·ù¶È
-			float primaryOffset = 0.08;//ËùÓĞ¶¥µã¹Ì¶¨Æ«ÒÆ
-			//¶¥µã²¿·ÖÊ¹ÓÃÊÀ½ç×ø±êÎ»ÖÃ×÷ÎªËæ»úÒò×Ó
+			float phase = 0.05;//é¢‘ç‡
+			float flutter = 1.0;//æ‘†åŠ¨å¹…åº¦
+			float primaryOffset = 0.08;//æ‰€æœ‰é¡¶ç‚¹å›ºå®šåç§»
+			//é¡¶ç‚¹éƒ¨åˆ†ä½¿ç”¨ä¸–ç•Œåæ ‡ä½ç½®ä½œä¸ºéšæœºå› å­
 			float leafPhase = dot(v2f_WorldPos,vec3(1.0));
 			//float leafPhase = dot(v2f_WorldPos,windDirection.xyz); 
 			vec2 wavesIn = vec2(time) + vec2(leafPhase,phase);
@@ -108,12 +108,12 @@ void main()
 			//waves = sin(0.3*waves);
 			vec3 bend = vec3(flutter) * v2f_Normal.xyz;
 			//bend.y = 0.05*0.3;
-			//ÏŞÖÆ¸ù²¿¸½½ü¶¥µãµÄÔË¶¯
+			//é™åˆ¶æ ¹éƒ¨é™„è¿‘é¡¶ç‚¹çš„è¿åŠ¨
 			//gl_Position = tempPos + vec4(0.0f,  pow((1 - (pow(aTexCoords.x-0.5,2) + pow(aTexCoords.y,2))),2) * sin(frameIndex)* 0.05,0.0f,0);
-			//×îÖÕ»ìºÏ£º¶¶¶¯£¨Æ½»¬¹ıµÄÈı½Ç²¨£©+´ÎÆ«ÒÆ£¨ÕûÌåÀ´»Ø°Ú¶¯£©
-			/////(vec3(²¨*ÍäÇú£©+ vec3(·çÏò*²¨))*float*float
+			//æœ€ç»ˆæ··åˆï¼šæŠ–åŠ¨ï¼ˆå¹³æ»‘è¿‡çš„ä¸‰è§’æ³¢ï¼‰+æ¬¡åç§»ï¼ˆæ•´ä½“æ¥å›æ‘†åŠ¨ï¼‰
+			/////(vec3(æ³¢*å¼¯æ›²ï¼‰+ vec3(é£å‘*æ³¢))*float*float
 			//tempPos.xyz +=  ((waveSum.xyx * bend) + bendScale * (windDirection.xyz * waveSum.y))*windDirection.w*animfade;
-			//Íù·ç·½ÏòÖ÷Æ«ÒÆ
+			//å¾€é£æ–¹å‘ä¸»åç§»
 			//float primaryOffset * vec3 windDirection * float animfade * float force
 			//tempPos.xyz += primaryOffsetScale * primaryOffset * windDirection.xyz * animfade * force;
 

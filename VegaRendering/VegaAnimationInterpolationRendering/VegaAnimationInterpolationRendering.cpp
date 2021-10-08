@@ -38,7 +38,7 @@ bool FirstMouse = true;
 float DeltaTime = 0.0f;
 float LastFrame = 0.0f;
 
-//wind´¦ÀíÓÅ»¯
+//windå¤„ç†ä¼˜åŒ–
 int windactive = 0;
 float grasstime = 0.0f;
 
@@ -57,9 +57,9 @@ int main()
 
 	for (int i = 0; i < numbercounter; i++)
 	{
-		//¸ø¶¨½Ç¶ÈÏÂÏà¹ØÁªµÄÒ»Ğ©Î»ÒÆÖ¡ÎÄ¼ş¼¯ºÏ£¬µ«ÓÉÓÚÄ¿Ç°Ö»ÓĞÒ»¸ö£¬¾ÍÃ¿¸ö½Ç¶ÈÌØ¶¨¶ÔÓ¦Ò»¸ö
+		//ç»™å®šè§’åº¦ä¸‹ç›¸å…³è”çš„ä¸€äº›ä½ç§»å¸§æ–‡ä»¶é›†åˆï¼Œä½†ç”±äºç›®å‰åªæœ‰ä¸€ä¸ªï¼Œå°±æ¯ä¸ªè§’åº¦ç‰¹å®šå¯¹åº”ä¸€ä¸ª
 		std::vector<Common::SFileFrames> vtemp = vFem.searchFileFramesOnAnimation(angle[i].first, angle[i].second, b);
-		vFem.readFramesDeformationData(vtemp, i);//i±¾À´Ó¦¸ÃÊÇvtemp.size()
+		vFem.readFramesDeformationData(vtemp, i);//iæœ¬æ¥åº”è¯¥æ˜¯vtemp.size()
 	}
 
 	#pragma region glfw: initialize and configure
@@ -252,9 +252,9 @@ int main()
 	#pragma endregion
 
 	#pragma region set deltaU ssbo
-	//Ö¡Êı
+	//å¸§æ•°
 	int frameNums = vFem.getFileFrames(0)->Frames.size();
-	//objÄ£ĞÍµÄ¶¥µãÊı
+	//objæ¨¡å‹çš„é¡¶ç‚¹æ•°
 	int vertexNums = vFem.getFileFrames(0)->Frames[0].BaseFileDeformations.size();
 
 	std::cout << frameNums << " " << vertexNums << std::endl;
@@ -280,18 +280,18 @@ int main()
 	glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &SSBOBinding);
 	glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &BlockDataSize);
 
-	//³õÊ¼»¯SSBO
+	//åˆå§‹åŒ–SSBO
 	unsigned int SSBO;
 	glGenBuffers(1, &SSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
 	std::cout << sizeof(glm::vec4)*frameNums*vertexNums*numbercounter << std::endl;
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4)*frameNums*vertexNums*numbercounter, deformU, GL_STATIC_DRAW);
 
-	//shaderºÍµãÁ¬½Ó
+	//shaderå’Œç‚¹è¿æ¥
 	GLuint ssbo_binding_point_index = 1;
-	//µãºÍSSBOµÄÁ¬½Ó
+	//ç‚¹å’ŒSSBOçš„è¿æ¥
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ssbo_binding_point_index, SSBO);
-	//µãºÍshaderµÄÁ¬½Ó
+	//ç‚¹å’Œshaderçš„è¿æ¥
 	glShaderStorageBlockBinding(ourSceneShadowShader.getID(), tree_shader_index, ssbo_binding_point_index);
 	glShaderStorageBlockBinding(ourSceneDepthShader.getID(), tree_depth_shader_index, ssbo_binding_point_index);
 	#pragma endregion

@@ -82,20 +82,20 @@ void main()
 			//gl_Position = tempPos + vec4(0.0f,  pow((1 - (pow(aTexCoords.x-0.5,2) + pow(aTexCoords.y,2))),2) * sin(frameIndex)* 0.05,0.0f,0);
 			//gl_Position = tempPos + vec4(0.0f,  pow(texture(waveMap, aTexCoords).x,4) * sin(frameIndex)* 0.06,0.0f,0);
 //			vec4 windDirection = vec4(0.0,1.0,0.0,1.0);
-//			float phase = 0.05;//ÆµÂÊ
-//			float flutter = 0.1;//°Ú¶¯·ù¶È
-//			float primaryOffset = 0.008;//ËùÓĞ¶¥µã¹Ì¶¨Æ«ÒÆ
+//			float phase = 0.05;//é¢‘ç‡
+//			float flutter = 0.1;//æ‘†åŠ¨å¹…åº¦
+//			float primaryOffset = 0.008;//æ‰€æœ‰é¡¶ç‚¹å›ºå®šåç§»
 //			float fDetailAmp = 0.1f;
-//			//¶¥µã²¿·ÖÊ¹ÓÃÊÀ½ç×ø±êÎ»ÖÃ×÷ÎªËæ»úÒò×Ó
+//			//é¡¶ç‚¹éƒ¨åˆ†ä½¿ç”¨ä¸–ç•Œåæ ‡ä½ç½®ä½œä¸ºéšæœºå› å­
 //			float leafPhase = dot(wordPos,vec3(1.0));
 //			float wavesIn = time + leafPhase + phase;
 //			float waves = fract(wavesIn * 1.975)*2.0 - 1.0;
 //			waves = 0.05 * smoothTriangleWave(waves);
 //			vec3 bend = flutter * fDetailAmp * aNormal.xyz;
 //			//bend.y = 0.05*0.3;
-//			//ÏŞÖÆ¸ù²¿¸½½ü¶¥µãµÄÔË¶¯
+//			//é™åˆ¶æ ¹éƒ¨é™„è¿‘é¡¶ç‚¹çš„è¿åŠ¨
 //			float animfade = pow((1 - (pow(aTexCoords.x-0.5,2) + pow(aTexCoords.y,2))),2);
-//			//×îÖÕ»ìºÏ£º¶¶¶¯£¨Æ½»¬¹ıµÄÈı½Ç²¨£©+´ÎÆ«ÒÆ£¨ÕûÌåÀ´»Ø°Ú¶¯£©
+//			//æœ€ç»ˆæ··åˆï¼šæŠ–åŠ¨ï¼ˆå¹³æ»‘è¿‡çš„ä¸‰è§’æ³¢ï¼‰+æ¬¡åç§»ï¼ˆæ•´ä½“æ¥å›æ‘†åŠ¨ï¼‰
 //			tempPos.xyz += ((waves * bend) + (windDirection.xyz * waves))*windDirection.w*animfade;
 //			tempPos.xyz += primaryOffset * windDirection.xyz *animfade;
 

@@ -139,6 +139,8 @@
     <Import Project="..\..\..\..\..\vc_packages\glm.0.9.9.500\build\native\glm.targets" Condition="Exists('..\..\..\..\..\vc_packages\glm.0.9.9.500\build\native\glm.targets')" />
     <Import Project="..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets" Condition="Exists('..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets')" />
     <Import Project="..\..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets" Condition="Exists('..\..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets" Condition="Exists('..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets" Condition="Exists('..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -150,5 +152,7 @@
     <Error Condition="!Exists('..\..\..\..\..\vc_packages\glm.0.9.9.500\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\glm.0.9.9.500\build\native\glm.targets'))" />
     <Error Condition="!Exists('..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets'))" />
     <Error Condition="!Exists('..\..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\boost_serialization-vc141.1.72.0.0\build\boost_serialization-vc141.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets'))" />
   </Target>
 </Project>

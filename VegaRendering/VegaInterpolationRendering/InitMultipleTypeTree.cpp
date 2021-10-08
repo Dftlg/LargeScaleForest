@@ -344,6 +344,8 @@ void CInitMultipleTypeTree::RenderingModel(int vTreeTypeIndex, unsigned int vdep
 	m_MultipleTreeModel[vTreeTypeIndex]->UpdataSSBOBindingPointIndex();
 	m_MultipleSceneShadowShader[vTreeTypeIndex]->use();
 	glActiveTexture(GL_TEXTURE8);
+    auto temp = glGetUniformLocation(m_MultipleSceneShadowShader[vTreeTypeIndex]->getID(), "depthMap");
+    glUniform1i(temp, 8);
 	glBindTexture(GL_TEXTURE_2D, vdepthMap);
 	m_MultipleSceneShadowShader[vTreeTypeIndex]->setInt("planeOrTree", vPlaneOrTree);
 	m_MultipleSceneShadowShader[vTreeTypeIndex]->setFloat("time", vTime);

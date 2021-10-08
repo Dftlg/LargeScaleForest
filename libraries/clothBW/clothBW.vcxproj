@@ -97,6 +97,8 @@
     <Import Project="..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets" Condition="Exists('..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" />
     <Import Project="..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets" Condition="Exists('..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets')" />
     <Import Project="..\..\..\..\vc_packages\glew.1.9.0.1\build\native\glew.targets" Condition="Exists('..\..\..\..\vc_packages\glew.1.9.0.1\build\native\glew.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets" Condition="Exists('..\..\..\..\..\vc_packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets" Condition="Exists('..\..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" />
     <Import Project="..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets" Condition="Exists('..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets')" />
     <Import Project="..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets" Condition="Exists('..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets')" />
   </ImportGroup>
@@ -108,6 +110,8 @@
     <Error Condition="!Exists('..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets'))" />
     <Error Condition="!Exists('..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets'))" />
     <Error Condition="!Exists('..\..\..\..\vc_packages\glew.1.9.0.1\build\native\glew.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\vc_packages\glew.1.9.0.1\build\native\glew.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\vc_packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets'))" />
     <Error Condition="!Exists('..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\glew.redist.2.1.0\build\native\GLEW.redist.targets'))" />
     <Error Condition="!Exists('..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets'))" />
   </Target>

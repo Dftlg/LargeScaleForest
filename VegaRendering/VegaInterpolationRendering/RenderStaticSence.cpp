@@ -31,7 +31,7 @@ void CRenderStaticSence::loadSenceShader(const char* vVertexPath, const char* vF
 	m_ModelShaders.push_back(ourModelShader);
 }
 
-//ÆäËûÀàĞÍÖ²±»
+//å…¶ä»–ç±»å‹æ¤è¢«
 void CRenderStaticSence::setModelInstanceAndTransform(int vModelIndex, std::vector<std::pair<double, double>> vTransforms, std::vector<float> vRotations,int vInstanceNumber)
 {
 	m_Models[vModelIndex]->setMeshRotation(vRotations, vTransforms,1,vInstanceNumber);
@@ -49,7 +49,7 @@ void CRenderStaticSence::initModelShaderPara(int vModelIndex,float vTransForm)
 {
 	glm::mat4 model = glm::mat4(1.0f);
 
-	//Ô­°æÖ²±»ÒÆ¶¯
+	//åŸç‰ˆæ¤è¢«ç§»åŠ¨
 	//model = glm::translate(model, glm::vec3(0.0f, -0.5f, -1.2f));
 
 
@@ -116,7 +116,9 @@ void CRenderStaticSence::RenderingModel(int vModelIndex, unsigned int depthMap,b
 	m_ModelShaders[vModelIndex]->use();
 	m_ModelShaders[vModelIndex]->setInt("shadows", vshadows);
 	glActiveTexture(GL_TEXTURE8);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, depthMap);
+    auto temp = glGetUniformLocation(m_ModelShaders[vModelIndex]->getID(), "depthMap");
+    glUniform1i(temp, 8);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
 	Draw(*m_ModelShaders[vModelIndex], *m_Models[vModelIndex]);
 }
 
@@ -157,7 +159,7 @@ void CRenderStaticSence::setTerrainHeightYToZero()
 
 void CRenderStaticSence::getTerrain()
 {
-//¶ÔÓÚÃ»ÓĞµÄÖµÈ¡ÖÜÎ§ÖµÆ½¾ùÒ»ÏÂ	
+//å¯¹äºæ²¡æœ‰çš„å€¼å–å‘¨å›´å€¼å¹³å‡ä¸€ä¸‹	
 	m_TerrainXDensityScale = m_TerrainX / m_TerrainHeightXDensity;
 	m_TerrainZDensityScale = m_TerrainZ / m_TerrainHeightZDensity;
 	m_TerrainHeightY.resize((m_TerrainHeightXDensity*2)*(m_TerrainHeightZDensity*2),-10);
@@ -171,7 +173,7 @@ void CRenderStaticSence::getTerrain()
 		std::vector<Common::SVertex> tempVectors = tempMesh[i].getVertices();
 		for (int k = 0; k < tempVectors.size(); k++)
 		{
-			//»ñÈ¡×ª»»ºóµÄ´óĞ¡
+			//è·å–è½¬æ¢åçš„å¤§å°
 
 			glm::vec4 tempPosition = m_TerrainMat * glm::vec4(tempVectors[k].Position, 1.0);
 			if (tempPosition.x > (-m_TerrainX) && tempPosition.x < m_TerrainX&&tempPosition.z>(-m_TerrainZ)&& tempPosition.z< m_TerrainZ)
@@ -184,7 +186,7 @@ void CRenderStaticSence::getTerrain()
 		}
 		//m_TerrainSize
 	}
-	//½«Îª99µÄÖµÓÃÖÜÎ§ÁÚ½üµÄÖµÈ¡Æ½¾ù
+	//å°†ä¸º99çš„å€¼ç”¨å‘¨å›´é‚»è¿‘çš„å€¼å–å¹³å‡
 	int doubleterrainHeightXDensity = m_TerrainHeightXDensity * 2;
 	int doubleterrainHeightZDensity = m_TerrainHeightZDensity * 2;
 	for (int i = 1; i < doubleterrainHeightZDensity-1; i++)
@@ -333,26 +335,26 @@ void CRenderStaticSence::__getTerrainXZsize()
 
 void CRenderStaticSence::setGrassOnTerrain(int vGrassType)
 {
-	//»ñÈ¡¸ÃÖ²±»¶ÔÓ¦µÄÏòÉÏÁ½ÖÖĞı×ª¾ØÕó£¬InstanceºÍmodel
+	//è·å–è¯¥æ¤è¢«å¯¹åº”çš„å‘ä¸Šä¸¤ç§æ—‹è½¬çŸ©é˜µï¼ŒInstanceå’Œmodel
 
 	std::vector<double> ModelLocatedHeightofTerrain(EachTypeObjectNumber[vGrassType - 1]);
 
 	glm::mat4* TypeGrassDumInstanceMat= m_InstanceObjectDumMat[vGrassType -1];
 
 	int tempXIndex, tempZIndex;
-	//¸ÃÀàĞÍÃ¿¿Ã²İµÄĞı×ª¾ØÕó
+	//è¯¥ç±»å‹æ¯æ£µè‰çš„æ—‹è½¬çŸ©é˜µ
 	for (int i = 0; i < EachTypeObjectNumber[vGrassType - 1]; i++)
 	{
 		glm::mat4 tempMat = m_ModelScale[vGrassType] * TypeGrassDumInstanceMat[i];
 
 		std::vector<CMesh> tempMesh = m_Models[vGrassType]->getMeshes();
 
-		//»ñÈ¡Ä£ĞÍÖĞÒ»µã
+		//è·å–æ¨¡å‹ä¸­ä¸€ç‚¹
 		std::vector<Common::SVertex> tempVectors = tempMesh[0].getVertices();
-		//¸ÃÄ£ĞÍµã×ª»»µ½ÊÀ½ç×ø±êÏµ
+		//è¯¥æ¨¡å‹ç‚¹è½¬æ¢åˆ°ä¸–ç•Œåæ ‡ç³»
 		glm::vec4 tempPosition = tempMat * glm::vec4(tempVectors[0].Position, 1.0);
 
-		//»ñÈ¡ÔÚ¸ÃµØÃæµÄÎ»ÖÃµÄ¸ß¶È
+		//è·å–åœ¨è¯¥åœ°é¢çš„ä½ç½®çš„é«˜åº¦
 		tempXIndex = (tempPosition.x - (-m_TerrainX)) / m_TerrainXDensityScale;
 		tempZIndex = (tempPosition.z - (-m_TerrainZ)) / m_TerrainZDensityScale;
 		std::cout << tempXIndex << std::endl;
@@ -361,7 +363,7 @@ void CRenderStaticSence::setGrassOnTerrain(int vGrassType)
 		ModelLocatedHeightofTerrain[i] = ModelLocatedHeightofTerrain[i] / m_ModelScaleDouble[vGrassType];
 		//ModelLocatedHeightofTerrain[i] = 0;
 	}	
-	//»ñÈ¡ÔÚÊÀ½ç×ø±êÏµÏÂµÄYÏà¶ÔÖµ£¬µ«ÊÇÒòÎª×îºóÒª³ËÒÔmodel¾ØÕóµ¼ÖÂ³ß¶ÈËõĞ¡£¬Òò´ËĞèÒªÔÙ³ËÒ»´ÎscaleÏÈÊÇÊ¹Æä·Å´ó¡£
+	//è·å–åœ¨ä¸–ç•Œåæ ‡ç³»ä¸‹çš„Yç›¸å¯¹å€¼ï¼Œä½†æ˜¯å› ä¸ºæœ€åè¦ä¹˜ä»¥modelçŸ©é˜µå¯¼è‡´å°ºåº¦ç¼©å°ï¼Œå› æ­¤éœ€è¦å†ä¹˜ä¸€æ¬¡scaleå…ˆæ˜¯ä½¿å…¶æ”¾å¤§ã€‚
 
 	EachTypeGrassLocatedHeightofTerrain.push_back(ModelLocatedHeightofTerrain);
 }

@@ -36,6 +36,8 @@
 #include <math.h>
 #include "forceModel.h"
 
+#pragma optimize("", off)
+
 ForceModel::~ForceModel()
 {
 }
@@ -45,3 +47,5 @@ void ForceModel::GetForceAndMatrix(const double * u, double * internalForces, Sp
   GetInternalForce(u, internalForces);
   GetTangentStiffnessMatrix(u, tangentStiffnessMatrix);
 }
+
+#pragma optimize("", on)

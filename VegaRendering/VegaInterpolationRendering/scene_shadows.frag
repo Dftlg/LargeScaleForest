@@ -136,7 +136,7 @@ void main()
         float distance = length(lightPositions - v2f_WorldPos);
         float attenuation = 1.0 / (distance * distance);
         //vec3 radiance = lightColors[i] * attenuation;
-		/////////enenene ÓÐÎÊÌâ
+		/////////enenene æœ‰é—®é¢˜
 		//vec3 radiance = lightColors*1.5;
 		vec3 radiance = lightColors;
 		//vec3 radiance = lightColors*3;
@@ -155,7 +155,6 @@ void main()
 
 	
     shadow = shadows ? ShadowCalculation(v2f_FragposLightPos) : 0.0;
-
     vec3 ambient = vec3(0.03) * albedo * ao;
 	vec3 color;
 //	if(v2f_Color<0.0)
@@ -187,7 +186,7 @@ void main()
 		 color = pow(color, vec3(1.0/2.2)); 
 	//}
 //	if(shadow>0)
-// 	 color=vec3(1.0,1.0,1.0);
+// 	 color=vec3(1.0,0.0,0.0);
 	//color=vec3(shadow,0.0,0.0);
     FragColor = vec4(color, 1.0);
 

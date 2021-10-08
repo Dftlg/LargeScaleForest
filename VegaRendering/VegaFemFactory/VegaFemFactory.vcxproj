@@ -163,5 +163,14 @@
     <Import Project="..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets" Condition="Exists('..\..\..\..\..\vc_packages\glew.2.1.0\build\native\GLEW.targets')" />
     <Import Project="..\..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets" Condition="Exists('..\..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" />
     <Import Project="..\..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets" Condition="Exists('..\..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets" Condition="Exists('..\..\..\..\..\vc_packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets" Condition="Exists('..\..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\..\..\vc_packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets'))" />
+  </Target>
 </Project>
