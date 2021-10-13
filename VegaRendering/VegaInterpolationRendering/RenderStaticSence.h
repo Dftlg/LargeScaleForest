@@ -21,33 +21,38 @@ class CRenderStaticSence
 		void loadStaticModel(std::string vmodelname,std::string vmodelFileName);
 		void loadDepthShader(const char* vVertexPath, const char* vFragmentPath, const char* vGeometryPath = nullptr);
 		void loadSenceShader(const char* vVertexPath, const char* vFragmentPath, const char* vGeometryPath = nullptr);
-		void setModelInstanceAndTransform(int vModelIndex, std::vector<std::pair<double, double>> vTransforms, std::vector<float> vRotations, int vInstanceNumber);
-	
-		void initModelShaderPara(int vModelIndex,float vTransForm);
-		void RenderingDepth(int vModelIndex);
-		void RenderingModel(int vModelIndex, unsigned int depthMap, bool vshadows);
+		void setModelInstanceAndTransform(std::string vModelName, std::vector<std::pair<double, double>> vTransforms, std::vector<float> vRotations, int vInstanceNumber);
+
+        void setObjectTransform(std::string vModelName, glm::vec3 vPosition, float vRotation);
+		void initModelShaderPara(std::string vModelName);
+		void RenderingDepth(std::string vModelName);
+		void RenderingModel(std::string vModelName, unsigned int depthMap, bool vshadows);
 		void Render(int vModelIndex);
 		void Draw(CShader & vShader, CSence& vModel);
 		void setSencePara(CCamera vCamera, int vscrwith, int vscrheight);
 
-		void setTerrain(int vModelIndex, std::vector<double> vYTransFormations);
+		void setTerrain(std::string vModelName, std::vector<double> vYTransFormations);
 
-		void setGrassOnTerrain(int vGrassType);
+		void setGrassOnTerrain(std::string vGrassName);
 
-		void getTerrain();
+		void getTerrain(std::string vModelName);
 
 		void setTerrainHeightYToZero();
 		
-		void setTerrainHightMesh(double vXsize, double vZSize, double vXDensity, double vYDensity);
+		void setTerrainHightMesh(std::string vModelName,double vXsize, double vZSize, double vXDensity, double vYDensity);
 
-		void updataGrassOnTerrain(int vGrassType);
+		void updataGrassOnTerrain(std::string vGrassName,int vGrassIndexInallGrasses);
 
 		void getTerrainPara(std::vector<double> & vTerrainHeigth, double& vTerrainX, double& vTerrainZ, double& XDensityScale, double& ZDensityScale, int& vTerrainHeightZDensity);
 
 		double getAverage(int vZIndex, int vXIndex);
+
+        void setModelScale(float vscale) { m_Modelscales.push_back(vscale); };
+
+        int getObjectIndexByNameMap(std::string vObjectName) { return m_ModelNameAndIndexMap[vObjectName]; };
 	private:
 
-		void __getTerrainXZsize();
+		void __getTerrainXZsize(std::string vModelName);
 		std::vector<std::string> m_ModelNames;
 		std::vector<CSence*> m_Models;
 		std::vector<CShader*> m_DepthShaders;
@@ -72,30 +77,34 @@ class CRenderStaticSence
 
 		std::vector<glm::mat4> m_ModelScale;
 		std::vector<double> m_ModelScaleDouble;
-		//´æÔÚ¸ß¶È·¶Î§
+		//å­˜åœ¨é«˜åº¦èŒƒå›´
 		double m_TerrainX;
 		double m_TerrainZ;
 
-		//x,z //µ±Ç°µØÍ¼´óĞ¡-60µ½+60 x,zÖá¶¼ÊÇ
+		//x,z //å½“å‰åœ°å›¾å¤§å°-60åˆ°+60 x,zè½´éƒ½æ˜¯
 		std::pair<double, double> m_TerrainMaxSize;
 		std::pair<double, double> m_TerrainMinSize;
 		glm::mat4 m_InstanceMat;
 		glm::mat4 m_TerrainMat;
-		//XÖá°ëÖáµÄÍø¸ñµÄµãÊı
+		//Xè½´åŠè½´çš„ç½‘æ ¼çš„ç‚¹æ•°
 		int m_TerrainHeightXDensity;
-		//ZÖá°ëÖáÍø¸ñµÄµãÊı
+		//Zè½´åŠè½´ç½‘æ ¼çš„ç‚¹æ•°
 		int m_TerrainHeightZDensity;
 		
 
 		double m_TerrainXDensityScale;
 		double m_TerrainZDensityScale;
 
-		//½¨Á¢Ò»¸öº¬ÓĞX*ZÍø¸ñµãÊıµÄ´óĞÍÍø¸ñ£¬Ã¿¸ö½áµãµÄ¾àÀëÊÇm_TerrainXDensityScale,ÀïÃæÃ¿¸öµã±íÊ¾¾àÀë·¶Î§Îªm_TerrainXDensityScale
+		//å»ºç«‹ä¸€ä¸ªå«æœ‰X*Zç½‘æ ¼ç‚¹æ•°çš„å¤§å‹ç½‘æ ¼ï¼Œæ¯ä¸ªç»“ç‚¹çš„è·ç¦»æ˜¯m_TerrainXDensityScale,é‡Œé¢æ¯ä¸ªç‚¹è¡¨ç¤ºè·ç¦»èŒƒå›´ä¸ºm_TerrainXDensityScale
 		
 		std::vector<double> m_TerrainHeightY;
 
 		std::vector<glm::mat4 *> m_InstanceObjectDumMat;
 
-		//Ã¿¸öÀàĞÍ£¬Ã¿¸öÀàĞÍµÄInstance
+		//æ¯ä¸ªç±»å‹ï¼Œæ¯ä¸ªç±»å‹çš„Instance
 		std::vector<std::vector<double>> EachTypeGrassLocatedHeightofTerrain;
+
+        std::map<std::string, int> m_ModelNameAndIndexMap;
+
+        std::vector<float> m_Modelscales;
 };

@@ -116,6 +116,9 @@ std::string PathString = "video1/";
 
 std::vector<double>timeSum;
 
+bool renderingGrass=false;
+bool renderingLightSource = true;
+
 //前一个std::vector表示匹配树的个数，后一个std::vector表示每一帧中需要的数据
 //vMultipleExtraForces 表示每一帧风的方向，每次用5帧来进行搜索
 //vWindDirection 表示每帧一个风的方向
@@ -446,7 +449,6 @@ int main()
 	lightSpaceMatrix = lightProjection * lightView;
 
 #pragma region bind static
-	int typeStaticNumber = 0;
 	std::vector<float> modelscale;
 
 	CRenderStaticSence RenderStaticSence(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, lightSpaceMatrix, lightPosition[0], lightPointColors[0]);
@@ -456,8 +458,8 @@ int main()
 	RenderStaticSence.loadStaticModel("terrain", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/terrain/Mountains2.obj");
 	RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
 	RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
-	modelscale.push_back(0.06f);
-	typeStaticNumber++;
+    RenderStaticSence.setModelScale(0.06f);
+	//modelscale.push_back(0.06f);
 	//End Each time change*************
 
 	//SecondTypePlane
@@ -468,19 +470,6 @@ int main()
 	modelscale.push_back(1.0f);
 	typeStaticNumber++;*/
 	//********************
-
-	//Grass
-	/*RenderStaticSence.loadStaticModel("greenGrass", "G:/model/greenGrass/file.obj");
-	RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-	RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
-	modelscale.push_back(0.015f);
-	typeStaticNumber++;
-
-	RenderStaticSence.loadStaticModel("hay", "G:/model/Hay/file.obj");
-	RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-	RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
-	modelscale.push_back(0.005f);
-	typeStaticNumber++;*/
 
 	std::vector<float> rotations;
 	std::vector<std::pair<double, double>> transform;
@@ -497,129 +486,157 @@ int main()
 	//***************
 
 
-	RenderStaticSence.setTerrain(0, zTransform);
+	RenderStaticSence.setTerrain("terrain", zTransform);
 
 	rotations.clear();
 	transform.clear();
 	zTransform.clear();
 
-	RenderStaticSence.initModelShaderPara(0, modelscale[0]);
-	RenderStaticSence.setTerrainHightMesh(20, 20, 200, 200);
-	RenderStaticSence.getTerrain();
+	RenderStaticSence.initModelShaderPara("terrain");
+	RenderStaticSence.setTerrainHightMesh("terrain",20, 20, 200, 200);
+	RenderStaticSence.getTerrain("terrain");
 
 	//Each time change*************
 	RenderStaticSence.setTerrainHeightYToZero();
 	//End Each time change*************
+    //lightsource
+    if (renderingLightSource == true)
+    {
+        RenderStaticSence.loadStaticModel("lightsource", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/sphere/sphere.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("lightsource.vert", "lightsource.frag");
+        RenderStaticSence.setModelScale(0.2f);
+        RenderStaticSence.setObjectTransform("lightsource", lightPosition[0], 0);
+        //RenderStaticSence.setObjectTransform("lightsource", glm::vec3(0.0f,0.0f,0.0f), 0);
+        RenderStaticSence.initModelShaderPara("lightsource");
+    }
+
 
 	////grass1
-	//float grassnumber = 20;
-	//for (int i = 0; i < grassnumber; i++)
-	//{
-	//	rotations.push_back(30 * i);
-	//	zTransform.push_back(0);
-	//}
-	//transform.push_back(std::make_pair(500, 500));
-	//transform.push_back(std::make_pair(3000, 800));
-	//transform.push_back(std::make_pair(-2500, 1500));
-	//transform.push_back(std::make_pair(-1550, 1500));
-	//transform.push_back(std::make_pair(-500, -500));
-	//transform.push_back(std::make_pair(-3000, -800));
-	//transform.push_back(std::make_pair(-5000, 4000));
-	//transform.push_back(std::make_pair(-450, 1500));
-	//transform.push_back(std::make_pair(700, -4000));
-	//transform.push_back(std::make_pair(-3000, -5800));
-	//transform.push_back(std::make_pair(-3000, 6000));
-	//transform.push_back(std::make_pair(-550, 5500));
-	//transform.push_back(std::make_pair(-5100, -5200));
-	//transform.push_back(std::make_pair(-4000, -2300));
-	//transform.push_back(std::make_pair(-3000, 5000));
-	//transform.push_back(std::make_pair(-250, 4500));
+    if (renderingGrass == true)
+    {
+        //Grass
+        RenderStaticSence.loadStaticModel("greenGrass", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/grassGrass/greenGrass/file.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
+        RenderStaticSence.setModelScale(0.009f);
 
-	//transform.push_back(std::make_pair(-300, -400));
-	//transform.push_back(std::make_pair(-2300, -600));
-	//transform.push_back(std::make_pair(-4500, 4700));
-	//transform.push_back(std::make_pair(-3500, 2600));
-	//RenderStaticSence.setModelInstanceAndTransform(1, transform, rotations, grassnumber);
-	//rotations.clear();
-	//transform.clear();
-	//zTransform.clear();
-	//////////grass2
-	//float haynumber = 200;
-	//for (int i = 0; i < haynumber; i++)
-	//{
-	//	rotations.push_back(45 * i);
-	//	zTransform.push_back(0);
-	//}
+        /*RenderStaticSence.loadStaticModel("hay", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/grassGrass/Hay/file.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
+        modelscale.push_back(0.005f);
+        typeStaticNumber++;*/
 
-	//std::vector<std::pair<double, double>> tempTransform = RandomTreePositionGenerate(haynumber);
-	//for (int i = 0; i < haynumber; i++)
-	//{
-	//	transform.push_back(std::make_pair((tempTransform[i].first - haynumber / 2) * 400, (tempTransform[i].second - haynumber / 2) * 400));
-	//}
+        float grassnumber = 20;
+        for (int i = 0; i < grassnumber; i++)
+        {
+            rotations.push_back(30 * i);
+            zTransform.push_back(0);
+        }
+        transform.push_back(std::make_pair(500, 500));
+        transform.push_back(std::make_pair(3000, 800));
+        transform.push_back(std::make_pair(-2500, 1500));
+        transform.push_back(std::make_pair(-1550, 1500));
+        transform.push_back(std::make_pair(-500, -500));
+        transform.push_back(std::make_pair(-3000, -800));
+        transform.push_back(std::make_pair(-5000, 4000));
+        transform.push_back(std::make_pair(-450, 1500));
+        transform.push_back(std::make_pair(700, -4000));
+        transform.push_back(std::make_pair(-3000, -5800));
+        transform.push_back(std::make_pair(-3000, 6000));
+        transform.push_back(std::make_pair(-550, 5500));
+        transform.push_back(std::make_pair(-5100, -5200));
+        transform.push_back(std::make_pair(-4000, -2300));
+        transform.push_back(std::make_pair(-3000, 5000));
+        transform.push_back(std::make_pair(-250, 4500));
+
+        transform.push_back(std::make_pair(-300, -400));
+        transform.push_back(std::make_pair(-2300, -600));
+        transform.push_back(std::make_pair(-4500, 4700));
+        transform.push_back(std::make_pair(-3500, 2600));
+        RenderStaticSence.setModelInstanceAndTransform("greenGrass", transform, rotations, grassnumber);
+        rotations.clear();
+        transform.clear();
+        zTransform.clear();
+        ////////grass2
+        /*float haynumber = 200;
+        for (int i = 0; i < haynumber; i++)
+        {
+            rotations.push_back(45 * i);
+            zTransform.push_back(0);
+        }*/
+
+        //std::vector<std::pair<double, double>> tempTransform = RandomTreePositionGenerate(haynumber);
+        //for (int i = 0; i < haynumber; i++)
+        //{
+        //	transform.push_back(std::make_pair((tempTransform[i].first - haynumber / 2) * 400, (tempTransform[i].second - haynumber / 2) * 400));
+        //}
 
 
 
+        //RenderStaticSence.setModelInstanceAndTransform(2, transform, rotations, haynumber);
+        //rotations.clear();
+        //transform.clear();
+        //grass1
+        /*float grassnumber = 20;
+        for (int i = 0; i < grassnumber; i++)
+        {
+            rotations.push_back(30 * i);
+            zTransform.push_back(0);
+        }
+        transform.push_back(std::make_pair(500, 500));
+        transform.push_back(std::make_pair(3000, 800));
+        transform.push_back(std::make_pair(-2500, 1500));
+        transform.push_back(std::make_pair(-1550, 1500));
+        transform.push_back(std::make_pair(-500, -500));
+        transform.push_back(std::make_pair(-3000, -800));
+        transform.push_back(std::make_pair(-5000, 4000));
+        transform.push_back(std::make_pair(-450, 1500));
+        transform.push_back(std::make_pair(700, -4000));
+        transform.push_back(std::make_pair(-3000, -5800));
+        transform.push_back(std::make_pair(-3000, 6000));
+        transform.push_back(std::make_pair(-550, 5500));
+        transform.push_back(std::make_pair(-5100, -5200));
+        transform.push_back(std::make_pair(-4000, -2300));
+        transform.push_back(std::make_pair(-3000, 5000));
+        transform.push_back(std::make_pair(-250, 4500));
+
+        transform.push_back(std::make_pair(-300, -400));
+        transform.push_back(std::make_pair(-2300, -600));
+        transform.push_back(std::make_pair(-4500, 4700));
+        transform.push_back(std::make_pair(-3500, 2600));
+        RenderStaticSence.setModelInstanceAndTransform(1, transform, rotations, grassnumber);
+        rotations.clear();
+        transform.clear();
+        zTransform.clear();*/
+        ////////grass2
+        //float haynumber = 200;
+        //for (int i = 0; i < haynumber; i++)
+        //{
+        //	rotations.push_back(45 * i);
+        //	zTransform.push_back(0);
+        //}
+
+        //std::vector<std::pair<double, double>> tempTransform = RandomTreePositionGenerate(haynumber);
+        //for (int i = 0; i < haynumber; i++)
+        //{
+        //	transform.push_back(std::make_pair((tempTransform[i].first - haynumber / 2) * 400, (tempTransform[i].second - haynumber / 2) * 400));
+        //}
+        RenderStaticSence.initModelShaderPara("greenGrass");
+        RenderStaticSence.setGrassOnTerrain("greenGrass");
+        RenderStaticSence.updataGrassOnTerrain("greenGrass",0);
+
+        //RenderStaticSence.initModelShaderPara("hay");
+        //RenderStaticSence.setGrassOnTerrain(i);
+        //RenderStaticSence.updataGrassOnTerrain(i,1);
+    }
 	//RenderStaticSence.setModelInstanceAndTransform(2, transform, rotations, haynumber);
 	//rotations.clear();
 	//transform.clear();
-	//grass1
-	/*float grassnumber = 20;
-	for (int i = 0; i < grassnumber; i++)
-	{
-		rotations.push_back(30 * i);
-		zTransform.push_back(0);
-	}
-	transform.push_back(std::make_pair(500, 500));
-	transform.push_back(std::make_pair(3000, 800));
-	transform.push_back(std::make_pair(-2500, 1500));
-	transform.push_back(std::make_pair(-1550, 1500));
-	transform.push_back(std::make_pair(-500, -500));
-	transform.push_back(std::make_pair(-3000, -800));
-	transform.push_back(std::make_pair(-5000, 4000));
-	transform.push_back(std::make_pair(-450, 1500));
-	transform.push_back(std::make_pair(700, -4000));
-	transform.push_back(std::make_pair(-3000, -5800));
-	transform.push_back(std::make_pair(-3000, 6000));
-	transform.push_back(std::make_pair(-550, 5500));
-	transform.push_back(std::make_pair(-5100, -5200));
-	transform.push_back(std::make_pair(-4000, -2300));
-	transform.push_back(std::make_pair(-3000, 5000));
-	transform.push_back(std::make_pair(-250, 4500));
 
-	transform.push_back(std::make_pair(-300, -400));
-	transform.push_back(std::make_pair(-2300, -600));
-	transform.push_back(std::make_pair(-4500, 4700));
-	transform.push_back(std::make_pair(-3500, 2600));
-	RenderStaticSence.setModelInstanceAndTransform(1, transform, rotations, grassnumber);
-	rotations.clear();
-	transform.clear();
-	zTransform.clear();*/
-	////////grass2
-	//float haynumber = 200;
-	//for (int i = 0; i < haynumber; i++)
-	//{
-	//	rotations.push_back(45 * i);
-	//	zTransform.push_back(0);
-	//}
+	
 
-	//std::vector<std::pair<double, double>> tempTransform = RandomTreePositionGenerate(haynumber);
-	//for (int i = 0; i < haynumber; i++)
-	//{
-	//	transform.push_back(std::make_pair((tempTransform[i].first - haynumber / 2) * 400, (tempTransform[i].second - haynumber / 2) * 400));
-	//}
-
-
-
-	//RenderStaticSence.setModelInstanceAndTransform(2, transform, rotations, haynumber);
-	//rotations.clear();
-	//transform.clear();
-
-	for (int i = 1; i < typeStaticNumber; i++)
-	{
-		RenderStaticSence.initModelShaderPara(i, modelscale[i]);
-		RenderStaticSence.setGrassOnTerrain(i);
-		RenderStaticSence.updataGrassOnTerrain(i);
-	}
+	
 
 	std::vector<double> TerrainHeigth;
 	double TerrainX;
@@ -681,7 +698,7 @@ int main()
 
 	MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/deltaU", "../../models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt",1);
 	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[0], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/WindAndTreeConfig/Config.txt");
-	MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
+	MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag","scene_shadows.geom");
 	MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
 	MultipleTypeTree.InitTreeModel("../../models/yellow_tree/tree_last_test.obj", 0);
 
@@ -911,11 +928,8 @@ int main()
 		MultipleTypeTree.UpdataSencePara(Camera, SCR_WIDTH, SCR_HEIGHT);
 		//grass
 
-
-		for (int i = 0; i < typeStaticNumber; i++)
-		{
-			RenderStaticSence.RenderingDepth(i);
-		}
+		RenderStaticSence.RenderingDepth("terrain");
+        RenderStaticSence.RenderingDepth("greenGrass");
 
 		//tree
 		for (int i = 0; i < Common::TreesTypeNumber; i++)
@@ -931,11 +945,10 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		////plane  
 		/////////////grass
-		for (int i = 0; i < typeStaticNumber; i++)
-		{
-			RenderStaticSence.RenderingModel(i, depthMap, shadows);
-		}
 
+		RenderStaticSence.RenderingModel("terrain", depthMap, shadows);
+        RenderStaticSence.RenderingModel("greenGrass", depthMap, shadows);
+        RenderStaticSence.RenderingModel("lightsource", depthMap, false);
 		//tree
 		for (int i = 0; i < Common::TreesTypeNumber; i++)
 		{

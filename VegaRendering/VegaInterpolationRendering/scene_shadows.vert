@@ -6,11 +6,11 @@ layout (location = 3) in int faceId;
 layout (location = 4) in mat4 instanceMatrix;
 layout (location = 8 ) in int positionIndex;
 
-out vec2 v2f_TexCoords;
-out vec3 v2f_WorldPos;
-out vec3 v2f_Normal;
-out float v2f_Color;
-out vec4 v2f_FragposLightPos;
+out vec2 v2g_TexCoords;
+out vec3 v2g_WorldPos;
+out vec3 v2g_Normal;
+out float v2g_Color;
+out vec4 v2g_FragposLightPos;
 //out mat4 v2f_instanceMatrix;
 
 
@@ -64,26 +64,27 @@ vec4 smoothTriangleWave(vec4 x)
 
 void main()
 {
-	v2f_TexCoords = aTexCoords; 
+	v2g_TexCoords = aTexCoords; 
 	if(planeOrTree < 0)
 	{
-		v2f_Normal = mat3(model) * aNormal;
-		v2f_WorldPos = vec3(model * vec4(aPos,1.0));
+		v2g_Normal = mat3(model) * aNormal;
+		v2g_WorldPos = vec3(model * vec4(aPos,1.0));
 		//v2f_Color=-1.0;
-		v2f_FragposLightPos=lightSpaceMatrix*vec4(v2f_WorldPos,1.0);
-		v2f_Color=-10.0;
+		v2g_FragposLightPos=lightSpaceMatrix*vec4(v2g_WorldPos,1.0);
+		v2g_Color=-10.0;
 
 
 		gl_Position = projection * view * model * vec4(aPos, 1.0);	 
 	}
 	else
 	{
-		v2f_Color=1.0;
+		v2g_Color=1.0;
 		vec4 tempPos=vec4(aPos,1.0) + sum_u[gl_InstanceID*assimpvertexNums+positionIndex];
-		v2f_Normal = mat3(model)* mat3(instanceMatrix) * aNormal;
+        //vec4 tempPos=vec4(aPos,1.0);
+		v2g_Normal = mat3(model)* mat3(instanceMatrix) * aNormal;
 		vec3 normal = mat3(model)* mat3(instanceMatrix) * aNormal;
-		v2f_WorldPos = vec3(model *instanceMatrix* tempPos);
-		v2f_FragposLightPos=lightSpaceMatrix*vec4(v2f_WorldPos,1.0);
+		v2g_WorldPos = vec3(model *instanceMatrix* tempPos);
+		v2g_FragposLightPos=lightSpaceMatrix*vec4(v2g_WorldPos,1.0);
 	    tempPos = projection * view * model * instanceMatrix * tempPos;
 		
 		if(positionIndex >= sumFaceVerticesBeforeEndMesh)
@@ -93,12 +94,12 @@ void main()
 			vec4 windDirection = vec4(1.0,0.0,0.0,1.0);
 			
 			//////////////////////////如何计算每一片叶子的力的大小？？？？？？？？？？？？？？
-			float force = sin(0.1* time*v2f_WorldPos.x)+1;
+			float force = sin(0.1* time*v2g_WorldPos.x)+1;
 			float phase = 0.05;//频率
 			float flutter = 1.0;//摆动幅度
 			float primaryOffset = 0.08;//所有顶点固定偏移
 			//顶点部分使用世界坐标位置作为随机因子
-			float leafPhase = dot(v2f_WorldPos,vec3(1.0));
+			float leafPhase = dot(v2g_WorldPos,vec3(1.0));
 			//float leafPhase = dot(v2f_WorldPos,windDirection.xyz); 
 			vec2 wavesIn = vec2(time) + vec2(leafPhase,phase);
 			//float wavesIn = leafPhase;
@@ -106,7 +107,7 @@ void main()
 			waves = 0.08 * smoothTriangleWave(waves);
 			vec2 waveSum = waves.xz +waves.yw;
 			//waves = sin(0.3*waves);
-			vec3 bend = vec3(flutter) * v2f_Normal.xyz;
+			vec3 bend = vec3(flutter) * v2g_Normal.xyz;
 			//bend.y = 0.05*0.3;
 			//限制根部附近顶点的运动
 			//gl_Position = tempPos + vec4(0.0f,  pow((1 - (pow(aTexCoords.x-0.5,2) + pow(aTexCoords.y,2))),2) * sin(frameIndex)* 0.05,0.0f,0);

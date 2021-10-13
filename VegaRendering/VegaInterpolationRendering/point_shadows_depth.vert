@@ -60,6 +60,7 @@ void main()
 	{
 		sum_u[gl_InstanceID*assimpvertexNums+positionIndex]=u[treeFrameIndex[gl_InstanceID][0]*frameNums*vertexNums+treeFrameIndex[gl_InstanceID][1]*vertexNums+faceId]+sum_u[gl_InstanceID*assimpvertexNums+positionIndex];
 		vec4 tempPos=vec4(aPos,1.0)+sum_u[gl_InstanceID*assimpvertexNums+positionIndex];
+        //vec4 tempPos=vec4(aPos,1.0);
 		tempPos = model * instanceMatrix * tempPos;
 
 		if(positionIndex >= sumFaceVerticesBeforeEndMesh)

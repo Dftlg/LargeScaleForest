@@ -57,6 +57,7 @@ public:
 	void draw(const CShader& vShader);
 	void setMeshRotation(std::vector<float> &vRotations, std::vector<std::pair<double, double>>& vTransFormations,float vScaleNumber,int vTreesNumber);
     //void setMeshRotation();
+    void setObjectPositionAndRotation(glm::vec3 vPosition,float vRotation);
 
 	void setTerrainMesh(std::vector<double>& vZTransFormations);
     void setScaleMesh(float vScale, glm::mat4 * vmodelMatrices);
@@ -80,7 +81,7 @@ public:
 	/*void UpdataMeshTreeAndFrameIndex(std::vector<int>& vTreeFileIndex, std::vector<int>& vFrameIndex);*/
 	bool gammaCorrection;
 
-	glm::mat4 getInstanceMat() { return m_InstanceMat; };
+	glm::mat4* getInstanceMat() { return &m_InstanceMat; };
 
 	glm::mat4* getInstanceDumMat() { return m_InstanceDumMat; };
 

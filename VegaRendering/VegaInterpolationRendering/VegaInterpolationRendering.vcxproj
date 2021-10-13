@@ -164,6 +164,8 @@
     <None Include="..\Imgui\backends\vulkan\generate_spv.sh" />
     <None Include="..\Imgui\backends\vulkan\glsl_shader.frag" />
     <None Include="..\Imgui\backends\vulkan\glsl_shader.vert" />
+    <None Include="lightsource.frag" />
+    <None Include="lightsource.vert" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -171,10 +173,10 @@
     <None Include="grass.vert" />
     <None Include="grass_shadows_depth.vert" />
     <None Include="point_shadows_depth.frag" />
-    <None Include="point_shadows_depth.gs" />
+    <None Include="point_shadows_depth.geom" />
     <None Include="point_shadows_depth.vert" />
     <None Include="scene_shadows.frag" />
-    <None Include="scene_shadows.gs" />
+    <None Include="scene_shadows.geom" />
     <None Include="scene_shadows.vert" />
     <None Include="skybox.frag" />
     <None Include="skybox.vert" />

@@ -88,7 +88,6 @@
     <None Include="scene_shadows.vert" />
     <None Include="scene_shadows.frag" />
     <None Include="point_shadows_depth.frag" />
-    <None Include="point_shadows_depth.gs" />
     <None Include="point_shadows_depth.vert" />
     <None Include="..\Imgui\backends\imgui_impl_metal.mm">
       <Filter>Imgui\backends</Filter>
@@ -108,7 +107,10 @@
     <None Include="grass.frag" />
     <None Include="grass.vert" />
     <None Include="grass_shadows_depth.vert" />
-    <None Include="scene_shadows.gs" />
+    <None Include="scene_shadows.geom" />
+    <None Include="point_shadows_depth.geom" />
+    <None Include="lightsource.vert" />
+    <None Include="lightsource.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LoadWindAndTreeConfig.h">

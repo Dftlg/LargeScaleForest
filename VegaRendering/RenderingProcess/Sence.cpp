@@ -55,6 +55,17 @@ void CSence::UpdataYAxis(std::vector<double>& vYTransFormations)
 
 }
 
+void CSence::setObjectPositionAndRotation(glm::vec3 vPosition, float vRotation)
+{
+    glm::mat4 model =glm::mat4(1.0f);
+    model=glm::translate(model, vPosition);
+    m_InstanceMat = model;
+    for (auto& Mesh : m_Meshes)
+    {
+        Mesh.setRotation(&model, 1);
+    }
+}
+
 //真tm的离谱....我写的是什么东西服了,把instancedraw和正常draw写一起了
 void CSence::setTerrainMesh(std::vector<double>& vYTransFormations)
 {

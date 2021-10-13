@@ -6,6 +6,7 @@ in vec3 v2f_WorldPos;
 in vec3 v2f_Normal;
 in float v2f_Color;
 in vec4 v2f_FragposLightPos;
+in vec3 g2f_Normal;
 
 // material parameters
 //uniform vec3 albedo;
@@ -47,7 +48,9 @@ float ShadowCalculation(vec4 fragPos)
 	fragToLight=fragToLight*0.5+0.5;
     float currentDepth = fragToLight.z;
 
-	vec3 normal = normalize(v2f_Normal);
+	//vec3 normal = normalize(v2f_Normal);
+    vec3 normal = normalize(g2f_Normal);
+
     vec3 lightDir = normalize(lightPositions - v2f_WorldPos);
     float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
 
@@ -123,7 +126,8 @@ void main()
 
 	vec3 albedo = pow(texture(texture_diffuse1, v2f_TexCoords).rgb, vec3(2.2));
 
-    vec3 N = normalize(v2f_Normal);
+    //vec3 N = normalize(v2f_Normal);
+    vec3 N = normalize(g2f_Normal);
     vec3 V = normalize(camPos - v2f_WorldPos);
 
     vec3 F0 = vec3(0.04); 
@@ -155,6 +159,7 @@ void main()
 
 	
     shadow = shadows ? ShadowCalculation(v2f_FragposLightPos) : 0.0;
+    //shadow=1;
     vec3 ambient = vec3(0.03) * albedo * ao;
 	vec3 color;
 //	if(v2f_Color<0.0)
@@ -180,6 +185,7 @@ void main()
 		//* (1.0 - shadow)
 		Lo*=3;
 		color = Lo * (1.0 - shadow) + ambient;
+        //color = Lo * (1.0) + ambient;
 		 // HDR tonemapping
 		color = color / (color + vec3(1.0));
 		// gamma correct
@@ -188,6 +194,8 @@ void main()
 //	if(shadow>0)
 // 	 color=vec3(1.0,0.0,0.0);
 	//color=vec3(shadow,0.0,0.0);
+    //FragColor = vec4(v2f_Normal, 1.0);
+
     FragColor = vec4(color, 1.0);
 
 }

@@ -17,6 +17,7 @@ void CRenderStaticSence::loadStaticModel(std::string vmodelname, std::string vmo
 	m_ModelNames.push_back(vmodelname);
 	CSence * ourModel = new CSence(vmodelFileName);
 	m_Models.push_back(ourModel);
+    m_ModelNameAndIndexMap.insert(std::map<std::string,int> ::value_type(vmodelname, m_Models.size() - 1));
 }
 
 void CRenderStaticSence::loadDepthShader(const char* vVertexPath, const char* vFragmentPath, const char* vGeometryPath)
@@ -32,23 +33,33 @@ void CRenderStaticSence::loadSenceShader(const char* vVertexPath, const char* vF
 }
 
 //其他类型植被
-void CRenderStaticSence::setModelInstanceAndTransform(int vModelIndex, std::vector<std::pair<double, double>> vTransforms, std::vector<float> vRotations,int vInstanceNumber)
+void CRenderStaticSence::setModelInstanceAndTransform(std::string vModelName, std::vector<std::pair<double, double>> vTransforms, std::vector<float> vRotations,int vInstanceNumber)
 {
-	m_Models[vModelIndex]->setMeshRotation(vRotations, vTransforms,1,vInstanceNumber);
-	m_InstanceObjectDumMat.push_back(m_Models[vModelIndex]->getInstanceDumMat());
+	m_Models[m_ModelNameAndIndexMap[vModelName]]->setMeshRotation(vRotations, vTransforms,1,vInstanceNumber);
+	m_InstanceObjectDumMat.push_back(m_Models[m_ModelNameAndIndexMap[vModelName]]->getInstanceDumMat());
 	EachTypeObjectNumber.push_back(vInstanceNumber);
 }
 
-void CRenderStaticSence::setTerrain(int vModelIndex, std::vector<double> vYTransFormations)
+void CRenderStaticSence::setTerrain(std::string vModelName, std::vector<double> vYTransFormations)
 {
-	m_Models[vModelIndex]->setTerrainMesh(vYTransFormations);
-	m_InstanceMat = m_Models[vModelIndex]->getInstanceMat();
+	m_Models[m_ModelNameAndIndexMap[vModelName]]->setTerrainMesh(vYTransFormations);
+    m_InstanceObjectDumMat.push_back( m_Models[m_ModelNameAndIndexMap[vModelName]]->getInstanceMat());
+    EachTypeObjectNumber.push_back(1);
 }
 
-void CRenderStaticSence::initModelShaderPara(int vModelIndex,float vTransForm)
+void CRenderStaticSence::setObjectTransform(std::string vModelName, glm::vec3 vPosition, float vRotation)
 {
+    m_Models[m_ModelNameAndIndexMap[vModelName]]->setObjectPositionAndRotation(vPosition, vRotation);
+    m_InstanceObjectDumMat.push_back(m_Models[m_ModelNameAndIndexMap[vModelName]]->getInstanceMat());
+    EachTypeObjectNumber.push_back(1);
+}
+
+void CRenderStaticSence::initModelShaderPara(std::string vModelName)
+{
+    int vModelIndex = m_ModelNameAndIndexMap[vModelName];
 	glm::mat4 model = glm::mat4(1.0f);
 
+    float vTransForm = m_Modelscales[vModelIndex];
 	//原版植被移动
 	//model = glm::translate(model, glm::vec3(0.0f, -0.5f, -1.2f));
 
@@ -91,11 +102,12 @@ void CRenderStaticSence::initModelShaderPara(int vModelIndex,float vTransForm)
 
 }
 
-void CRenderStaticSence::RenderingDepth(int vModelIndex)
+void CRenderStaticSence::RenderingDepth(std::string vModelName)
 {
-	m_DepthShaders[vModelIndex]->use();
+    int ModelIndex = m_ModelNameAndIndexMap[vModelName];
+	m_DepthShaders[ModelIndex]->use();
 
-	Draw(*m_DepthShaders[vModelIndex], *m_Models[vModelIndex]);
+	Draw(*m_DepthShaders[ModelIndex], *m_Models[ModelIndex]);
 	//glm::mat4 projection = glm::perspective(glm::radians(vCamera.getZoom()), (float)vscrwith / (float)vscrheight, 0.1f, 100.0f);
 	//glm::mat4 view = vCamera.getViewMatrix();
 	//m_DepthShaders[vModelIndex]->setMat4("projection", projection);
@@ -111,15 +123,16 @@ void CRenderStaticSence::RenderingDepth(int vModelIndex)
 
 }
 
-void CRenderStaticSence::RenderingModel(int vModelIndex, unsigned int depthMap,bool vshadows)
+void CRenderStaticSence::RenderingModel(std::string vModelName, unsigned int depthMap,bool vshadows)
 {
-	m_ModelShaders[vModelIndex]->use();
-	m_ModelShaders[vModelIndex]->setInt("shadows", vshadows);
+    int ModelIndex = m_ModelNameAndIndexMap[vModelName];
+	m_ModelShaders[ModelIndex]->use();
+	m_ModelShaders[ModelIndex]->setInt("shadows", vshadows);
 	glActiveTexture(GL_TEXTURE8);
-    auto temp = glGetUniformLocation(m_ModelShaders[vModelIndex]->getID(), "depthMap");
+    auto temp = glGetUniformLocation(m_ModelShaders[ModelIndex]->getID(), "depthMap");
     glUniform1i(temp, 8);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
-	Draw(*m_ModelShaders[vModelIndex], *m_Models[vModelIndex]);
+	Draw(*m_ModelShaders[ModelIndex], *m_Models[ModelIndex]);
 }
 
 //void CRenderStaticSence::RenderingModel(int vModelIndex, unsigned int depthCubeMap, bool vshadows)
@@ -157,14 +170,15 @@ void CRenderStaticSence::setTerrainHeightYToZero()
 	m_TerrainHeightY.resize((m_TerrainHeightXDensity * 2)*(m_TerrainHeightZDensity * 2),0);
 }
 
-void CRenderStaticSence::getTerrain()
+void CRenderStaticSence::getTerrain(std::string vModelName)
 {
 //对于没有的值取周围值平均一下	
 	m_TerrainXDensityScale = m_TerrainX / m_TerrainHeightXDensity;
 	m_TerrainZDensityScale = m_TerrainZ / m_TerrainHeightZDensity;
 	m_TerrainHeightY.resize((m_TerrainHeightXDensity*2)*(m_TerrainHeightZDensity*2),-10);
 
-	m_TerrainMat = m_ModelScale[0] * m_InstanceMat;
+	m_TerrainMat = m_ModelScale[0] *(*m_InstanceObjectDumMat[m_ModelNameAndIndexMap[vModelName]]);
+   
 	std::vector<CMesh> tempMesh = m_Models[0]->getMeshes();
 	int tempXIndex;
 	int tempZIndex;
@@ -283,9 +297,9 @@ double CRenderStaticSence::getAverage(int vZIndex, int vXIndex)
 	return sumHeightY / existHeightY;
 }
 
-void CRenderStaticSence::setTerrainHightMesh(double vXsize, double vZSize, double vXDensity,double vZDensity)
+void CRenderStaticSence::setTerrainHightMesh(std::string vModelName,double vXsize, double vZSize, double vXDensity,double vZDensity)
 {
-	__getTerrainXZsize();
+	__getTerrainXZsize(vModelName);
 	m_TerrainX = vXsize;
 	m_TerrainZ = vZSize;
 
@@ -296,9 +310,9 @@ void CRenderStaticSence::setTerrainHightMesh(double vXsize, double vZSize, doubl
 	m_TerrainHeightZDensity = vZDensity;
 }
 //
-void CRenderStaticSence::__getTerrainXZsize()
+void CRenderStaticSence::__getTerrainXZsize(std::string vModelName)
 {
-	m_TerrainMat = m_ModelScale[0] * m_InstanceMat;
+	m_TerrainMat = m_ModelScale[0] * (*m_InstanceObjectDumMat[m_ModelNameAndIndexMap[vModelName]]);
 	std::vector<CMesh> tempMesh = m_Models[0]->getMeshes();
 	//int size
 	m_TerrainMaxSize = std::make_pair(0, 0);
@@ -333,17 +347,18 @@ void CRenderStaticSence::__getTerrainXZsize()
 
 }
 
-void CRenderStaticSence::setGrassOnTerrain(int vGrassType)
+void CRenderStaticSence::setGrassOnTerrain(std::string vGrassName)
 {
 	//获取该植被对应的向上两种旋转矩阵，Instance和model
+    int vGrassType = m_ModelNameAndIndexMap[vGrassName];
 
-	std::vector<double> ModelLocatedHeightofTerrain(EachTypeObjectNumber[vGrassType - 1]);
+	std::vector<double> ModelLocatedHeightofTerrain(EachTypeObjectNumber[vGrassType]);
 
-	glm::mat4* TypeGrassDumInstanceMat= m_InstanceObjectDumMat[vGrassType -1];
+	glm::mat4* TypeGrassDumInstanceMat= m_InstanceObjectDumMat[vGrassType];
 
 	int tempXIndex, tempZIndex;
 	//该类型每棵草的旋转矩阵
-	for (int i = 0; i < EachTypeObjectNumber[vGrassType - 1]; i++)
+	for (int i = 0; i < EachTypeObjectNumber[vGrassType]; i++)
 	{
 		glm::mat4 tempMat = m_ModelScale[vGrassType] * TypeGrassDumInstanceMat[i];
 
@@ -368,9 +383,10 @@ void CRenderStaticSence::setGrassOnTerrain(int vGrassType)
 	EachTypeGrassLocatedHeightofTerrain.push_back(ModelLocatedHeightofTerrain);
 }
 
-void CRenderStaticSence::updataGrassOnTerrain(int vGrassType)
+void CRenderStaticSence::updataGrassOnTerrain(std::string vGrassName,int vGrassIndexInallGrasses)
 {
-	m_Models[vGrassType]->UpdataYAxis(EachTypeGrassLocatedHeightofTerrain[vGrassType-1]);
+    int GrassType = m_ModelNameAndIndexMap[vGrassName];
+	m_Models[GrassType]->UpdataYAxis(EachTypeGrassLocatedHeightofTerrain[vGrassIndexInallGrasses]);
 }
 
 void CRenderStaticSence::getTerrainPara(std::vector<double> & vTerrainHeigth, double& vTerrainX, double& vTerrainZ, double& XDensityScale, double& ZDensityScale, int& vTerrainHeightZDensity)
