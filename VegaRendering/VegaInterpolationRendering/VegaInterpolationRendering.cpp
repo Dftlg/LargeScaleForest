@@ -20,6 +20,8 @@
 #include "../Common/ExtraTool.h"
 #include "RenderStaticSence.h"
 
+//#define GLFW_EXPOSE_NATIVE_GLX
+
 //#include "imgui.h"
 //#include "imgui_impl_glfw.h"
 //#include "imgui_impl_opengl3.h"

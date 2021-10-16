@@ -297,3 +297,5 @@ __pycache__/
 /VegaRendering/VegaInterpolationRendering/test_point_shadows_depth.vert
 /VegaRendering/VegaInterpolationRendering/test_point_shadows_depth.gs
 /VegaRendering/VegaInterpolationRendering/test_point_shadows_depth.frag
+
+#*.vcxproj
