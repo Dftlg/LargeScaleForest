@@ -19,6 +19,7 @@
 #include "InitMultipleTypeTree.h"
 #include "../Common/ExtraTool.h"
 #include "RenderStaticSence.h"
+#include "../RenderingProcess/ComputerShader.h"
 
 //#define GLFW_EXPOSE_NATIVE_GLX
 
@@ -701,6 +702,7 @@ int main()
 	MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/deltaU", "../../models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt",1);
 	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[0], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/WindAndTreeConfig/Config.txt");
 	MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag","scene_shadows.geom");
+	//MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag","computerFaceNormal.geom");
 	MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
 	MultipleTypeTree.InitTreeModel("../../models/yellow_tree/tree_last_test.obj", 0);
 
@@ -789,6 +791,9 @@ int main()
 	//outputFilePath1.open("G:/GraduationProject/yellow_tree/Error/sample_voxel/240_2000Inpo.txt", std::ios::in | std::ios::app);
 	int numFramePoints = vAllReallyLoadConnectedFem[0].FemDataset[0]->Frames[0].BaseFileDeformations.size();
 	std::vector<glm::vec3>sumDeltaU(numFramePoints);
+
+
+	ComputerShader * Ourcomputershader = new ComputerShader("calculateNormal.comp");
 
 	while (!glfwWindowShouldClose(Window))
 	{
@@ -941,6 +946,17 @@ int main()
 			glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//computerNormal
+
+		
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+		for (int i = 0; i < Common::TreesTypeNumber; i++)
+		{
+			MultipleTypeTree.getSpecificTreeModel(i)->ComputerShaderCalculateNormal(*Ourcomputershader);
+			glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+		}
+		
 
 		//2.render Scene
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
@@ -1316,4 +1332,5 @@ unsigned int loadCubemap(std::vector<std::string> faces)
 
 	return textureID;
 }
+
 

@@ -6,6 +6,8 @@ layout (location = 3) in int faceId;
 layout (location = 4) in mat4 instanceMatrix;
 layout (location = 8 ) in int positionIndex;
 
+out vec4 testSumU;
+
 uniform mat4 model;
 uniform int assimpvertexNums;
 uniform int planeOrTree;
@@ -59,10 +61,11 @@ void main()
 	else
 	{
 		sum_u[gl_InstanceID*assimpvertexNums+positionIndex]=u[treeFrameIndex[gl_InstanceID][0]*frameNums*vertexNums+treeFrameIndex[gl_InstanceID][1]*vertexNums+faceId]+sum_u[gl_InstanceID*assimpvertexNums+positionIndex];
-		vec4 tempPos=vec4(aPos,1.0)+sum_u[gl_InstanceID*assimpvertexNums+positionIndex];
+		//vec4 tempPos=vec4(aPos,1.0)+sum_u[gl_InstanceID*assimpvertexNums+positionIndex];
+		vec4 tempPos=sum_u[gl_InstanceID*assimpvertexNums+positionIndex]+vec4(0,0,0,1.0f);
         //vec4 tempPos=vec4(aPos,1.0);
+		testSumU=tempPos;
 		tempPos = model * instanceMatrix * tempPos;
-
 		if(positionIndex >= sumFaceVerticesBeforeEndMesh)
 		{
 			vec3 wordPos = vec3(model *instanceMatrix* tempPos);

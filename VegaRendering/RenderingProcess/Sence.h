@@ -21,6 +21,7 @@
 #include "objMesh.h"
 #include "sceneObject.h"
 #include "objMeshRender.h"
+#include "ComputerShader.h"
 
 class CSence
 {
@@ -45,11 +46,16 @@ public:
 	void initSSBOTreeFileAndFrameIndex(const int vTreeNumber);
 	void resetSSBO4UDeformation();
 
+	//Normla
+	void initSSBONormal();
+	void setSSBO4GenBufferNormal(CShader& vShader, const int vTreeTypeIndex);
+
     void UpdataSSBOBindingPointIndex();
 
 	void setSSBOUdeformationAndIndx4ShadowMapShader(const CShader& vShader);
 
 	std::vector<std::vector<int>> getGroupsIndex() { return m_GroupsIndex; }
+	void getModelVertex();
 	std::vector<CMesh> getMeshes() { return m_Meshes; }
 	void senceDraw(const CShader& vShader, std::vector<std::vector<glm::vec3>> deformationFrames);
 	void setFileDirectiory(std::string vFileDirectory) { m_FileDirectory = vFileDirectory; }
@@ -78,6 +84,8 @@ public:
 	void getModelHeight();
 
 	void UpdataSSBOMeshTreeAndFrameIndex(std::vector<std::pair<int,int>>& vTreeFileAndFrameIndex);
+
+	void ComputerShaderCalculateNormal(ComputerShader& vShader);
 	/*void UpdataMeshTreeAndFrameIndex(std::vector<int>& vTreeFileIndex, std::vector<int>& vFrameIndex);*/
 	bool gammaCorrection;
 
@@ -88,6 +96,7 @@ public:
 
 
 private:
+	void __setVertexRelatedFace();
 	void __changeObjMeshStruct2Charptr(int vOutputMaterials=1);
 	void __loadModel(const std::string& vModelPath, bool vloadNormalizeModel);
 	void __loadModelFromMemory();
@@ -99,6 +108,8 @@ private:
 
 	const ObjMesh * m_Mesh;
 	std::vector<CMesh> m_Meshes;
+	glm::vec3 * m_staticMeshVertex;
+
 	double *m_RestVertexs;
 	std::vector<Common::STexture> m_Textures;
 	std::string m_FileDirectory;
@@ -108,18 +119,32 @@ private:
 	//所有的group中面的顶点索引
 	std::vector<std::vector<int>> m_GroupsIndex;
 
+	//前两个用来找第三个具体每个顶点相关的面
+	//每个顶点与多少个面相连
+	std::vector<int> m_EachVertexWithFaceNumber;
+	//每个顶点与AllVertexRelatedFaceIndex中的最开头索引位置
+	std::vector<int> m_EachVertexWithFaceFirstIndex;
+	//存储连续的数组数组中每个值为一个顶点与周围那几个面相关的索引号
+	std::vector<int> m_AllVertexRelatedFaceIndex;
+
+
 	CVegaFemFactory* m_VegaFactory;
 	glm::vec4 * m_DeltaDeformationU;
 
 	glm::vec4 * m_DeformationU;
+
+	glm::vec4 * m_Normal;
 
 	glm::ivec2 * m_TreeFileAndFrameIndex;
 
 	unsigned int m_DeltaUSSBO;
 	unsigned int m_UdeformationSSBO;
 	unsigned int m_TreeFileAndFrameSSBO;
+	unsigned int m_NormalSSBO;
 
     std::vector<GLuint> m_SSBO_Binding_Point_Index;
+
+	std::vector<GLuint> m_SSBO_Binding_Point_Index_Normal;
 
     std::vector<glm::vec3> m_TreePositions;
 

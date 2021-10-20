@@ -79,7 +79,8 @@ void main()
 	else
 	{
 		v2g_Color=1.0;
-		vec4 tempPos=vec4(aPos,1.0) + sum_u[gl_InstanceID*assimpvertexNums+positionIndex];
+		//vec4 tempPos=vec4(aPos,1.0) + sum_u[gl_InstanceID*assimpvertexNums+positionIndex];
+		vec4 tempPos=sum_u[gl_InstanceID*assimpvertexNums+positionIndex]+vec4(0,0,0,1.0f);
         //vec4 tempPos=vec4(aPos,1.0);
 		v2g_Normal = mat3(model)* mat3(instanceMatrix) * aNormal;
 		vec3 normal = mat3(model)* mat3(instanceMatrix) * aNormal;

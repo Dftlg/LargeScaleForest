@@ -11,7 +11,7 @@ public:
 	CMesh(const std::vector<Common::SVertex>& vVertices, const std::vector<unsigned int>& vIndices = std::vector<unsigned int>(), const std::vector<Common::STexture> vTestures = std::vector<Common::STexture>());
 	~CMesh() = default;
 
-	std::vector<Common::SVertex> getVertices() const { return m_Vertices; }
+	std::vector<Common::SVertex>& getVertices() { return m_Vertices; }
 	//unsigned int getVAO() const { return m_VAO; }
 	std::vector<unsigned int> getIndices() const { _ASSERTE(m_Indices.size() > 0); return m_Indices; }
 	std::vector<Common::STexture> getTextures() const { return m_Textures; }

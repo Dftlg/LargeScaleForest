@@ -136,6 +136,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ComputerShader.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Sence.cpp" />
@@ -147,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="BaseMesh.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ComputerShader.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="Sence.h" />
     <ClInclude Include="Shader.h" />

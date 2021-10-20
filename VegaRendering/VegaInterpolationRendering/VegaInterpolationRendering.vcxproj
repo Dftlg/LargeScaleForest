@@ -164,6 +164,8 @@
     <None Include="..\Imgui\backends\vulkan\generate_spv.sh" />
     <None Include="..\Imgui\backends\vulkan\glsl_shader.frag" />
     <None Include="..\Imgui\backends\vulkan\glsl_shader.vert" />
+    <None Include="calculateNormal.comp" />
+    <None Include="computerFaceNormal.geom" />
     <None Include="lightsource.frag" />
     <None Include="lightsource.vert" />
     <None Include="packages.config">

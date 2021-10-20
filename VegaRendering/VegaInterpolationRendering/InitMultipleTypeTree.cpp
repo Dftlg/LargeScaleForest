@@ -101,7 +101,9 @@ void CInitMultipleTypeTree::InitTreeModel(const std::string& vModelPath,int vTre
     ourModel->initSSBODeformationU();
     ourModel->initSSBOTreeFileAndFrameIndex(m_MultipleEachTreeProductNumber[vTreeTypeIndex]);
     ourModel->setSSBO4GenBufferUDeformationAndIndex(*(m_MultipleSceneShadowShader[vTreeTypeIndex]), vTreeTypeIndex);
-   // ourModel->setSSBO4UDeformationAndIndex(*(m_MultipleSceneShadowShader[vTreeTypeIndex]));
+
+	
+    //ourModel->setSSBO4UDeformationAndIndex(*(m_MultipleSceneShadowShader[vTreeTypeIndex]));
     //ourModel->setSSBOUdeformationAndIndx4ShadowMapShader(*(m_MultipleSceneDepthShader[vTreeTypeIndex]));
     m_TreeTypeIndex.push_back(vTreeTypeIndex);
     m_MultipleTreeModel.push_back(ourModel);
@@ -337,6 +339,7 @@ void CInitMultipleTypeTree::RenderingDepth(int vTreeTypeIndex, int vPlaneOrTree,
 	m_MultipleSceneDepthShader[vTreeTypeIndex]->setInt("sumFaceVerticesBeforeEndMesh", getSumFaceVerticesBeforeEndMesh(vTreeTypeIndex));
 	m_MultipleSceneDepthShader[vTreeTypeIndex]->setInt("waveMap", vWaveMap);
 	//Draw(*m_MultipleSceneDepthShader[vTreeTypeIndex], *m_MultipleTreeModel[vTreeTypeIndex]);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
 void CInitMultipleTypeTree::RenderingModel(int vTreeTypeIndex, unsigned int vdepthMap, int vPlaneOrTree, float vTime, int vFrameIndex, int vWaveMap, int vBendScale, int vPrimaryOffsetScale,bool vshadows)
