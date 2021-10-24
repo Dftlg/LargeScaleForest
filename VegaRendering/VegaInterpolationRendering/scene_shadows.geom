@@ -22,10 +22,19 @@ uniform mat4 model;
 uniform mat4 projection;
 uniform mat4 view;
 
-vec3 GetNormal() 
+//vec3 GetNormal() 
+//{
+//    vec3 a = vec3(gl_in[0].gl_Position) - vec3(gl_in[1].gl_Position);
+//    vec3 b = vec3(gl_in[2].gl_Position) - vec3(gl_in[1].gl_Position);
+//    return normalize(cross(a, b));
+//}
+
+vec3 GetNormal(vec3 first,vec3 second,vec3 third) 
 {
-    vec3 a = vec3(gl_in[0].gl_Position) - vec3(gl_in[1].gl_Position);
-    vec3 b = vec3(gl_in[2].gl_Position) - vec3(gl_in[1].gl_Position);
+   // vec3 a = first - second;
+    //vec3 b = third - second;
+	 vec3 a = second - first;
+    vec3 b = third - first;
     return normalize(cross(a, b));
 }
 
@@ -34,7 +43,7 @@ void main()
    
 	if(planeOrTree > 0)
 	{
-		vec3 normal = GetNormal();
+		vec3 normal = GetNormal(v2g_WorldPos[0],v2g_WorldPos[1],v2g_WorldPos[2]);
 		for( int i=0; i<gl_in.length( ); ++i )
          {
             gl_Position = gl_in[i].gl_Position;

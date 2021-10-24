@@ -13,6 +13,8 @@ out float v2g_Color;
 out vec4 v2g_FragposLightPos;
 //out mat4 v2f_instanceMatrix;
 
+//out vec4 TEST_BASEPosition;
+out mat4 TEST_BASEMat;
 
 uniform int frameNums;
 uniform int frameIndex;
@@ -93,8 +95,12 @@ void main()
 		v2g_FragposLightPos=lightSpaceMatrix*vec4(v2g_WorldPos,1.0);
 		v2g_TexCoords = aTexCoords; 
 		
+		//TEST_BASEPosition=tempPos;
+		TEST_BASEMat=projection * view * model * instanceMatrix;
 		//vec3 normal = mat3(model)* mat3(instanceMatrix) * aNormal;
 	    tempPos = projection * view * model * instanceMatrix * tempPos;
+
+		
 		
 		if(positionIndex >= sumFaceVerticesBeforeEndMesh)
 		{

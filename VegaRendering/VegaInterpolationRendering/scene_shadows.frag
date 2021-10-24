@@ -7,6 +7,8 @@ in vec3 v2f_Normal;
 in float v2f_Color;
 in vec4 v2f_FragposLightPos;
 
+//in vec3 TEST_BaseNormal;
+
 // material parameters
 //uniform vec3 albedo;
 uniform float metallic;
@@ -127,7 +129,7 @@ void main()
 	
 	vec3 N;
     N=normalize(v2f_Normal);
-
+	  //FragColor = vec4(v2f_Normal, 1.0);
     vec3 V = normalize(camPos - v2f_WorldPos);
 
     vec3 F0 = vec3(0.04); 
