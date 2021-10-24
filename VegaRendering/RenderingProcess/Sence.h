@@ -47,8 +47,8 @@ public:
 	void resetSSBO4UDeformation();
 
 	//Normla
-	void initSSBONormal();
-	void setSSBO4GenBufferNormal(CShader& vShader, const int vTreeTypeIndex);
+	void initComputerSSBONormalRelatedData(ComputerShader& vShader, const int vTreeTypeIndex);
+	void initSSBO4GenBufferNormal(CShader& vShader, const int vTreeTypeIndex);
 
     void UpdataSSBOBindingPointIndex();
 
@@ -141,6 +141,11 @@ private:
 	unsigned int m_UdeformationSSBO;
 	unsigned int m_TreeFileAndFrameSSBO;
 	unsigned int m_NormalSSBO;
+
+	//VertexRelatedFace
+	unsigned int m_VertexWithFaceNumberSSBO;
+	unsigned int m_VertexWithFaceFirstSSBO;
+	unsigned int m_AllVertexRelatedFaceSSBO;
 
     std::vector<GLuint> m_SSBO_Binding_Point_Index;
 

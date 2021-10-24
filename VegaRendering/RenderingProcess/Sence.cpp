@@ -186,7 +186,10 @@ void CSence::setMeshGroupAndAssimpIndex()
 void CSence::setGroupsIndex(CVegaFemFactory& vfemFactoryObject)
 {
 	m_GroupsIndex = vfemFactoryObject.getModelTransformStruct()->getGroupsIndex();
-	__setVertexRelatedFace();
+	if (Common::UseGeomOrCompCalculateNormal == false)
+	{
+		__setVertexRelatedFace();
+	}
 }
 
 void CSence::setVerticesNumber(CVegaFemFactory & vfemFactoryObject)
@@ -200,10 +203,10 @@ void CSence::__setVertexRelatedFace()
 	{
 		int GroupAllFaceNumber = m_GroupsIndex[i].size()/3;
 		int SumRelatedPosition=0;
-		m_EachVertexWithFaceFirstIndex.push_back(0);
 		//复制后的顶点id与所有顶点的faceid比较，如果相同取出其面的索引以及相关的面的总数
 		for (int VertexIndex = 0; VertexIndex < m_GroupsIndex[i].size(); VertexIndex++)
 		{
+			m_EachVertexWithFaceFirstIndex.push_back(SumRelatedPosition);
 			int RelatedFaceNumber = 0;
 			for (int AllVertexIndex = 0; AllVertexIndex < m_GroupsIndex[i].size(); AllVertexIndex++)
 			{
@@ -216,7 +219,7 @@ void CSence::__setVertexRelatedFace()
 			}
 			m_EachVertexWithFaceNumber.push_back(RelatedFaceNumber);
 			SumRelatedPosition += RelatedFaceNumber;
-			m_EachVertexWithFaceFirstIndex.push_back(SumRelatedPosition);
+			
 		}
 	}
 }
@@ -638,6 +641,22 @@ void CSence::setSSBO4GenBufferUDeformationAndIndex(CShader& vShader, const int v
 
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_SSBO_Binding_Point_Index[2], m_TreeFileAndFrameSSBO);
 
+	//设置法线
+	if (Common::UseGeomOrCompCalculateNormal == false)
+	{
+		m_Normal = new glm::vec4[m_InstanceTreeNumber*m_AssimpVerticesNumber];
+		memset(m_Normal, 0, sizeof(glm::vec4)*m_InstanceTreeNumber*m_AssimpVerticesNumber);
+
+		GLint SSBOBinding3 = 0, BlockDataSize3 = 0;
+		glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &SSBOBinding3);
+		glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &BlockDataSize3);
+
+		glGenBuffers(1, &m_NormalSSBO);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_NormalSSBO);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4)*(m_AssimpVerticesNumber*m_InstanceTreeNumber), m_Normal, GL_DYNAMIC_DRAW);
+
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_NormalSSBO);
+	}
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
@@ -703,6 +722,8 @@ void CSence::setSSBO4UDeformationAndIndex(CShader& vShader)
 	//点和shader的连接
 	//glShaderStorageBlockBinding(vShader.getID(), shader_file_frame_index, file_frame_ssbo_binding_point_index);
 
+
+
 }
 
 void CSence::setSSBOUdeformationAndIndx4ShadowMapShader(const CShader& vShader)
@@ -750,40 +771,57 @@ void CSence::UpdataSSBOMeshTreeAndFrameIndex(std::vector<std::pair<int, int>>& v
 
 }
 
-void CSence::initSSBONormal()
+void CSence::initComputerSSBONormalRelatedData(ComputerShader& vShader, const int vTreeTypeIndex)
 {
-	m_Normal = new glm::vec4[m_InstanceTreeNumber*m_AssimpVerticesNumber];
-	memset(m_DeformationU, 0, sizeof(glm::vec4)*m_InstanceTreeNumber*m_AssimpVerticesNumber);
-}
-
-//此处的index可能在多棵树时存在错误
-void CSence::setSSBO4GenBufferNormal(CShader& vShader, const int vTreeTypeIndex)
-{
-	std::cout << "setSSBO4GenBufferNormal" << std::endl;
-	std::cout << "ShaderId" << vShader.getID() << std::endl;
-	std::cout << m_FrameNums * m_VertexNums*m_FileNumber << std::endl;
-
-	m_SSBO_Binding_Point_Index_Normal.push_back(4 * vTreeTypeIndex);
-
-	vShader.use();
-
-	GLint SSBOBindingfirst = 0, BlockDataSizefirst = 0;
-	glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &SSBOBindingfirst);
-	glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &BlockDataSizefirst);
-
-	glGenBuffers(1, &m_NormalSSBO);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_NormalSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4)*(m_AssimpVerticesNumber*m_InstanceTreeNumber), m_Normal, GL_DYNAMIC_DRAW);
-
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_SSBO_Binding_Point_Index_Normal[0], m_NormalSSBO);
-
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-}
-
-void CSence::ComputerShaderCalculateNormal(ComputerShader& vShader)
-{
+	
 	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_UdeformationSSBO);
 	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_UdeformationSSBO);
+	//set NormalRealted
+	//-----------------
+	GLuint shader_VerwithFaceNumber_index = glGetProgramResourceIndex(vShader.getID(), GL_SHADER_STORAGE_BLOCK, "EachVertexWithFaceNumber");
+	GLint SSBOBinding1 = 0, BlockDataSize1 = 0;
+	glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &SSBOBinding1);
+	glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &BlockDataSize1);
+
+	glGenBuffers(1, &m_VertexWithFaceNumberSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_VertexWithFaceNumberSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(int)*(m_EachVertexWithFaceNumber.size()), &m_EachVertexWithFaceNumber[0], GL_DYNAMIC_DRAW);
+	GLuint VerwithFaceNumberssbo_binding_point_index = 5;
+	//点和SSBO的连接
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, VerwithFaceNumberssbo_binding_point_index, m_VertexWithFaceNumberSSBO);
+	//点和shader的连接
+	glShaderStorageBlockBinding(vShader.getID(), shader_VerwithFaceNumber_index, VerwithFaceNumberssbo_binding_point_index);
+	//--------------------------
+	GLuint shader_VertexWithFaceFirstIndex_index = glGetProgramResourceIndex(vShader.getID(), GL_SHADER_STORAGE_BLOCK, "EachVertexWithFaceFirstIndex");
+	GLint SSBOBinding2 = 0, BlockDataSize2 = 0;
+	glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &SSBOBinding2);
+	glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &BlockDataSize2);
+
+	glGenBuffers(1, &m_VertexWithFaceFirstSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_VertexWithFaceFirstSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(int)*(m_EachVertexWithFaceFirstIndex.size()), &m_EachVertexWithFaceFirstIndex[0], GL_DYNAMIC_DRAW);
+	GLuint VertexWithFaceFirstIndexssbo_binding_point_index = 6;
+	//点和SSBO的连接
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, VertexWithFaceFirstIndexssbo_binding_point_index, m_VertexWithFaceFirstSSBO);
+	//点和shader的连接
+	glShaderStorageBlockBinding(vShader.getID(), shader_VertexWithFaceFirstIndex_index, VertexWithFaceFirstIndexssbo_binding_point_index);
+	//--------------------------------
+	GLuint shader_AllVertexRelatedFaceIndex_index = glGetProgramResourceIndex(vShader.getID(), GL_SHADER_STORAGE_BLOCK, "AllVertexWithFaceIndex");
+	GLint SSBOBinding3 = 0, BlockDataSize3 = 0;
+	glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &SSBOBinding3);
+	glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &BlockDataSize3);
+
+	glGenBuffers(1, &m_AllVertexRelatedFaceSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_AllVertexRelatedFaceSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(int)*(m_AllVertexRelatedFaceIndex.size()), &m_AllVertexRelatedFaceIndex[0], GL_DYNAMIC_DRAW);
+	GLuint AllVertexRelatedFaceIndexssbo_binding_point_index = 7;
+	//点和SSBO的连接
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, AllVertexRelatedFaceIndexssbo_binding_point_index, m_AllVertexRelatedFaceSSBO);
+	//点和shader的连接
+	glShaderStorageBlockBinding(vShader.getID(), shader_AllVertexRelatedFaceIndex_index, AllVertexRelatedFaceIndexssbo_binding_point_index);
+
+	//------------------------------
+	//set DeformationModel
 	GLuint shader_delta_index = glGetProgramResourceIndex(vShader.getID(), GL_SHADER_STORAGE_BLOCK, "DeformationArray");
 
 	GLuint deltassbo_binding_point_index = 2;
@@ -791,6 +829,42 @@ void CSence::ComputerShaderCalculateNormal(ComputerShader& vShader)
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, deltassbo_binding_point_index, m_UdeformationSSBO);
 	//点和shader的连接
 	glShaderStorageBlockBinding(vShader.getID(), shader_delta_index, deltassbo_binding_point_index);
+
+	//----------
+	//set Normal
+	GLuint shader_Normal_index = glGetProgramResourceIndex(vShader.getID(), GL_SHADER_STORAGE_BLOCK, "bufferNormal");
+
+	GLuint Normalssbo_binding_point_index = 4;
+	//点和SSBO的连接
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, Normalssbo_binding_point_index, m_NormalSSBO);
+	//点和shader的连接
+	glShaderStorageBlockBinding(vShader.getID(), shader_Normal_index, Normalssbo_binding_point_index);
+}
+
+//此处的index可能在多棵树时存在错误
+//void CSence::initSSBO4GenBufferNormal(CShader& vShader, const int vTreeTypeIndex)
+//{
+//	m_Normal = new glm::vec4[m_InstanceTreeNumber*m_AssimpVerticesNumber];
+//	memset(m_Normal, 0, sizeof(glm::vec4)*m_InstanceTreeNumber*m_AssimpVerticesNumber);
+//	m_SSBO_Binding_Point_Index_Normal.push_back(4 * vTreeTypeIndex);
+//
+//	vShader.use();
+//
+//	GLint SSBOBindingfirst = 0, BlockDataSizefirst = 0;
+//	glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &SSBOBindingfirst);
+//	glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &BlockDataSizefirst);
+//
+//	glGenBuffers(1, &m_NormalSSBO);
+//	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_NormalSSBO);
+//	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4)*(m_AssimpVerticesNumber*m_InstanceTreeNumber), m_Normal, GL_DYNAMIC_DRAW);
+//
+//	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_SSBO_Binding_Point_Index_Normal[0], m_NormalSSBO);
+//
+//	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+//}
+
+void CSence::ComputerShaderCalculateNormal(ComputerShader& vShader)
+{
 	vShader.use();
 	glDispatchCompute(m_AssimpVerticesNumber*m_InstanceTreeNumber / 1024, 1, 1);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);

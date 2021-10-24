@@ -7,6 +7,8 @@ in vec3 v2f_Normal;
 in float v2f_Color;
 in vec4 v2f_FragposLightPos;
 
+in vec3 g2f_Normal;
+
 // material parameters
 //uniform vec3 albedo;
 uniform float metallic;
@@ -49,7 +51,9 @@ float ShadowCalculation(vec4 fragPos)
 
 	//vec3 normal = normalize(v2f_Normal);
 	vec3 normal;
+
 	normal=normalize(v2f_Normal);
+
     vec3 lightDir = normalize(lightPositions - v2f_WorldPos);
     float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
 
@@ -125,6 +129,8 @@ void main()
 	
 	vec3 albedo = pow(texture(texture_diffuse1, v2f_TexCoords).rgb, vec3(2.2));
 	
+
+    //vec3 N = normalize(v2f_Normal);
 	vec3 N;
     N=normalize(v2f_Normal);
 
@@ -140,7 +146,7 @@ void main()
         float distance = length(lightPositions - v2f_WorldPos);
         float attenuation = 1.0 / (distance * distance);
         //vec3 radiance = lightColors[i] * attenuation;
-		/////////enenene æœ‰é—®é¢˜
+		/////////enenene ÓÐÎÊÌâ
 		//vec3 radiance = lightColors*1.5;
 		vec3 radiance = lightColors;
 		//vec3 radiance = lightColors*3;
@@ -159,7 +165,7 @@ void main()
 
     shadow = shadows ? ShadowCalculation(v2f_FragposLightPos) : 0.0;
 
-	//FragColor = vec4(shadow,1.0,1.0, 1.0);
+	FragColor = vec4(shadow,1.0,1.0, 1.0);
     //shadow=1;
     vec3 ambient = vec3(0.03) * albedo * ao;
 	vec3 color;
@@ -197,6 +203,6 @@ void main()
 	//color=vec3(shadow,0.0,0.0);
     //FragColor = vec4(v2f_Normal, 1.0);
 	//FragColor = vec4(1.0,1.0,1.0, 1.0);
-    FragColor = vec4(color, 1.0);
+    //FragColor = vec4(color, 1.0);
 
 }

@@ -259,6 +259,8 @@ void CInitMultipleTypeTree::InitScenceShaderData(int vTreeTypeIndex,float vScale
 	m_MultipleSceneShadowShader[vTreeTypeIndex]->setMat4("lightSpaceMatrix", m_ShadowTransforms);
 
 	m_MultipleSceneShadowShader[vTreeTypeIndex]->setMat4("model", model);
+
+	//m_MultipleSceneShadowShader[vTreeTypeIndex]->setBool("useGeomOrCompCalNormal", Common::UseGeomOrCompCalculateNormal);
 }
 
 void CInitMultipleTypeTree::calculateTreeDistantWithTerrain(int vTreeTypeIndex)

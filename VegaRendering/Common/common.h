@@ -90,6 +90,11 @@ namespace Common
 
 	static float Pi = 3.1415926;
 
+	static bool UseGeomOrCompCalculateNormal = false;
+
+	static bool renderingGrass = false;
+	static bool renderingLightSource = true;
+
 	struct SVertex
 	{
 		glm::vec3 Position;

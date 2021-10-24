@@ -4,9 +4,49 @@ layout (std430, binding=2) buffer DeformationArray
 {
 	vec4 sum_u[];
 };
+
+layout (std430, binding=4) buffer bufferNormal
+{
+	vec4 Comp_normal[];
+};
+
+layout(std430,binding=5) buffer EachVertexWithFaceNumber
+{
+	int EachVertexRealtedFace[];
+};
+
+layout(std430,binding=6) buffer EachVertexWithFaceFirstIndex
+{
+	int EachVertexRealtedFaceFirstIndex[];
+};
+
+layout(std430,binding=7) buffer AllVertexWithFaceIndex
+{
+	int AllVertexRelatedFaceIndex[];
+};
+
 layout( local_size_x = 1024, local_size_y = 1, local_size_z = 1 ) in;
+
+vec3 GetNormal(vec4 firstVertex,vec4 secondVertex,vec4 thirdVertex) 
+{
+    vec3 a = vec3(firstVertex) - vec3(secondVertex);
+    vec3 b = vec3(thirdVertex) - vec3(secondVertex);
+    return normalize(cross(a, b));
+}
 
 void main()
 {
-	sum_u[gl_GlobalInvocationID.x]=vec4(1.0f,1.0f,1.0f,1.0f);
+	int VertexRealtedFaceNumber=EachVertexRealtedFace[gl_GlobalInvocationID.x];
+	int tempFirstIndex=EachVertexRealtedFaceFirstIndex[gl_GlobalInvocationID.x];
+	//each Vertex Related FaceIndex;
+	vec3 AverageNormal=vec3(0.0f,0.0f,0.0f);
+	for(int i=0;i<VertexRealtedFaceNumber;i++)
+	{
+		int FaceIndex=AllVertexRelatedFaceIndex[tempFirstIndex+i];
+		int VertexIndex=FaceIndex*3;
+		AverageNormal+=GetNormal(sum_u[VertexIndex+0],sum_u[VertexIndex+1],sum_u[VertexIndex+2]);
+	}
+	Comp_normal[gl_GlobalInvocationID.x]=normalize(vec4(AverageNormal,1.0));
+	//sum_u[gl_GlobalInvocationID.x]=vec4(1.0f,1.0f,1.0f,1.0f);
+
 }

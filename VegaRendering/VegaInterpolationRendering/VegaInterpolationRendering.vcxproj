@@ -180,6 +180,8 @@
     <None Include="scene_shadows.frag" />
     <None Include="scene_shadows.geom" />
     <None Include="scene_shadows.vert" />
+    <None Include="sence_Shadows_RelatedComp.frag" />
+    <None Include="sence_shadows_RelatedComp.vert" />
     <None Include="skybox.frag" />
     <None Include="skybox.vert" />
     <None Include="Tree.frag" />

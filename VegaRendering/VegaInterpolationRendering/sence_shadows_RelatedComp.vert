@@ -6,11 +6,11 @@ layout (location = 3) in int faceId;
 layout (location = 4) in mat4 instanceMatrix;
 layout (location = 8 ) in int positionIndex;
 
-out vec2 v2g_TexCoords;
-out vec3 v2g_WorldPos;;
-out vec3 v2g_Normal;
-out float v2g_Color;
-out vec4 v2g_FragposLightPos;
+out vec2 v2f_TexCoords;
+out vec3 v2f_WorldPos;
+out vec3 v2f_Normal;
+out vec4 v2f_FragposLightPos;
+out float v2f_Color;
 //out mat4 v2f_instanceMatrix;
 
 
@@ -73,11 +73,11 @@ void main()
 	if(planeOrTree < 0)
 	{
 
-		v2g_Normal = mat3(model) * aNormal;
-		v2g_WorldPos = vec3(model * vec4(aPos,1.0));
+		v2f_Normal = mat3(model) * aNormal;
+		v2f_WorldPos = vec3(model * vec4(aPos,1.0));
 		//v2f_Color=-1.0;
-		v2g_FragposLightPos=lightSpaceMatrix*vec4(v2g_WorldPos,1.0);
-		v2g_Color=-10.0;
+		v2f_FragposLightPos=lightSpaceMatrix*vec4(v2f_WorldPos,1.0);
+		v2f_Color=-10.0;
 		gl_Position = projection * view * model * vec4(aPos, 1.0);	 
 	}
 	else
@@ -87,12 +87,13 @@ void main()
 		vec4 tempPos=sum_u[gl_InstanceID*assimpvertexNums+positionIndex]+vec4(0,0,0,1.0f);
         //vec4 tempPos=vec4(aPos,1.0);
 		//v2g_Normal = mat3(model)* mat3(instanceMatrix) * aNormal;
-		v2g_Normal = mat3(model)* mat3(instanceMatrix) * aNormal;
-		v2g_Color=1.0;
-		v2g_WorldPos = vec3(model *instanceMatrix* tempPos);
-		v2g_FragposLightPos=lightSpaceMatrix*vec4(v2g_WorldPos,1.0);
-		v2g_TexCoords = aTexCoords; 
-		
+
+		v2f_Normal=vec3(Comp_nurmal[gl_InstanceID*assimpvertexNums+positionIndex]);
+		v2f_Color=1.0;
+		v2f_WorldPos = vec3(model *instanceMatrix* tempPos);
+		v2f_FragposLightPos=lightSpaceMatrix*vec4(v2f_WorldPos,1.0);
+		v2f_TexCoords = aTexCoords; 
+	
 		//vec3 normal = mat3(model)* mat3(instanceMatrix) * aNormal;
 	    tempPos = projection * view * model * instanceMatrix * tempPos;
 		
@@ -102,13 +103,13 @@ void main()
 			/*************version1******************/
 			vec4 windDirection = vec4(1.0,0.0,0.0,1.0);
 			
-			//////////////////////////å¦‚ä½•è®¡ç®—æ¯ä¸€ç‰‡å¶å­çš„åŠ›çš„å¤§å°ï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿ
-			float force = sin(0.1* time*v2g_WorldPos.x)+1;
-			float phase = 0.05;//é¢‘çŽ‡
-			float flutter = 1.0;//æ‘†åŠ¨å¹…åº¦
-			float primaryOffset = 0.08;//æ‰€æœ‰é¡¶ç‚¹å›ºå®šåç§»
-			//é¡¶ç‚¹éƒ¨åˆ†ä½¿ç”¨ä¸–ç•Œåæ ‡ä½ç½®ä½œä¸ºéšæœºå› å­
-			float leafPhase = dot(v2g_WorldPos,vec3(1.0));
+			//////////////////////////ÈçºÎ¼ÆËãÃ¿Ò»Æ¬Ò¶×ÓµÄÁ¦µÄ´óÐ¡£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿£¿
+			float force = sin(0.1* time*v2f_WorldPos.x)+1;
+			float phase = 0.05;//ÆµÂÊ
+			float flutter = 1.0;//°Ú¶¯·ù¶È
+			float primaryOffset = 0.08;//ËùÓÐ¶¥µã¹Ì¶¨Æ«ÒÆ
+			//¶¥µã²¿·ÖÊ¹ÓÃÊÀ½ç×ø±êÎ»ÖÃ×÷ÎªËæ»úÒò×Ó
+			float leafPhase = dot(v2f_WorldPos,vec3(1.0));
 			//float leafPhase = dot(v2f_WorldPos,windDirection.xyz); 
 			vec2 wavesIn = vec2(time) + vec2(leafPhase,phase);
 			//float wavesIn = leafPhase;
@@ -116,14 +117,14 @@ void main()
 			waves = 0.08 * smoothTriangleWave(waves);
 			vec2 waveSum = waves.xz +waves.yw;
 			//waves = sin(0.3*waves);
-			vec3 bend = vec3(flutter) * v2g_Normal.xyz;
+			vec3 bend = vec3(flutter) * v2f_Normal.xyz;
 			//bend.y = 0.05*0.3;
-			//é™åˆ¶æ ¹éƒ¨é™„è¿‘é¡¶ç‚¹çš„è¿åŠ¨
+			//ÏÞÖÆ¸ù²¿¸½½ü¶¥µãµÄÔË¶¯
 			//gl_Position = tempPos + vec4(0.0f,  pow((1 - (pow(aTexCoords.x-0.5,2) + pow(aTexCoords.y,2))),2) * sin(frameIndex)* 0.05,0.0f,0);
-			//æœ€ç»ˆæ··åˆï¼šæŠ–åŠ¨ï¼ˆå¹³æ»‘è¿‡çš„ä¸‰è§’æ³¢ï¼‰+æ¬¡åç§»ï¼ˆæ•´ä½“æ¥å›žæ‘†åŠ¨ï¼‰
-			/////(vec3(æ³¢*å¼¯æ›²ï¼‰+ vec3(é£Žå‘*æ³¢))*float*float
+			//×îÖÕ»ìºÏ£º¶¶¶¯£¨Æ½»¬¹ýµÄÈý½Ç²¨£©+´ÎÆ«ÒÆ£¨ÕûÌåÀ´»Ø°Ú¶¯£©
+			/////(vec3(²¨*ÍäÇú£©+ vec3(·çÏò*²¨))*float*float
 			//tempPos.xyz +=  ((waveSum.xyx * bend) + bendScale * (windDirection.xyz * waveSum.y))*windDirection.w*animfade;
-			//å¾€é£Žæ–¹å‘ä¸»åç§»
+			//Íù·ç·½ÏòÖ÷Æ«ÒÆ
 			//float primaryOffset * vec3 windDirection * float animfade * float force
 			//tempPos.xyz += primaryOffsetScale * primaryOffset * windDirection.xyz * animfade * force;
 

@@ -20,6 +20,7 @@
 #include "../Common/ExtraTool.h"
 #include "RenderStaticSence.h"
 #include "../RenderingProcess/ComputerShader.h"
+#include "../Common/common.h"
 
 //#define GLFW_EXPOSE_NATIVE_GLX
 
@@ -119,8 +120,7 @@ std::string PathString = "video1/";
 
 std::vector<double>timeSum;
 
-bool renderingGrass=false;
-bool renderingLightSource = true;
+
 
 //前一个std::vector表示匹配树的个数，后一个std::vector表示每一帧中需要的数据
 //vMultipleExtraForces 表示每一帧风的方向，每次用5帧来进行搜索
@@ -503,7 +503,7 @@ int main()
 	RenderStaticSence.setTerrainHeightYToZero();
 	//End Each time change*************
     //lightsource
-    if (renderingLightSource == true)
+    if (Common::renderingLightSource == true)
     {
         RenderStaticSence.loadStaticModel("lightsource", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/sphere/sphere.obj");
         RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
@@ -516,7 +516,7 @@ int main()
 
 
 	////grass1
-    if (renderingGrass == true)
+    if (Common::renderingGrass == true)
     {
         //Grass
         RenderStaticSence.loadStaticModel("greenGrass", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/grassGrass/greenGrass/file.obj");
@@ -701,7 +701,14 @@ int main()
 
 	MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/deltaU", "../../models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt",1);
 	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[0], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/WindAndTreeConfig/Config.txt");
-	MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag","scene_shadows.geom");
+	if (Common::UseGeomOrCompCalculateNormal == true)
+	{
+		MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag", "scene_shadows.geom");
+	}
+	else
+	{
+		MultipleTypeTree.InitSceneShadowShader("sence_shadows_RelatedComp.vert", "sence_Shadows_RelatedComp.frag");
+	}
 	//MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag","computerFaceNormal.geom");
 	MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
 	MultipleTypeTree.InitTreeModel("../../models/yellow_tree/tree_last_test.obj", 0);
@@ -792,9 +799,17 @@ int main()
 	int numFramePoints = vAllReallyLoadConnectedFem[0].FemDataset[0]->Frames[0].BaseFileDeformations.size();
 	std::vector<glm::vec3>sumDeltaU(numFramePoints);
 
-
+	//ComputerShaderNormal
 	ComputerShader * Ourcomputershader = new ComputerShader("calculateNormal.comp");
-
+	if (Common::UseGeomOrCompCalculateNormal == false)
+	{
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+		for (int i = 0; i < Common::TreesTypeNumber; i++)
+		{
+			MultipleTypeTree.getSpecificTreeModel(i)->initComputerSSBONormalRelatedData(*Ourcomputershader, i);
+			glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+		}
+	}
 	while (!glfwWindowShouldClose(Window))
 	{
 #pragma region Imgui 
@@ -949,14 +964,15 @@ int main()
 
 		//computerNormal
 
-		
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-		for (int i = 0; i < Common::TreesTypeNumber; i++)
+		if (Common::UseGeomOrCompCalculateNormal == false)
 		{
-			MultipleTypeTree.getSpecificTreeModel(i)->ComputerShaderCalculateNormal(*Ourcomputershader);
-			glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+			for (int i = 0; i < Common::TreesTypeNumber; i++)
+			{
+				MultipleTypeTree.getSpecificTreeModel(i)->ComputerShaderCalculateNormal(*Ourcomputershader);
+				glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+			}
 		}
-		
 
 		//2.render Scene
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);

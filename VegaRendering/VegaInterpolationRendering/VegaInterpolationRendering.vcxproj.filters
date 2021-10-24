@@ -113,6 +113,8 @@
     <None Include="lightsource.frag" />
     <None Include="calculateNormal.comp" />
     <None Include="computerFaceNormal.geom" />
+    <None Include="sence_shadows_RelatedComp.vert" />
+    <None Include="sence_Shadows_RelatedComp.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LoadWindAndTreeConfig.h">

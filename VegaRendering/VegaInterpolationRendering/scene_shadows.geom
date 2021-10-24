@@ -11,7 +11,6 @@ in vec4 v2g_FragposLightPos[];
 out vec2 v2f_TexCoords;
 out vec3 v2f_WorldPos;
 out vec3 v2f_Normal;
-out vec3 g2f_Normal;
 out float v2f_Color;
 out vec4 v2f_FragposLightPos;
 
@@ -43,8 +42,9 @@ void main()
             v2f_WorldPos=v2g_WorldPos[i];
             v2f_Color=v2g_Color[i];
             v2f_FragposLightPos=v2g_FragposLightPos[i];
-            v2f_Normal=v2g_Normal[i];
-            g2f_Normal = normal;
+            //v2f_Normal=v2g_Normal[i];
+            //g2f_Normal = normal;
+			v2f_Normal=normal;
             EmitVertex( );
          }
 
