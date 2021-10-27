@@ -3,6 +3,7 @@
 CLoadWindAndTreeConfig::CLoadWindAndTreeConfig(int vTreeNumber, const std::string & vFilePath)
 {
     m_TreeNumber = vTreeNumber;
+	m_FilePath = vFilePath;
     readTreeParaConfig(vFilePath);
     productMultipleTreeWindPara();
     __productEachFormNumberArray();
@@ -54,8 +55,12 @@ void CLoadWindAndTreeConfig::productMultipleTreeWindPara()
     {
         tempFileConfigTreeNumber += i;
     }
-    if (tempFileConfigTreeNumber != m_TreeNumber)
-        std::cout << "TreeFileConfig TreeNumber Error" << std::endl;
+	if (tempFileConfigTreeNumber != m_TreeNumber)
+	{
+		std::cout << "------------------------" << std::endl;
+		std::cout << "TreeFileConfig TreeNumber Error" << std::endl;
+		std::cout << "you should change " << m_FilePath << " TreeNumber" << std::endl;
+	}
     else
     {
         for (int i = 0; i < m_EachTypeTreeNumber.size(); i++)

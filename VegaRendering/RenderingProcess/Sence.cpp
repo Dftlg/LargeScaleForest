@@ -844,18 +844,22 @@ void CSence::initComputerSSBONormalRelatedData(ComputerShader& vShader, const in
 	glShaderStorageBlockBinding(vShader.getID(), shader_Normal_index, Normalssbo_binding_point_index);
 }
 
+//没有使用，当时想法是替换掉vert着色中的model matrix 的instance部分
 void CSence::setSSBO4GenModelNormalMatrixData(glm::mat4 vmodelMatrix)
 {
 	m_InstanceNoramMatrix = new glm::mat4[m_InstanceTreeNumber];
 	for (int i = 0; i < m_InstanceTreeNumber; i++)
 	{
-		m_InstanceNoramMatrix[i]= glm::transpose(glm::inverse(vmodelMatrix*m_InstanceDumMat[i]));
+		//m_InstanceNoramMatrix[i]= glm::transpose(glm::inverse(vmodelMatrix*m_InstanceDumMat[i]));
+		m_InstanceNoramMatrix[i] = vmodelMatrix*m_InstanceDumMat[i];
 	}
 }
 
-void CSence::initSSBO4GenModelNormalMatrixBuffer(CShader& vShader, const int vTreeTypeIndex)
+//当时想法是替换掉vert着色中的model matrix 的instance部分,现在用在对Computer Shader中使用，
+//改进可以继承同时对两个Shader的Model矩阵部分替换
+void CSence::initSSBO4GenModelNormalMatrixBuffer(ComputerShader& vShader, const int vTreeTypeIndex)
 {
-	GLuint shader_ModelNormalMatrix_index = glGetProgramResourceIndex(vShader.getID(), GL_SHADER_STORAGE_BLOCK, "ModelNormalMatrix");
+	GLuint shader_ModelNormalMatrix_index = glGetProgramResourceIndex(vShader.getID(), GL_SHADER_STORAGE_BLOCK, "EachTreeInstanceModelMatrix");
 	GLint SSBOBinding1 = 0, BlockDataSize1 = 0;
 	glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &SSBOBinding1);
 	glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &BlockDataSize1);

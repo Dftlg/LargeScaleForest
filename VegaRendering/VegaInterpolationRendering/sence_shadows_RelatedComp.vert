@@ -55,10 +55,10 @@ layout (std430, binding=4) buffer bufferNormal
 	vec4 Comp_nurmal[];
 };
 
-layout (std430, binding=8) buffer ModelNormalMatrix
-{
-	mat4 Normal_Matrix[];
-};
+//layout (std430, binding=8) buffer ModelNormalMatrix
+//{
+//	mat4 Normal_Matrix[];
+//};
 
 
 vec4 smoothCurve(vec4 x)

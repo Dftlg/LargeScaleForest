@@ -36,11 +36,11 @@ namespace Common
 
     /////each time change
 
-    const int AllTreesNumber = 2;
+    const int AllTreesNumber = 1;
 
     const int TreesTypeNumber = 1;
 
-    const int TreesNumbers[TreesTypeNumber] = {2};
+    const int TreesNumbers[TreesTypeNumber] = {1};
     //int SecondTypeTreesNumber = 5;
 
     //const int AllTreesNumber = 100;
@@ -62,7 +62,7 @@ namespace Common
 	const float ModelAxisYMove[TreesTypeNumber] = { 0.5 };
 	//const float ModelAxisYMove[TreesTypeNumber] = { 0.7,0.6,0.45 };
 
-	const float ModelCutInTerrain[TreesTypeNumber] = { 9.5 };
+	const float ModelCutInTerrain[TreesTypeNumber] = { 9};
 	//const float ModelCutInTerrain[TreesTypeNumber] = { 9.5,5,5 };
 
 	static int MaxTimeStep = 60;
@@ -90,8 +90,10 @@ namespace Common
 
 	static float Pi = 3.1415926;
 
+	static bool GenerateRandomTreePosition=false;
+
 	//use Geom Or Comp Shader calculate Normal
-	static bool UseGeomOrCompCalculateNormal = true;
+	static bool UseGeomOrCompCalculateNormal = false;
 
 	static bool renderingGrass = false;
 	static bool renderingLightSource = true;

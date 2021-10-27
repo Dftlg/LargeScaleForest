@@ -73,6 +73,12 @@ void CInitMultipleTypeTree::InitSceneDepthShader(const char* vVertexPath, const 
     m_MultipleSceneDepthShader.push_back(ourSceneDepthShader);
 }
 
+void CInitMultipleTypeTree::InitComputerShaderCalculateNormal(const char* vCompShader)
+{
+	ComputerShader * Ourcomputershader = new ComputerShader(vCompShader);
+	m_MultipleCompCalculateNormalShader.push_back(Ourcomputershader);
+}
+
 void CInitMultipleTypeTree::setTreeModelMatrixToShader(ComputerShader & vShader)
 {
 	vShader.use();
@@ -270,10 +276,15 @@ void CInitMultipleTypeTree::InitScenceShaderData(int vTreeTypeIndex,float vScale
 	//m_MultipleSceneShadowShader[vTreeTypeIndex]->setBool("useGeomOrCompCalNormal", Common::UseGeomOrCompCalculateNormal);
 }
 
+//void CInitMultipleTypeTree::InitNormalRelatedDate(int vTreeTypeIndex)
+//{
+//	m_MultipleCompCalculateNormalShader[vTreeTypeIndex]
+//}
+
 void CInitMultipleTypeTree::InitScenceNormalMatrixData(int vTreeTypeIndex)
 {
 	m_MultipleTreeModel[vTreeTypeIndex]->setSSBO4GenModelNormalMatrixData(m_ModelScale[vTreeTypeIndex]);
-	m_MultipleTreeModel[vTreeTypeIndex]->initSSBO4GenModelNormalMatrixBuffer(*(m_MultipleSceneShadowShader[vTreeTypeIndex]), vTreeTypeIndex);
+	m_MultipleTreeModel[vTreeTypeIndex]->initSSBO4GenModelNormalMatrixBuffer(*(m_MultipleCompCalculateNormalShader[vTreeTypeIndex]), vTreeTypeIndex);
 }
 
 void CInitMultipleTypeTree::calculateTreeDistantWithTerrain(int vTreeTypeIndex)

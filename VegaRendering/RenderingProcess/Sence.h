@@ -50,7 +50,7 @@ public:
 	void initComputerSSBONormalRelatedData(ComputerShader& vShader, const int vTreeTypeIndex);
 	void initSSBO4GenBufferNormal(CShader& vShader, const int vTreeTypeIndex);
 	void setSSBO4GenModelNormalMatrixData(glm::mat4 vmodelMatrix);
-	void initSSBO4GenModelNormalMatrixBuffer(CShader& vShader, const int vTreeTypeIndex);
+	void initSSBO4GenModelNormalMatrixBuffer(ComputerShader& vShader, const int vTreeTypeIndex);
 
     void UpdataSSBOBindingPointIndex();
 

@@ -693,7 +693,7 @@ int main()
 	//MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
 	//MultipleTypeTree.InitTreeModel("../../models/apricot_tree/tree.obj", 0);
 
-	CInitMultipleTypeTree MultipleTypeTree(Common::TreesTypeNumber, ALLTreeNumber,false);
+	CInitMultipleTypeTree MultipleTypeTree(Common::TreesTypeNumber, ALLTreeNumber, Common::GenerateRandomTreePosition);
 	//////////////////////////////////////////
 	//MultipleTypeTree.InitShadowCubeMapPara(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, shadowTransforms, lightVertices, lightColors);
 	MultipleTypeTree.InitShadowMapPara(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, lightSpaceMatrix, lightPosition[0], lightPointColors[0]);
@@ -714,10 +714,10 @@ int main()
 	MultipleTypeTree.InitTreeModel("../../models/yellow_tree/tree_last_test.obj", 0);
 
 
-	/*MultipleTypeTree.InitVegaFemFactory("G:/GraduationProject/mini_mapleTree/deltaU", "../../models/mini_mapleTree/tree.obj", "../../models/mini_mapleTree/ObjectVertexIndex.txt",2);
-	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[1], "G:/GraduationProject/mini_mapleTree/WindAndTreeConfig/Config.txt");
-	MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
-	MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag", "point_shadows_depth.gs");
+	/*MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/deltaU", "../../models/mini_mapleTree/tree.obj", "../../models/mini_mapleTree/ObjectVertexIndex.txt",1);
+	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[1], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/WindAndTreeConfig/Config.txt");
+	MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag", "scene_shadows.geom");
+	MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
 	MultipleTypeTree.InitTreeModel("../../models/mini_mapleTree/tree.obj", 1);*/
 
 
@@ -734,9 +734,6 @@ int main()
 		MultipleTypeTree.InitScenceShaderData(i, Common::ScaleTree[i]);
 		MultipleTypeTree.calculateTreeDistantWithTerrain(i);
 
-		//calculateNormalMatrix
-		if(Common::UseGeomOrCompCalculateNormal==false)
-		MultipleTypeTree.InitScenceNormalMatrixData(i);
 
 		//End Each time change*************
 		//***************

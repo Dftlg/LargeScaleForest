@@ -37,5 +37,7 @@ private:
     std::vector<int> m_TypeOfTreeEachFormNumber;
 
     int m_TreeNumber;
+
+	std::string m_FilePath;
 };
 

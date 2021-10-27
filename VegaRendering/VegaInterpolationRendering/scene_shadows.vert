@@ -14,7 +14,7 @@ out vec4 v2g_FragposLightPos;
 //out mat4 v2f_instanceMatrix;
 
 //out vec4 TEST_BASEPosition;
-out mat4 TEST_BASEMat;
+//out mat4 TEST_BASEMat;
 
 uniform int frameNums;
 uniform int frameIndex;
@@ -87,7 +87,7 @@ void main()
 		
 		//vec4 tempPos=vec4(aPos,1.0) + sum_u[gl_InstanceID*assimpvertexNums+positionIndex];
 		vec4 tempPos=sum_u[gl_InstanceID*assimpvertexNums+positionIndex]+vec4(0,0,0,1.0f);
-        //vec4 tempPos=vec4(aPos,1.0);
+
 		//v2g_Normal = mat3(model)* mat3(instanceMatrix) * aNormal;
 		v2g_Normal = mat3(model)* mat3(instanceMatrix) * aNormal;
 		v2g_Color=1.0;
@@ -96,7 +96,7 @@ void main()
 		v2g_TexCoords = aTexCoords; 
 		
 		//TEST_BASEPosition=tempPos;
-		TEST_BASEMat=model * instanceMatrix;
+		//TEST_BASEMat=model * instanceMatrix;
 		//vec3 normal = mat3(model)* mat3(instanceMatrix) * aNormal;
 	    tempPos = projection * view * model * instanceMatrix * tempPos;
 		

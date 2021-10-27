@@ -14,6 +14,7 @@
 #include "VegaFemFactory.h"
 #include "../Common/WindFiled.h"
 #include "LoadWindAndTreeConfig.h"
+#include "../RenderingProcess/ComputerShader.h"
 
 class CInitMultipleTypeTree
 {
@@ -24,6 +25,9 @@ public:
     void InitWindAndTree(int vTreeNumber, const std::string & vFilePath);
     void InitSceneShadowShader(const char* vVertexPath, const char* vFragmentPath, const char* vGeometryPath = nullptr);
     void InitSceneDepthShader(const char* vVertexPath, const char* vFragmentPath, const char* vGeometryPath = nullptr);
+
+	void InitComputerShaderCalculateNormal(const char* vCompShader);
+	void InitNormalRelatedDate(int vTreeTypeIndex);
 
     void InitTreeModel(const std::string& vModelPath, int vTreeTypeIndex);
 	int getSumFaceVerticesBeforeEndMesh(const int& vTreeIndex);
@@ -99,6 +103,8 @@ private:
     std::vector<CShader*> m_MultipleSceneShadowShader;
     std::vector<CShader*> m_MultipleSceneDepthShader;
     std::vector<CSence *> m_MultipleTreeModel;
+
+	std::vector<ComputerShader*> m_MultipleCompCalculateNormalShader;
 
     //第一个std::vector表示某棵树，第二个vector表示该棵树共有多少中不同的形变，第三个vector表示某一形变收到的外力
     std::vector<std::vector<std::vector<int>>> m_MultipleExtraForces;
