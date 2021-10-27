@@ -36,11 +36,11 @@ namespace Common
 
     /////each time change
 
-    const int AllTreesNumber = 1;
+    const int AllTreesNumber = 2;
 
     const int TreesTypeNumber = 1;
 
-    const int TreesNumbers[TreesTypeNumber] = {1};
+    const int TreesNumbers[TreesTypeNumber] = {2};
     //int SecondTypeTreesNumber = 5;
 
     //const int AllTreesNumber = 100;
@@ -90,6 +90,7 @@ namespace Common
 
 	static float Pi = 3.1415926;
 
+	//use Geom Or Comp Shader calculate Normal
 	static bool UseGeomOrCompCalculateNormal = true;
 
 	static bool renderingGrass = false;

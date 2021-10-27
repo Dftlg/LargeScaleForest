@@ -42,6 +42,8 @@ public:
 	void InitShadowMapPara(float vNearPlane, float vFarPlane, int vSHADOW_WIDTH, int vSHADOW_HEIGHT, glm::mat4& vshadowTransforms, glm::vec3 & vlightVertices, glm::vec3 & vlightColors);
 
     void InitScenceShaderData(int vTreeTypeIndex,float vScale);
+	void InitScenceNormalMatrixData(int vTreeTypeIndex);
+
     ~CInitMultipleTypeTree()=default;
 
     std::vector<CVegaFemFactory*> * getFemFactory() { return &m_MultipleTypeFem; };
@@ -63,6 +65,9 @@ public:
     CLoadWindAndTreeConfig getSpecificLoadWindAndTree(int vTreeTypeIndex) { return m_MultipleTypeTree[vTreeTypeIndex];}
 
     std::vector<int> getTreeTypeIndex() { return m_TreeTypeIndex; };
+
+	//因为只支持一种树到时候要重写
+	void setTreeModelMatrixToShader(ComputerShader & vShader);
 
 	void updataTreeOnTerrain(int vTreeTypeIndex);
 	void calculateTreeDistantWithTerrain(int vTreeTypeIndex);

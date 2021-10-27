@@ -96,10 +96,10 @@ void main()
 		v2g_TexCoords = aTexCoords; 
 		
 		//TEST_BASEPosition=tempPos;
-		TEST_BASEMat=projection * view * model * instanceMatrix;
+		TEST_BASEMat=model * instanceMatrix;
 		//vec3 normal = mat3(model)* mat3(instanceMatrix) * aNormal;
 	    tempPos = projection * view * model * instanceMatrix * tempPos;
-
+		
 		
 		
 		if(positionIndex >= sumFaceVerticesBeforeEndMesh)

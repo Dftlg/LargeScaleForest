@@ -693,7 +693,7 @@ int main()
 	//MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
 	//MultipleTypeTree.InitTreeModel("../../models/apricot_tree/tree.obj", 0);
 
-	CInitMultipleTypeTree MultipleTypeTree(Common::TreesTypeNumber, ALLTreeNumber);
+	CInitMultipleTypeTree MultipleTypeTree(Common::TreesTypeNumber, ALLTreeNumber,false);
 	//////////////////////////////////////////
 	//MultipleTypeTree.InitShadowCubeMapPara(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, shadowTransforms, lightVertices, lightColors);
 	MultipleTypeTree.InitShadowMapPara(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, lightSpaceMatrix, lightPosition[0], lightPointColors[0]);
@@ -733,6 +733,10 @@ int main()
 		MultipleTypeTree.InitFemFrameStruct(i);
 		MultipleTypeTree.InitScenceShaderData(i, Common::ScaleTree[i]);
 		MultipleTypeTree.calculateTreeDistantWithTerrain(i);
+
+		//calculateNormalMatrix
+		if(Common::UseGeomOrCompCalculateNormal==false)
+		MultipleTypeTree.InitScenceNormalMatrixData(i);
 
 		//End Each time change*************
 		//***************
@@ -801,6 +805,7 @@ int main()
 
 	//ComputerShaderNormal
 	ComputerShader * Ourcomputershader = new ComputerShader("calculateNormal.comp");
+	MultipleTypeTree.setTreeModelMatrixToShader(*Ourcomputershader);
 	if (Common::UseGeomOrCompCalculateNormal == false)
 	{
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);

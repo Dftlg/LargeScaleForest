@@ -129,7 +129,7 @@ void main()
 	
 	vec3 N;
     N=normalize(v2f_Normal);
-	  //FragColor = vec4(v2f_Normal, 1.0);
+	FragColor = vec4(v2f_Normal, 1.0);
     vec3 V = normalize(camPos - v2f_WorldPos);
 
     vec3 F0 = vec3(0.04); 
@@ -199,6 +199,6 @@ void main()
 	//color=vec3(shadow,0.0,0.0);
     //FragColor = vec4(v2f_Normal, 1.0);
 	//FragColor = vec4(1.0,1.0,1.0, 1.0);
-    FragColor = vec4(color, 1.0);
+    //FragColor = vec4(color, 1.0);
 
 }

@@ -49,6 +49,8 @@ public:
 	//Normla
 	void initComputerSSBONormalRelatedData(ComputerShader& vShader, const int vTreeTypeIndex);
 	void initSSBO4GenBufferNormal(CShader& vShader, const int vTreeTypeIndex);
+	void setSSBO4GenModelNormalMatrixData(glm::mat4 vmodelMatrix);
+	void initSSBO4GenModelNormalMatrixBuffer(CShader& vShader, const int vTreeTypeIndex);
 
     void UpdataSSBOBindingPointIndex();
 
@@ -141,6 +143,7 @@ private:
 	unsigned int m_UdeformationSSBO;
 	unsigned int m_TreeFileAndFrameSSBO;
 	unsigned int m_NormalSSBO;
+	unsigned int m_ModelNormalMatrixSSBO;
 
 	//VertexRelatedFace
 	unsigned int m_VertexWithFaceNumberSSBO;
@@ -171,4 +174,6 @@ private:
 	glm::mat4 m_InstanceMat;
 
 	glm::mat4 *m_InstanceDumMat;
+
+	glm::mat4 *m_InstanceNoramMatrix;
 };

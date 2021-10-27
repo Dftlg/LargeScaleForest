@@ -14,6 +14,9 @@ out float v2f_Color;
 //out mat4 v2f_instanceMatrix;
 
 
+out vec4 TEST_BASEPosition;
+out mat4 TEST_BASEMat;
+
 uniform int frameNums;
 uniform int frameIndex;
 uniform int vertexNums;
@@ -52,6 +55,12 @@ layout (std430, binding=4) buffer bufferNormal
 	vec4 Comp_nurmal[];
 };
 
+layout (std430, binding=8) buffer ModelNormalMatrix
+{
+	mat4 Normal_Matrix[];
+};
+
+
 vec4 smoothCurve(vec4 x)
 {
 	return x * x * (3.0 - 2.0 * x);
@@ -88,15 +97,22 @@ void main()
         //vec4 tempPos=vec4(aPos,1.0);
 		//v2g_Normal = mat3(model)* mat3(instanceMatrix) * aNormal;
 
+		//v2f_Normal=mat3(Normal_Matrix[gl_InstanceID])*vec3(Comp_nurmal[gl_InstanceID*assimpvertexNums+positionIndex]);
 		v2f_Normal=vec3(Comp_nurmal[gl_InstanceID*assimpvertexNums+positionIndex]);
 		v2f_Color=1.0;
 		v2f_WorldPos = vec3(model *instanceMatrix* tempPos);
 		v2f_FragposLightPos=lightSpaceMatrix*vec4(v2f_WorldPos,1.0);
 		v2f_TexCoords = aTexCoords; 
+
+		TEST_BASEPosition=tempPos;
+		TEST_BASEMat=model * instanceMatrix;
 	
 		//vec3 normal = mat3(model)* mat3(instanceMatrix) * aNormal;
 	    tempPos = projection * view * model * instanceMatrix * tempPos;
+
+
 		
+
 		if(positionIndex >= sumFaceVerticesBeforeEndMesh)
 		{
 

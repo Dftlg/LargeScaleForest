@@ -25,16 +25,22 @@ layout(std430,binding=7) buffer AllVertexWithFaceIndex
 	int AllVertexRelatedFaceIndex[];
 };
 
-layout( local_size_x = 1024, local_size_y = 1, local_size_z = 1 ) in;
+layout( local_size_x = 3, local_size_y = 1, local_size_z = 1 ) in;
 
-uniform mat4 projection;
-uniform mat4 view;
 uniform mat4 model;
+uniform mat4 modeltwo;
+uniform mat4 instanceMatrix;
 
-vec3 GetNormal(vec4 firstVertex,vec4 secondVertex,vec4 thirdVertex) 
+//vec3 GetNormal(vec4 firstVertex,vec4 secondVertex,vec4 thirdVertex) 
+//{
+//    vec3 a = vec3(firstVertex) - vec3(secondVertex);
+//    vec3 b = vec3(thirdVertex) - vec3(secondVertex);
+//    return normalize(cross(a, b));
+//}
+vec3 GetNormal(vec3 firstVertex,vec3 secondVertex,vec3 thirdVertex) 
 {
-    vec3 a = vec3(firstVertex) - vec3(secondVertex);
-    vec3 b = vec3(thirdVertex) - vec3(secondVertex);
+    vec3 a = secondVertex - firstVertex;
+    vec3 b = thirdVertex - firstVertex;
     return normalize(cross(a, b));
 }
 
@@ -42,15 +48,43 @@ void main()
 {
 	int VertexRealtedFaceNumber=EachVertexRealtedFace[gl_GlobalInvocationID.x];
 	int tempFirstIndex=EachVertexRealtedFaceFirstIndex[gl_GlobalInvocationID.x];
-	//each Vertex Related FaceIndex;
+	//////each Vertex Related FaceIndex;
 	vec3 AverageNormal=vec3(0.0f,0.0f,0.0f);
 	for(int i=0;i<VertexRealtedFaceNumber;i++)
 	{
 		int FaceIndex=AllVertexRelatedFaceIndex[tempFirstIndex+i];
 		int VertexIndex=FaceIndex*3;
-		AverageNormal+=GetNormal(sum_u[VertexIndex+0],sum_u[VertexIndex+1],sum_u[VertexIndex+2]);
+		AverageNormal+=GetNormal(vec3(instanceMatrix*(sum_u[VertexIndex]+vec4(0,0,0,1.0f))),vec3(instanceMatrix*(sum_u[VertexIndex+1]+vec4(0,0,0,1.0f))),vec3(instanceMatrix*(sum_u[VertexIndex+2]+vec4(0,0,0,1.0f))));
 	}
-	Comp_normal[gl_GlobalInvocationID.x]=normalize(vec4(AverageNormal,1.0));
-	//sum_u[gl_GlobalInvocationID.x]=vec4(1.0f,1.0f,1.0f,1.0f);
+	Comp_normal[gl_GlobalInvocationID.x]=vec4(normalize(AverageNormal),1.0);
+	
+
+	//if(gl_GlobalInvocationID.x>50385)
+	//{
+	//	Comp_normal[gl_GlobalInvocationID.x]=vec4(0,0,0,0);
+	//}
+
+	//if(gl_GlobalInvocationID.x<50385||gl_GlobalInvocationID.x>=70773)
+	//{
+	//	Comp_normal[gl_GlobalInvocationID.x]=vec4(0,0,0,0);
+	//}
+
+	//if(gl_GlobalInvocationID.x<70773)
+	//{
+	//	Comp_normal[gl_GlobalInvocationID.x]=vec4(0,0,0,0);
+	//}
+
+
+	//correct
+	//if(gl_GlobalInvocationID.x%3==0)
+	//{
+	//	vec3 tempNormal=GetNormal(vec3(instanceMatrix*(sum_u[gl_GlobalInvocationID.x]+vec4(0,0,0,1.0f))),vec3(instanceMatrix*(sum_u[gl_GlobalInvocationID.x+1]+vec4(0,0,0,1.0f))),vec3(instanceMatrix*(sum_u[gl_GlobalInvocationID.x+2]+vec4(0,0,0,1.0f))));
+	//	Comp_normal[gl_GlobalInvocationID.x]=vec4(tempNormal,1.0);
+	//	Comp_normal[gl_GlobalInvocationID.x+1]=vec4(tempNormal,1.0);
+	//	Comp_normal[gl_GlobalInvocationID.x+2]=vec4(tempNormal,1.0);
+	//}
+	
+	//correct
+	//Comp_normal[gl_GlobalInvocationID.x]=instanceMatrix*(sum_u[gl_GlobalInvocationID.x]+vec4(0,0,0,1.0f));
 
 }

@@ -165,7 +165,7 @@ void main()
 
     shadow = shadows ? ShadowCalculation(v2f_FragposLightPos) : 0.0;
 
-	FragColor = vec4(shadow,1.0,1.0, 1.0);
+	//FragColor = vec4(shadow,1.0,1.0, 1.0);
     //shadow=1;
     vec3 ambient = vec3(0.03) * albedo * ao;
 	vec3 color;
@@ -203,6 +203,6 @@ void main()
 	//color=vec3(shadow,0.0,0.0);
     //FragColor = vec4(v2f_Normal, 1.0);
 	//FragColor = vec4(1.0,1.0,1.0, 1.0);
-    //FragColor = vec4(color, 1.0);
+    FragColor = vec4(color, 1.0);
 
 }

@@ -73,6 +73,13 @@ void CInitMultipleTypeTree::InitSceneDepthShader(const char* vVertexPath, const 
     m_MultipleSceneDepthShader.push_back(ourSceneDepthShader);
 }
 
+void CInitMultipleTypeTree::setTreeModelMatrixToShader(ComputerShader & vShader)
+{
+	vShader.use();
+	vShader.setMat4("instanceMatrix", m_ModelScale[0]* m_InstanceObjectDumMat[0][0]);
+	
+}
+
 void CInitMultipleTypeTree::InitTreeModel(const std::string& vModelPath,int vTreeTypeIndex)
 {
     CSence* ourModel=new CSence(vModelPath);
@@ -261,6 +268,12 @@ void CInitMultipleTypeTree::InitScenceShaderData(int vTreeTypeIndex,float vScale
 	m_MultipleSceneShadowShader[vTreeTypeIndex]->setMat4("model", model);
 
 	//m_MultipleSceneShadowShader[vTreeTypeIndex]->setBool("useGeomOrCompCalNormal", Common::UseGeomOrCompCalculateNormal);
+}
+
+void CInitMultipleTypeTree::InitScenceNormalMatrixData(int vTreeTypeIndex)
+{
+	m_MultipleTreeModel[vTreeTypeIndex]->setSSBO4GenModelNormalMatrixData(m_ModelScale[vTreeTypeIndex]);
+	m_MultipleTreeModel[vTreeTypeIndex]->initSSBO4GenModelNormalMatrixBuffer(*(m_MultipleSceneShadowShader[vTreeTypeIndex]), vTreeTypeIndex);
 }
 
 void CInitMultipleTypeTree::calculateTreeDistantWithTerrain(int vTreeTypeIndex)

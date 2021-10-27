@@ -26,7 +26,7 @@ void CSence::setMeshRotation(std::vector<float> &vRotations, std::vector<std::pa
 	m_SetRotation = vRotations;
 	specificTreeRotation(m_SetRotation, temp);
 	//specificTreeZTransform(vYTransFormations, temp);
-	randomRotation(temp);
+	// randomRotation(temp);
 	setScaleMesh(vScaleNumber, temp);
 
 	m_InstanceDumMat = temp;
@@ -199,10 +199,12 @@ void CSence::setVerticesNumber(CVegaFemFactory & vfemFactoryObject)
 
 void CSence::__setVertexRelatedFace()
 {
+	int SumRelatedPosition = 0;
+	int m_GroupIndexSum = 0;
 	for (int i = 0; i < m_GroupsIndex.size(); i++)
 	{
 		int GroupAllFaceNumber = m_GroupsIndex[i].size()/3;
-		int SumRelatedPosition=0;
+		
 		//复制后的顶点id与所有顶点的faceid比较，如果相同取出其面的索引以及相关的面的总数
 		for (int VertexIndex = 0; VertexIndex < m_GroupsIndex[i].size(); VertexIndex++)
 		{
@@ -213,7 +215,8 @@ void CSence::__setVertexRelatedFace()
 				if (m_GroupsIndex[i][VertexIndex] == m_GroupsIndex[i][AllVertexIndex])
 				{
 					//在第几个面中
-					m_AllVertexRelatedFaceIndex.push_back(AllVertexIndex / 3);
+					m_AllVertexRelatedFaceIndex.push_back(m_GroupIndexSum+AllVertexIndex / 3);
+					//m_AllVertexRelatedFaceIndex.push_back( AllVertexIndex / 3);
 					RelatedFaceNumber++;
 				}
 			}
@@ -221,6 +224,7 @@ void CSence::__setVertexRelatedFace()
 			SumRelatedPosition += RelatedFaceNumber;
 			
 		}
+		m_GroupIndexSum += GroupAllFaceNumber;
 	}
 }
 
@@ -829,7 +833,6 @@ void CSence::initComputerSSBONormalRelatedData(ComputerShader& vShader, const in
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, deltassbo_binding_point_index, m_UdeformationSSBO);
 	//点和shader的连接
 	glShaderStorageBlockBinding(vShader.getID(), shader_delta_index, deltassbo_binding_point_index);
-
 	//----------
 	//set Normal
 	GLuint shader_Normal_index = glGetProgramResourceIndex(vShader.getID(), GL_SHADER_STORAGE_BLOCK, "bufferNormal");
@@ -839,6 +842,32 @@ void CSence::initComputerSSBONormalRelatedData(ComputerShader& vShader, const in
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, Normalssbo_binding_point_index, m_NormalSSBO);
 	//点和shader的连接
 	glShaderStorageBlockBinding(vShader.getID(), shader_Normal_index, Normalssbo_binding_point_index);
+}
+
+void CSence::setSSBO4GenModelNormalMatrixData(glm::mat4 vmodelMatrix)
+{
+	m_InstanceNoramMatrix = new glm::mat4[m_InstanceTreeNumber];
+	for (int i = 0; i < m_InstanceTreeNumber; i++)
+	{
+		m_InstanceNoramMatrix[i]= glm::transpose(glm::inverse(vmodelMatrix*m_InstanceDumMat[i]));
+	}
+}
+
+void CSence::initSSBO4GenModelNormalMatrixBuffer(CShader& vShader, const int vTreeTypeIndex)
+{
+	GLuint shader_ModelNormalMatrix_index = glGetProgramResourceIndex(vShader.getID(), GL_SHADER_STORAGE_BLOCK, "ModelNormalMatrix");
+	GLint SSBOBinding1 = 0, BlockDataSize1 = 0;
+	glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &SSBOBinding1);
+	glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &BlockDataSize1);
+
+	glGenBuffers(1, &m_ModelNormalMatrixSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ModelNormalMatrixSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::mat4)*(m_InstanceTreeNumber), m_InstanceNoramMatrix, GL_DYNAMIC_DRAW);
+	GLuint ModelNormalMatrixssbo_binding_point_index = 8;
+	//点和SSBO的连接
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ModelNormalMatrixssbo_binding_point_index, m_ModelNormalMatrixSSBO);
+	//点和shader的连接
+	glShaderStorageBlockBinding(vShader.getID(), shader_ModelNormalMatrix_index, ModelNormalMatrixssbo_binding_point_index);
 }
 
 //此处的index可能在多棵树时存在错误
@@ -866,7 +895,7 @@ void CSence::initComputerSSBONormalRelatedData(ComputerShader& vShader, const in
 void CSence::ComputerShaderCalculateNormal(ComputerShader& vShader)
 {
 	vShader.use();
-	glDispatchCompute(m_AssimpVerticesNumber*m_InstanceTreeNumber / 1024, 1, 1);
+	glDispatchCompute(m_AssimpVerticesNumber*m_InstanceTreeNumber / 3, 1, 1);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 

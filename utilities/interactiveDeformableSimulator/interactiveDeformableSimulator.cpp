@@ -322,7 +322,7 @@ SparseMatrix * massMatrix = nullptr;
 SparseMatrix * LaplacianDampingMatrix = nullptr;
 
 int n;
-double allVerticesBaseForce = 300;
+double allVerticesBaseForce = 10;
 double * u = nullptr;
 double * uvel = nullptr;
 double * uaccel = nullptr;
@@ -2438,7 +2438,8 @@ int main(int argc, char* argv[])
   //configFilename = string("D:/GraduationProject/Vega/examples/simpleBridge_vox/simpleBridge_vox.config");
  /* configFilename = string("D:/GraduationProject/Vega/models/newgrass/voxelizegrass/voxelizegrass.config");*/
   //configFilename = string("../../models/yellow_tree/tree.config");
-  configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree.config");
+  //configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree.config");
+  configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/tree.config");
   printf("Loading scene configuration from %s.\n", configFilename.c_str());
 
   initConfigurations(); // parse the config file同时输出到cmd
