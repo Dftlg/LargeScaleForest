@@ -27,7 +27,7 @@ layout(std430,binding=7) buffer AllVertexWithFaceIndex
 
 layout(std430,binding=8) buffer EachTreeInstanceModelMatrix
 {
-	int TreeInstanceModelMatrix[];
+	mat4 TreeInstanceModelMatrix[];
 };
 
 layout( local_size_x = 3, local_size_y = 1, local_size_z = 1 ) in;
@@ -53,20 +53,28 @@ vec3 GetNormal(vec3 firstVertex,vec3 secondVertex,vec3 thirdVertex)
     return normalize(cross(a, b));
 }
 
+// 想法:获得同类模型每个顶点的相关关系，同时计算每个模型同一个面片的位移，然后下一个线程再计算每个模型的另一片位移
 void main()
 {
 	int VertexRealtedFaceNumber=EachVertexRealtedFace[gl_GlobalInvocationID.x];
 	int tempFirstIndex=EachVertexRealtedFaceFirstIndex[gl_GlobalInvocationID.x];
 	//////each Vertex Related FaceIndex;
-	vec3 AverageNormal=vec3(0.0f,0.0f,0.0f);
-	for(int i=0;i<VertexRealtedFaceNumber;i++)
+
+	for(int TreeIndex=0;TreeIndex<TreeNumber;TreeIndex++)
 	{
-		int FaceIndex=AllVertexRelatedFaceIndex[tempFirstIndex+i];
-		int VertexIndex=FaceIndex*3;
-		AverageNormal+=GetNormal(vec3(instanceMatrix*(sum_u[VertexIndex]+vec4(0,0,0,1.0f))),vec3(instanceMatrix*(sum_u[VertexIndex+1]+vec4(0,0,0,1.0f))),vec3(instanceMatrix*(sum_u[VertexIndex+2]+vec4(0,0,0,1.0f))));
+		vec3 AverageNormal=vec3(0.0f,0.0f,0.0f);
+		for(int i=0;i<VertexRealtedFaceNumber;i++)
+		{
+			int FaceIndex=AllVertexRelatedFaceIndex[tempFirstIndex+i];
+			int VertexIndex=FaceIndex*3;
+			AverageNormal+=GetNormal(vec3(TreeInstanceModelMatrix[TreeIndex]*(sum_u[TreeIndex*assimpvertexNums+VertexIndex]+vec4(0,0,0,1.0f))),vec3(TreeInstanceModelMatrix[TreeIndex]*(sum_u[TreeIndex*assimpvertexNums+VertexIndex+1]+vec4(0,0,0,1.0f))),vec3(TreeInstanceModelMatrix[TreeIndex]*(sum_u[TreeIndex*assimpvertexNums+VertexIndex+2]+vec4(0,0,0,1.0f))));
+		}
+		Comp_normal[gl_GlobalInvocationID.x+TreeIndex*assimpvertexNums]=vec4(normalize(AverageNormal),1.0);
 	}
-	Comp_normal[gl_GlobalInvocationID.x]=vec4(normalize(AverageNormal),1.0);
 	
+	
+
+
 
 	//if(gl_GlobalInvocationID.x>50385)
 	//{

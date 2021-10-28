@@ -71,7 +71,7 @@ public:
     std::vector<int> getTreeTypeIndex() { return m_TreeTypeIndex; };
 
 	//因为只支持一种树到时候要重写
-	void setTreeModelMatrixToShader(ComputerShader & vShader);
+	void setTreeModelMatrixToShader(int vTreeTypeIndex);
 
 	void updataTreeOnTerrain(int vTreeTypeIndex);
 	void calculateTreeDistantWithTerrain(int vTreeTypeIndex);
@@ -85,6 +85,9 @@ public:
 	void RenderingDepth(int vTreeTypeIndex, int vPlaneOrTree,float vTime,int vFrameIndex,int vWaveMap);
 	void RenderingModel(int vTreeTypeIndex, unsigned int vdepthMap, int vPlaneOrTree,float vTime,int vFrameIndex,int vWaveMap,int vBendScale,int vPrimaryOffsetScale,bool vshadows);
 	void Draw(CShader & vShader, CSence& vModel);
+
+	//Comp
+	void ComputeNormal(int vTreeTypeIndex);
 
 private:
 

@@ -54,6 +54,8 @@ public:
 
     void UpdataSSBOBindingPointIndex();
 
+	void UpdataSSBOCompShaderNormalBindingPointIndex();
+
 	void setSSBOUdeformationAndIndx4ShadowMapShader(const CShader& vShader);
 
 	std::vector<std::vector<int>> getGroupsIndex() { return m_GroupsIndex; }

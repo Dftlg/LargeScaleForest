@@ -79,10 +79,10 @@ void CInitMultipleTypeTree::InitComputerShaderCalculateNormal(const char* vCompS
 	m_MultipleCompCalculateNormalShader.push_back(Ourcomputershader);
 }
 
-void CInitMultipleTypeTree::setTreeModelMatrixToShader(ComputerShader & vShader)
+void CInitMultipleTypeTree::setTreeModelMatrixToShader(int vTreeTypeIndex)
 {
-	vShader.use();
-	vShader.setMat4("instanceMatrix", m_ModelScale[0]* m_InstanceObjectDumMat[0][0]);
+	m_MultipleCompCalculateNormalShader[vTreeTypeIndex]->use();
+	m_MultipleCompCalculateNormalShader[vTreeTypeIndex]->setMat4("instanceMatrix", m_ModelScale[0]* m_InstanceObjectDumMat[0][0]);
 	
 }
 
@@ -283,8 +283,14 @@ void CInitMultipleTypeTree::InitScenceShaderData(int vTreeTypeIndex,float vScale
 
 void CInitMultipleTypeTree::InitScenceNormalMatrixData(int vTreeTypeIndex)
 {
+	m_MultipleCompCalculateNormalShader[vTreeTypeIndex]->use();
+	m_MultipleCompCalculateNormalShader[vTreeTypeIndex]->setInt("TreeNumber", m_MultipleEachTreeProductNumber[vTreeTypeIndex]);
+	m_MultipleCompCalculateNormalShader[vTreeTypeIndex]->setInt("assimpvertexNums", m_MultipleTreeModel[vTreeTypeIndex]->getAssimpVerticesNumber());
 	m_MultipleTreeModel[vTreeTypeIndex]->setSSBO4GenModelNormalMatrixData(m_ModelScale[vTreeTypeIndex]);
 	m_MultipleTreeModel[vTreeTypeIndex]->initSSBO4GenModelNormalMatrixBuffer(*(m_MultipleCompCalculateNormalShader[vTreeTypeIndex]), vTreeTypeIndex);
+	m_MultipleTreeModel[vTreeTypeIndex]->initComputerSSBONormalRelatedData(*(m_MultipleCompCalculateNormalShader[vTreeTypeIndex]), vTreeTypeIndex);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
 }
 
 void CInitMultipleTypeTree::calculateTreeDistantWithTerrain(int vTreeTypeIndex)
@@ -385,6 +391,12 @@ void CInitMultipleTypeTree::RenderingModel(int vTreeTypeIndex, unsigned int vdep
 	m_MultipleSceneShadowShader[vTreeTypeIndex]->setInt("primaryOffsetScale", vPrimaryOffsetScale);
 	m_MultipleSceneShadowShader[vTreeTypeIndex]->setInt("shadows", vshadows);
 	//Draw(*m_MultipleSceneShadowShader[vTreeTypeIndex], *m_MultipleTreeModel[vTreeTypeIndex]);
+}
+
+void CInitMultipleTypeTree::ComputeNormal(int vTreeTypeIndex)
+{
+	m_MultipleTreeModel[vTreeTypeIndex]->UpdataSSBOCompShaderNormalBindingPointIndex();
+	m_MultipleTreeModel[vTreeTypeIndex]->ComputerShaderCalculateNormal(*(m_MultipleCompCalculateNormalShader[vTreeTypeIndex]));
 }
 
 void CInitMultipleTypeTree::Draw(CShader & vShader, CSence& vModel)

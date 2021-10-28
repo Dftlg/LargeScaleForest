@@ -708,17 +708,26 @@ int main()
 	else
 	{
 		MultipleTypeTree.InitSceneShadowShader("sence_shadows_RelatedComp.vert", "sence_Shadows_RelatedComp.frag");
+		MultipleTypeTree.InitComputerShaderCalculateNormal("calculateNormal.comp");
 	}
 	//MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag","computerFaceNormal.geom");
 	MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
 	MultipleTypeTree.InitTreeModel("../../models/yellow_tree/tree_last_test.obj", 0);
 
 
-	/*MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/deltaU", "../../models/mini_mapleTree/tree.obj", "../../models/mini_mapleTree/ObjectVertexIndex.txt",1);
+	MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/deltaU", "../../models/mini_mapleTree/tree.obj", "../../models/mini_mapleTree/ObjectVertexIndex.txt",1);
 	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[1], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/WindAndTreeConfig/Config.txt");
-	MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag", "scene_shadows.geom");
+	if (Common::UseGeomOrCompCalculateNormal == true)
+	{
+		MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag", "scene_shadows.geom");
+	}
+	else
+	{
+		MultipleTypeTree.InitSceneShadowShader("sence_shadows_RelatedComp.vert", "sence_Shadows_RelatedComp.frag");
+		MultipleTypeTree.InitComputerShaderCalculateNormal("calculateNormal.comp");
+	}
 	MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
-	MultipleTypeTree.InitTreeModel("../../models/mini_mapleTree/tree.obj", 1);*/
+	MultipleTypeTree.InitTreeModel("../../models/mini_mapleTree/tree.obj", 1);
 
 
 	/*MultipleTypeTree.InitVegaFemFactory("G:/GraduationProject/apricot_tree/deltaU", "../../models/apricot_tree/tree.obj", "../../models/apricot_tree/ObjectVertexIndex.txt", 2);
@@ -734,7 +743,10 @@ int main()
 		MultipleTypeTree.InitScenceShaderData(i, Common::ScaleTree[i]);
 		MultipleTypeTree.calculateTreeDistantWithTerrain(i);
 
-
+		if (Common::UseGeomOrCompCalculateNormal == false)
+		{
+			MultipleTypeTree.InitScenceNormalMatrixData(i);
+		}
 		//End Each time change*************
 		//***************
 		MultipleTypeTree.updataTreeOnTerrain(i);
@@ -759,7 +771,7 @@ int main()
 		/////each time change
 	//boost::thread startInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getFemFactory()), *(MultipleTypeTree.getTreeModel()), *(MultipleTypeTree.getExtraForces()), *(MultipleTypeTree.getExtraDirection()), *(MultipleTypeTree.getTreesNumberSubjected2SameWind()),MultipleTypeTree.getTreeTypeIndex());
 	boost::thread startInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getSpecificFemFactory(0)), *(MultipleTypeTree.getSpecificTreeModel(0)), *(MultipleTypeTree.getSpecificExtraForces(0)), *(MultipleTypeTree.getSpecificExtraDirection(0)), *(MultipleTypeTree.getSpecificTreesNumberSubjected2SameWind(0)), 0);
-	//boost::thread SecondstartInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getSpecificFemFactory(1)), *(MultipleTypeTree.getSpecificTreeModel(1)), *(MultipleTypeTree.getSpecificExtraForces(1)), *(MultipleTypeTree.getSpecificExtraDirection(1)), *(MultipleTypeTree.getSpecificTreesNumberSubjected2SameWind(1)), 1);
+	boost::thread SecondstartInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getSpecificFemFactory(1)), *(MultipleTypeTree.getSpecificTreeModel(1)), *(MultipleTypeTree.getSpecificExtraForces(1)), *(MultipleTypeTree.getSpecificExtraDirection(1)), *(MultipleTypeTree.getSpecificTreesNumberSubjected2SameWind(1)), 1);
 	//boost::thread ThirdstartInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getSpecificFemFactory(2)), *(MultipleTypeTree.getSpecificTreeModel(2)), *(MultipleTypeTree.getSpecificExtraForces(2)), *(MultipleTypeTree.getSpecificExtraDirection(2)), *(MultipleTypeTree.getSpecificTreesNumberSubjected2SameWind(2)), 2);
 
 	MultipleTypeTree.ComputeSumFaceVerticesBeforeEndMesh(Common::TreesTypeNumber);
@@ -801,17 +813,20 @@ int main()
 	std::vector<glm::vec3>sumDeltaU(numFramePoints);
 
 	//ComputerShaderNormal
-	ComputerShader * Ourcomputershader = new ComputerShader("calculateNormal.comp");
-	MultipleTypeTree.setTreeModelMatrixToShader(*Ourcomputershader);
-	if (Common::UseGeomOrCompCalculateNormal == false)
-	{
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-		for (int i = 0; i < Common::TreesTypeNumber; i++)
-		{
-			MultipleTypeTree.getSpecificTreeModel(i)->initComputerSSBONormalRelatedData(*Ourcomputershader, i);
-			glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-		}
-	}
+	//ComputerShader * Ourcomputershader = new ComputerShader("calculateNormal.comp");
+	/*for(int i=0;i<Common::TreesTypeNumber;i++)
+	MultipleTypeTree.setTreeModelMatrixToShader(i);*/
+	//if (Common::UseGeomOrCompCalculateNormal == false)
+	//{
+	//	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+	//	for (int i = 0; i < Common::TreesTypeNumber; i++)
+	//	{
+	//		MultipleTypeTree.getSpecificTreeModel(i)->initComputerSSBONormalRelatedData(*Ourcomputershader, i);
+	//		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	//	}
+	//}
+
+
 	while (!glfwWindowShouldClose(Window))
 	{
 #pragma region Imgui 
@@ -968,10 +983,11 @@ int main()
 
 		if (Common::UseGeomOrCompCalculateNormal == false)
 		{
-			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+			
 			for (int i = 0; i < Common::TreesTypeNumber; i++)
 			{
-				MultipleTypeTree.getSpecificTreeModel(i)->ComputerShaderCalculateNormal(*Ourcomputershader);
+				//MultipleTypeTree.getSpecificTreeModel(i)->ComputerShaderCalculateNormal(*Ourcomputershader);
+				MultipleTypeTree.ComputeNormal(i);
 				glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 			}
 		}
