@@ -199,33 +199,103 @@ void CSence::setVerticesNumber(CVegaFemFactory & vfemFactoryObject)
 
 void CSence::__setVertexRelatedFace()
 {
-	int SumRelatedPosition = 0;
-	int m_GroupIndexSum = 0;
-	for (int i = 0; i < m_GroupsIndex.size(); i++)
-	{
-		int GroupAllFaceNumber = m_GroupsIndex[i].size()/3;
-		
-		//复制后的顶点id与所有顶点的faceid比较，如果相同取出其面的索引以及相关的面的总数
-		for (int VertexIndex = 0; VertexIndex < m_GroupsIndex[i].size(); VertexIndex++)
-		{
-			m_EachVertexWithFaceFirstIndex.push_back(SumRelatedPosition);
-			int RelatedFaceNumber = 0;
-			for (int AllVertexIndex = 0; AllVertexIndex < m_GroupsIndex[i].size(); AllVertexIndex++)
-			{
-				if (m_GroupsIndex[i][VertexIndex] == m_GroupsIndex[i][AllVertexIndex])
-				{
-					//在第几个面中
-					m_AllVertexRelatedFaceIndex.push_back(m_GroupIndexSum+AllVertexIndex / 3);
-					//m_AllVertexRelatedFaceIndex.push_back( AllVertexIndex / 3);
-					RelatedFaceNumber++;
-				}
-			}
-			m_EachVertexWithFaceNumber.push_back(RelatedFaceNumber);
-			SumRelatedPosition += RelatedFaceNumber;
-			
-		}
-		m_GroupIndexSum += GroupAllFaceNumber;
-	}
+    std::string filePath = m_FileDirectory + "/ModelVertexAndFaceRelation.txt";
+    //顶点面片关系文件存在则直接使用不存在则创建
+    //bool ifFIlexist = _access(filePath.c_str(), 0);
+    if (_access(filePath.c_str(), 0) == 0)
+    {
+        std::string lineString;
+        std::ifstream infile(filePath,std::ios::binary);
+        std::getline(infile, lineString);
+        int FaceNumber = atoi(lineString.c_str());
+        std::getline(infile, lineString);
+        std::istringstream FaceNumberStream(lineString);
+        for (int i = 0; i < FaceNumber; i++)
+        {
+            int temp;
+            FaceNumberStream >> temp;
+            m_EachVertexWithFaceNumber.push_back(temp);
+        }
+
+        std::getline(infile, lineString);
+        int FaceFirstIndex = atoi(lineString.c_str());
+        std::getline(infile, lineString);
+        std::istringstream FaceFirstIndexStream(lineString);
+        for (int i = 0; i < FaceFirstIndex; i++)
+        {
+            int temp;
+            FaceFirstIndexStream >> temp;
+            m_EachVertexWithFaceFirstIndex.push_back(temp);
+        }
+
+        std::getline(infile, lineString);
+        int AllVertexRelated = atoi(lineString.c_str());
+        std::getline(infile, lineString);
+        std::istringstream AllVertexRelatedStream(lineString);
+        for (int i = 0; i < AllVertexRelated; i++)
+        {
+            int temp;
+            AllVertexRelatedStream >> temp;
+            m_AllVertexRelatedFaceIndex.push_back(temp);
+        }
+        infile.close();
+    }
+    else if(_access(filePath.c_str(), 0)==-1) {//文件不存在创建
+         std::cout << "VertexRelatedFace not exist" << filePath << std::endl;
+        int SumRelatedPosition = 0;
+        int m_GroupIndexSum = 0;
+        for (int i = 0; i < m_GroupsIndex.size(); i++)
+        {
+            int GroupAllFaceNumber = m_GroupsIndex[i].size() / 3;
+
+            //复制后的顶点id与所有顶点的faceid比较，如果相同取出其面的索引以及相关的面的总数
+            for (int VertexIndex = 0; VertexIndex < m_GroupsIndex[i].size(); VertexIndex++)
+            {
+                m_EachVertexWithFaceFirstIndex.push_back(SumRelatedPosition);
+                int RelatedFaceNumber = 0;
+                for (int AllVertexIndex = 0; AllVertexIndex < m_GroupsIndex[i].size(); AllVertexIndex++)
+                {
+                    if (m_GroupsIndex[i][VertexIndex] == m_GroupsIndex[i][AllVertexIndex])
+                    {
+                        //在第几个面中
+                        m_AllVertexRelatedFaceIndex.push_back(m_GroupIndexSum + AllVertexIndex / 3);
+                        //m_AllVertexRelatedFaceIndex.push_back( AllVertexIndex / 3);
+                        RelatedFaceNumber++;
+                    }
+                }
+                m_EachVertexWithFaceNumber.push_back(RelatedFaceNumber);
+                SumRelatedPosition += RelatedFaceNumber;
+
+            }
+            m_GroupIndexSum += GroupAllFaceNumber;
+        }
+
+        std::fstream outFile;
+        outFile.open(filePath, std::ios::out | std::ios::binary);
+        outFile << m_EachVertexWithFaceNumber.size() << std::endl;
+        for (int i = 0; i<m_EachVertexWithFaceNumber.size(); i++)
+        {
+            outFile << m_EachVertexWithFaceNumber[i] << " ";
+        }
+        outFile << "\n";
+
+        outFile << m_EachVertexWithFaceFirstIndex.size() << std::endl;
+        for (int i = 0; i < m_EachVertexWithFaceFirstIndex.size(); i++)
+        {
+            outFile << m_EachVertexWithFaceFirstIndex[i] << " ";
+        }
+        outFile << "\n";
+
+        outFile << m_AllVertexRelatedFaceIndex.size() << std::endl;
+        for (int i = 0; i < m_AllVertexRelatedFaceIndex.size(); i++)
+        {
+            outFile << m_AllVertexRelatedFaceIndex[i] << " ";
+        }
+        outFile << "\n";
+        outFile.close();
+    }
+   
+
 }
 
 void CSence::__changeObjMeshStruct2Charptr(int vOutputMaterials)

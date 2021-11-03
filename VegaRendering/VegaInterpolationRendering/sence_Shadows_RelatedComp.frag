@@ -201,8 +201,8 @@ void main()
 //	if(shadow>0)
 // 	 color=vec3(1.0,0.0,0.0);
 	//color=vec3(shadow,0.0,0.0);
-    FragColor = vec4(v2f_Normal, 1.0);
+    //FragColor = vec4(v2f_Normal, 1.0);
 	//FragColor = vec4(1.0,1.0,1.0, 1.0);
-    //FragColor = vec4(color, 1.0);
+    FragColor = vec4(color, 1.0);
 
 }
