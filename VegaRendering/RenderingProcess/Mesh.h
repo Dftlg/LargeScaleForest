@@ -17,6 +17,7 @@ public:
 	std::vector<Common::STexture> getTextures() const { return m_Textures; }
 	unsigned int getIndicesSize() const { return m_Indices.size(); }
 	void draw(const CShader& vShader) const;
+    void drawLine(const CShader& vShader) const;
 	void reset(const std::vector<Common::SVertex>& vVertices, const std::vector<unsigned int>& vIndices, const std::vector<Common::STexture> vTestures);
 	void setRotation(glm::mat4* temp, int vInstanceTreeNumber);
     void setSpecificRotation(glm::mat4 *temp);

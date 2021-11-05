@@ -86,6 +86,8 @@ public:
 	void RenderingModel(int vTreeTypeIndex, unsigned int vdepthMap, int vPlaneOrTree,float vTime,int vFrameIndex,int vWaveMap,int vBendScale,int vPrimaryOffsetScale,bool vshadows);
 	void Draw(CShader & vShader, CSence& vModel);
 
+    glm::mat4* GetFirstTreeModelMatrix() {return &getSpecificTreeModel(0)->getModelMatrix()[0]; };
+
 	//Comp
 	void ComputeNormal(int vTreeTypeIndex);
 

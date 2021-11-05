@@ -64,10 +64,12 @@ public:
 	void senceDraw(const CShader& vShader, std::vector<std::vector<glm::vec3>> deformationFrames);
 	void setFileDirectiory(std::string vFileDirectory) { m_FileDirectory = vFileDirectory; }
 	int getAssimpVerticesNumber() { return m_AssimpVerticesNumber; }
-	void draw(const CShader& vShader);
+	void draw(const CShader& vShader, Common::DrawType vDrawType);
 	void setMeshRotation(std::vector<float> &vRotations, std::vector<std::pair<double, double>>& vTransFormations,float vScaleNumber,int vTreesNumber);
     //void setMeshRotation();
     void setObjectPositionAndRotation(glm::vec3 vPosition,float vRotation);
+    void setObjectPositionAndRotation(glm::mat4 & vMat);
+
 
 	void setTerrainMesh(std::vector<double>& vZTransFormations);
     void setScaleMesh(float vScale, glm::mat4 * vmodelMatrices);
@@ -96,6 +98,9 @@ public:
 	glm::mat4* getInstanceMat() { return &m_InstanceMat; };
 
 	glm::mat4* getInstanceDumMat() { return m_InstanceDumMat; };
+
+    //因为ModelMatrix由自身矩阵以及其Instance矩阵构成
+    glm::mat4* getModelMatrix() { return m_InstanceNoramMatrix; };
 
 
 

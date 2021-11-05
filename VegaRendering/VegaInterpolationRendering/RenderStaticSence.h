@@ -24,11 +24,14 @@ class CRenderStaticSence
 		void setModelInstanceAndTransform(std::string vModelName, std::vector<std::pair<double, double>> vTransforms, std::vector<float> vRotations, int vInstanceNumber);
 
         void setObjectTransform(std::string vModelName, glm::vec3 vPosition, float vRotation);
+        void setObjectTransform(std::string vModelName, glm::mat4 & vMat);
 		void initModelShaderPara(std::string vModelName);
+        void initModelShaderVegPara(std::string vModelName, glm::mat4& TreeMat);
 		void RenderingDepth(std::string vModelName);
 		void RenderingModel(std::string vModelName, unsigned int depthMap, bool vshadows);
+        void RenderingModelWithWireframe(std::string vModelName, glm::mat4& vModelMatrix);
 		void Render(int vModelIndex);
-		void Draw(CShader & vShader, CSence& vModel);
+		void Draw(CShader & vShader, CSence& vModel, Common::DrawType vType);
 		void setSencePara(CCamera vCamera, int vscrwith, int vscrheight);
 
 		void setTerrain(std::string vModelName, std::vector<double> vYTransFormations);

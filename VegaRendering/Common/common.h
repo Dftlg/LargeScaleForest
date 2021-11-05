@@ -90,13 +90,20 @@ namespace Common
 
 	static float Pi = 3.1415926;
 
-	static bool GenerateRandomTreePosition=true;
+	static bool GenerateRandomTreePosition=false;
 
 	//use Geom Or Comp Shader calculate Normal
 	static bool UseGeomOrCompCalculateNormal = false;
 
 	static bool renderingGrass = false;
 	static bool renderingLightSource = true;
+    static bool renderingVegMesh = true;
+
+    enum DrawType
+    {
+        TRIANGLES,
+        LINES
+    };
 
 	struct SVertex
 	{

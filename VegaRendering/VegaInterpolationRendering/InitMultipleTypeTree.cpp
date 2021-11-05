@@ -97,7 +97,7 @@ void CInitMultipleTypeTree::InitTreeModel(const std::string& vModelPath,int vTre
         tempTransFormation.push_back(m_AllTreesPosition[i]);
     
 
-
+    //set instance Matrix
     ourModel->setMeshRotation(SpecificRotation, tempTransFormation,1,Common::TreesNumbers[vTreeTypeIndex]);
 	//get ModelInstance
 	m_InstanceObjectDumMat.push_back(ourModel->getInstanceDumMat());
@@ -407,7 +407,7 @@ void CInitMultipleTypeTree::Draw(CShader & vShader, CSence& vModel)
 	vShader.setMat4("projection", projection);
 	vShader.setMat4("view", view);
 	vShader.setVec3("camPos", m_Camera.getPosition());
-	vModel.draw(vShader);
+	vModel.draw(vShader,Common::DrawType::TRIANGLES);
 }
 
 void CInitMultipleTypeTree::setTerrainPara(std::vector<double> & vTerrainHeigth, double vTerrainX, double vTerrainZ, double XDensityScale, double ZDensityScale, double vTerrainHeightZDensity)

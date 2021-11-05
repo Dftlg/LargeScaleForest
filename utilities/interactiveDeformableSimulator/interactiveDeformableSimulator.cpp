@@ -322,7 +322,7 @@ SparseMatrix * massMatrix = nullptr;
 SparseMatrix * LaplacianDampingMatrix = nullptr;
 
 int n;
-double allVerticesBaseForce = 10;
+double allVerticesBaseForce = 0;
 double * u = nullptr;
 double * uvel = nullptr;
 double * uaccel = nullptr;
@@ -489,8 +489,8 @@ void displayFunction(void)
   glColor3f(0,0,0);
 
   //显示包围网格边框
-  /*if (renderWireframe)
-	deformableObjectRenderingMesh->RenderEdges();*/
+  if (renderWireframe)
+	deformableObjectRenderingMesh->RenderEdges();
 
   // disable stencil buffer modifications
   glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
@@ -762,7 +762,7 @@ void idleFunction(void)
 		TempExtraForces.push_back(StemExtraForces[subTimestepCounter]);
 		if ((subTimestepCounter+1) % Common::ForcesSampling == 0)
 		{
-			integratorBase->WriteSpecificKRFextVMattixToFile(outputFilename, subTimestepCounter, KVFVertices, TempExtraForces);
+			//integratorBase->WriteSpecificKRFextVMattixToFile(outputFilename, subTimestepCounter, KVFVertices, TempExtraForces);
 			TempExtraForces.clear();
 		}
 		//计算由力产生的结点位移形变
@@ -803,10 +803,10 @@ void idleFunction(void)
 
 	//std::cout << subTimestepCounter << std::endl;
 
-	if (subTimestepCounter > 180)
+	/*if (subTimestepCounter > 180)
 	{
 		exit(1);
-	}
+	}*/
 	//用于判断文件力的数量
     //timestepCounter++;
 
@@ -873,7 +873,7 @@ void idleFunction(void)
 		TempExtraForces.clear();
 	}*/
 	//存储deltaU的形变数据
-	deformationsave.SaveDeformationVertexFromBaseModel(deltaSecondaryu, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter-1);
+	//deformationsave.SaveDeformationVertexFromBaseModel(deltaSecondaryu, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter-1);
 
     //存储U的形变数据
 	/*if (subTimestepCounter == 2000)
@@ -2439,7 +2439,7 @@ int main(int argc, char* argv[])
  /* configFilename = string("D:/GraduationProject/Vega/models/newgrass/voxelizegrass/voxelizegrass.config");*/
   //configFilename = string("../../models/yellow_tree/tree.config");
   //configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree.config");
-  configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/tree.config");
+  configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/200/tree.config");
   printf("Loading scene configuration from %s.\n", configFilename.c_str());
 
   initConfigurations(); // parse the config file同时输出到cmd

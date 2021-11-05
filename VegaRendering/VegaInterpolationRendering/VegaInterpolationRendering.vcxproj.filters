@@ -115,6 +115,8 @@
     <None Include="computerFaceNormal.geom" />
     <None Include="sence_shadows_RelatedComp.vert" />
     <None Include="sence_Shadows_RelatedComp.frag" />
+    <None Include="VegWireFrame.vert" />
+    <None Include="VegWireFrame.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LoadWindAndTreeConfig.h">

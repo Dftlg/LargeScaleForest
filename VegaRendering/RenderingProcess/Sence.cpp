@@ -7,13 +7,25 @@ CSence::CSence(const CMesh& vMesh)
 
 //****************************************************************************************************
 //FUNCTION:
-void CSence::draw(const CShader& vShader)
+void CSence::draw(const CShader& vShader,Common::DrawType vDrawType)
 {
-	for (auto& Mesh : m_Meshes)
-	{
-		Mesh.draw(vShader);
-	}
-
+    switch (vDrawType)
+    {
+    case Common::DrawType::TRIANGLES:
+        for (auto& Mesh : m_Meshes)
+        {
+            Mesh.draw(vShader);
+        }
+        break;
+    case Common::DrawType::LINES:
+        for (auto& Mesh : m_Meshes)
+        {
+            Mesh.drawLine(vShader);
+        }
+        break;
+    default:
+        break;
+    }
 }
 
 //fixme递进加载依旧依靠树的旋转平移
@@ -24,10 +36,10 @@ void CSence::setMeshRotation(std::vector<float> &vRotations, std::vector<std::pa
 	glm::mat4*temp = translateTreePosition();
 	
 	m_SetRotation = vRotations;
-	specificTreeRotation(m_SetRotation, temp);
+	//specificTreeRotation(m_SetRotation, temp);
 	//specificTreeZTransform(vYTransFormations, temp);
 	// randomRotation(temp);
-	setScaleMesh(vScaleNumber, temp);
+	//setScaleMesh(vScaleNumber, temp);
 
 	m_InstanceDumMat = temp;
 
@@ -63,6 +75,15 @@ void CSence::setObjectPositionAndRotation(glm::vec3 vPosition, float vRotation)
     for (auto& Mesh : m_Meshes)
     {
         Mesh.setRotation(&model, 1);
+    }
+}
+
+void CSence::setObjectPositionAndRotation(glm::mat4 & vMat)
+{
+    m_InstanceMat = vMat;
+    for (auto& Mesh : m_Meshes)
+    {
+        Mesh.setRotation(&vMat, 1);
     }
 }
 
@@ -133,7 +154,6 @@ glm::mat4* CSence::translateTreePosition()
 		//0.2 -0.5 0.2w
 		glm::vec3 tempTranslatePosition((m_TransFormations[i].first - Common::AllTreesNumber / 2) * 0.15, 0.0f, (m_TransFormations[i].second - Common::AllTreesNumber / 2) * 0.15);
 
-		//glm::vec3 tempTranslatePosition(i*100.0f, 0.0f, 0.0f);
         model = glm::translate(model, tempTranslatePosition);
 
         m_TreePositions.push_back(tempTranslatePosition);

@@ -54,6 +54,13 @@ void CRenderStaticSence::setObjectTransform(std::string vModelName, glm::vec3 vP
     EachTypeObjectNumber.push_back(1);
 }
 
+void CRenderStaticSence::setObjectTransform(std::string vModelName, glm::mat4 & vMat)
+{
+    m_Models[m_ModelNameAndIndexMap[vModelName]]->setObjectPositionAndRotation(vMat);
+    m_InstanceObjectDumMat.push_back(m_Models[m_ModelNameAndIndexMap[vModelName]]->getInstanceMat());
+    EachTypeObjectNumber.push_back(1);
+}
+
 void CRenderStaticSence::initModelShaderPara(std::string vModelName)
 {
     int vModelIndex = m_ModelNameAndIndexMap[vModelName];
@@ -99,7 +106,20 @@ void CRenderStaticSence::initModelShaderPara(std::string vModelName)
 	m_ModelShaders[vModelIndex]->setInt("depthMap", 8);
 	m_ModelShaders[vModelIndex]->setFloat("far_plane", m_vFarPlane);	
 	m_ModelShaders[vModelIndex]->setMat4("model", model);
+}
 
+void CRenderStaticSence::initModelShaderVegPara(std::string vModelName,glm::mat4& TreeMat)
+{
+    int vModelIndex = m_ModelNameAndIndexMap[vModelName];
+
+    //this place dont know why
+    glm::mat4 model = glm::mat4(1.0f);
+    float vTransForm = m_Modelscales[vModelIndex];
+    m_ModelScale.push_back(model);
+    m_ModelScaleDouble.push_back(vTransForm);
+
+    m_ModelShaders[vModelIndex]->use();
+    m_ModelShaders[vModelIndex]->setMat4("model", TreeMat);
 }
 
 void CRenderStaticSence::RenderingDepth(std::string vModelName)
@@ -107,7 +127,7 @@ void CRenderStaticSence::RenderingDepth(std::string vModelName)
     int ModelIndex = m_ModelNameAndIndexMap[vModelName];
 	m_DepthShaders[ModelIndex]->use();
 
-	Draw(*m_DepthShaders[ModelIndex], *m_Models[ModelIndex]);
+	Draw(*m_DepthShaders[ModelIndex], *m_Models[ModelIndex],Common::DrawType::TRIANGLES);
 	//glm::mat4 projection = glm::perspective(glm::radians(vCamera.getZoom()), (float)vscrwith / (float)vscrheight, 0.1f, 100.0f);
 	//glm::mat4 view = vCamera.getViewMatrix();
 	//m_DepthShaders[vModelIndex]->setMat4("projection", projection);
@@ -132,7 +152,15 @@ void CRenderStaticSence::RenderingModel(std::string vModelName, unsigned int dep
     auto temp = glGetUniformLocation(m_ModelShaders[ModelIndex]->getID(), "depthMap");
     glUniform1i(temp, 8);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
-	Draw(*m_ModelShaders[ModelIndex], *m_Models[ModelIndex]);
+	Draw(*m_ModelShaders[ModelIndex], *m_Models[ModelIndex], Common::DrawType::TRIANGLES);
+}
+
+void CRenderStaticSence::RenderingModelWithWireframe(std::string vModelName, glm::mat4& vModelMatrix)
+{
+    int ModelIndex = m_ModelNameAndIndexMap[vModelName];
+    m_ModelShaders[ModelIndex]->use();
+    m_ModelShaders[ModelIndex]->setMat4("model", vModelMatrix);
+    Draw(*m_ModelShaders[ModelIndex], *m_Models[ModelIndex], Common::DrawType::LINES);
 }
 
 //void CRenderStaticSence::RenderingModel(int vModelIndex, unsigned int depthCubeMap, bool vshadows)
@@ -146,7 +174,7 @@ void CRenderStaticSence::RenderingModel(std::string vModelName, unsigned int dep
 //	Draw(*m_ModelShaders[vModelIndex], *m_Models[vModelIndex]);
 //}
 
-void CRenderStaticSence::Draw(CShader & vShader, CSence& vModel)
+void CRenderStaticSence::Draw(CShader & vShader, CSence& vModel, Common::DrawType vType)
 {
 	vShader.use();
 	glm::mat4 projection = glm::perspective(glm::radians(m_Camera.getZoom()), (float)SCRWidth / (float)SCRHeight, 0.1f, 100.0f);
@@ -155,7 +183,7 @@ void CRenderStaticSence::Draw(CShader & vShader, CSence& vModel)
 	vShader.setMat4("view", view);
 	vShader.setVec3("camPos", m_Camera.getPosition());
 	
-	vModel.draw(vShader);
+	vModel.draw(vShader, vType);
 }
 
 void CRenderStaticSence::setSencePara(CCamera vCamera, int vscrwidth, int vscrheight)

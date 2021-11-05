@@ -743,14 +743,11 @@ int main()
 		MultipleTypeTree.InitScenceShaderData(i, Common::ScaleTree[i]);
 		MultipleTypeTree.calculateTreeDistantWithTerrain(i);
 
-		if (Common::UseGeomOrCompCalculateNormal == false)
-		{
-			MultipleTypeTree.InitScenceNormalMatrixData(i);
-		}
 		//End Each time change*************
-		//***************
+		//***************此处也修改了InstanceMatrix得旋转VAO
 		MultipleTypeTree.updataTreeOnTerrain(i);
 		//***************
+
 	}
 	MultipleTypeTree.setTreeAxisYPara();
 
@@ -762,6 +759,12 @@ int main()
 	for (int i = 0; i < Common::TreesTypeNumber; i++)
 	{
 		EachFormNumberArray.push_back(MultipleTypeTree.getSpecificLoadWindAndTree(i).getEachFormNumberArray());
+
+        //因为在updataTreeOnTerrain修改了InstanceMatrix所以写在最后
+        if (Common::UseGeomOrCompCalculateNormal == false)
+        {
+            MultipleTypeTree.InitScenceNormalMatrixData(i);
+        }
 	}
 
 
@@ -779,6 +782,17 @@ int main()
 	glm::mat4 projection;
 	glm::mat4 view;
 	int frameIndex = 0;
+
+    //SET VegMesh
+    if (Common::renderingVegMesh == true)
+    {
+        RenderStaticSence.loadStaticModel("TreeMeshVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/200/tree200.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("VegWireFrame.vert", "VegWireFrame.frag");
+        RenderStaticSence.setModelScale(0.2f);
+        RenderStaticSence.setObjectTransform("TreeMeshVeg", *MultipleTypeTree.GetFirstTreeModelMatrix());
+        RenderStaticSence.initModelShaderVegPara("TreeMeshVeg", *MultipleTypeTree.GetFirstTreeModelMatrix());
+    }
 
 	////////////////////////
 	// Setup Dear ImGui context
@@ -998,9 +1012,19 @@ int main()
 		////plane  
 		/////////////grass
 
+       
 		RenderStaticSence.RenderingModel("terrain", depthMap, shadows);
-        RenderStaticSence.RenderingModel("greenGrass", depthMap, shadows);
-        RenderStaticSence.RenderingModel("lightsource", depthMap, false);
+        if (Common::renderingGrass==true)
+            RenderStaticSence.RenderingModel("greenGrass", depthMap, shadows);
+        if(Common::renderingLightSource==true)
+            RenderStaticSence.RenderingModel("lightsource", depthMap, false);
+
+        glm::mat4 temp = *MultipleTypeTree.GetFirstTreeModelMatrix();
+        if (Common::renderingVegMesh == true)
+        {
+            RenderStaticSence.RenderingModelWithWireframe("TreeMeshVeg", *MultipleTypeTree.GetFirstTreeModelMatrix());
+        }
+            
 		//tree
 		for (int i = 0; i < Common::TreesTypeNumber; i++)
 		{
@@ -1101,7 +1125,7 @@ void renderTree(CShader & vShader, CSence& vModel)
 	//vShader.setMat4("model", model);
 
 
-	vModel.draw(vShader);
+	vModel.draw(vShader,Common::DrawType::TRIANGLES);
 
 }
 

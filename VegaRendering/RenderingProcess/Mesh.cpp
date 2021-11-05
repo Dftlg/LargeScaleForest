@@ -84,11 +84,26 @@ void CMesh::draw(const CShader& vShader) const
 	// draw mesh
 	glBindVertexArray(m_VAO);
 	//glDrawElements(GL_TRIANGLES, m_Indices.size(), GL_UNSIGNED_INT, 0);
-	glDrawElementsInstanced(GL_TRIANGLES, m_Indices.size(), GL_UNSIGNED_INT, 0, m_InstanceTreeNumber);
+    glDrawElementsInstanced(GL_TRIANGLES, m_Indices.size(), GL_UNSIGNED_INT, 0, m_InstanceTreeNumber);
+    //glDrawElementsInstanced(GL_LINES, m_Indices.size(), GL_UNSIGNED_INT, 0, m_InstanceTreeNumber);
 	glBindVertexArray(0);
 
 	// always good practice to set everything back to defaults once configured.
 	glActiveTexture(GL_TEXTURE0);
+}
+
+//****************************************************************************************************
+//必有instance导致每次重复了很多instance旋转矩阵
+void CMesh::drawLine(const CShader& vShader) const
+{
+
+    // draw mesh
+    glBindVertexArray(m_VAO);
+    glDrawElementsInstanced(GL_LINES, m_Indices.size(), GL_UNSIGNED_INT, 0, m_InstanceTreeNumber);
+    glBindVertexArray(0);
+
+    // always good practice to set everything back to defaults once configured.
+    //glActiveTexture(GL_TEXTURE0);
 }
 
 //****************************************************************************************************
