@@ -322,7 +322,7 @@ SparseMatrix * massMatrix = nullptr;
 SparseMatrix * LaplacianDampingMatrix = nullptr;
 
 int n;
-double allVerticesBaseForce = 0;
+double allVerticesBaseForce = 300;
 double * u = nullptr;
 double * uvel = nullptr;
 double * uaccel = nullptr;
@@ -803,10 +803,10 @@ void idleFunction(void)
 
 	//std::cout << subTimestepCounter << std::endl;
 
-	/*if (subTimestepCounter > 180)
+	if (subTimestepCounter > 180)
 	{
 		exit(1);
-	}*/
+	}
 	//用于判断文件力的数量
     //timestepCounter++;
 
@@ -861,7 +861,7 @@ void idleFunction(void)
 	
 	VolumetricMesh::interpolate(deltau, deltaSecondaryu, secondaryDeformableObjectRenderingMesh->Getn(), secondaryDeformableObjectRenderingMesh_interpolation_numElementVertices, secondaryDeformableObjectRenderingMesh_interpolation_vertices, secondaryDeformableObjectRenderingMesh_interpolation_weights);
 	//////////////////////
-	//ObjMesh * mesh = secondaryDeformableObjectRenderingMesh->GetMesh();
+	ObjMesh * mesh = secondaryDeformableObjectRenderingMesh->GetMesh();
 	//double * restPosition = secondaryDeformableObjectRenderingMesh->GetVertexRestPositions();
 	CModelDeformationTransform deformationsave;
 	//deformationsave.SaveDeformationVertexFromBaseModel(uSecondary, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter);
@@ -882,8 +882,14 @@ void idleFunction(void)
 	}*/
 	
 
-
-	//mesh->saveToAscii("D:/GraduationProject/Vega/models/8.10/position/1.obj",1);
+    if (subTimestepCounter % 5 == 0)
+    {
+        std::string filePath = "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/MoveObj/";
+        filePath += std::to_string(subTimestepCounter);
+        filePath += ".obj";
+        mesh->saveToAscii(filePath, 1);
+    }
+    //mesh->saveToAscii("D:/GraduationProject/Vega/models/8.10/position/1.obj", 1);
 	//CSence sence(mesh, restPosition);
 
 	//std::vector<std::vector<glm::vec3>> data = sence.getGroupDeformationData();
@@ -2439,7 +2445,7 @@ int main(int argc, char* argv[])
  /* configFilename = string("D:/GraduationProject/Vega/models/newgrass/voxelizegrass/voxelizegrass.config");*/
   //configFilename = string("../../models/yellow_tree/tree.config");
   //configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree.config");
-  configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/200/tree.config");
+  configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree.config");
   printf("Loading scene configuration from %s.\n", configFilename.c_str());
 
   initConfigurations(); // parse the config file同时输出到cmd

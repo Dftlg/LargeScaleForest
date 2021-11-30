@@ -97,7 +97,18 @@ namespace Common
 
 	static bool renderingGrass = false;
 	static bool renderingLightSource = true;
-    static bool renderingVegMesh = true;
+    static bool renderingVegMesh = false;
+    static bool renderingForest = false;
+
+    //experiment
+    static bool renderingStemMesh = false;
+    static bool renderingLeafMesh = true;
+    static bool renderingFibrous = false;
+    static bool renderAllVeg = true;
+
+    static bool renderingSameModelMotion = false;
+
+    static bool renderingTerrainOrWhiltScence=false;
 
     enum DrawType
     {

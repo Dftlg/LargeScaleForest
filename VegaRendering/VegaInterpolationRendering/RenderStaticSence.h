@@ -29,7 +29,7 @@ class CRenderStaticSence
         void initModelShaderVegPara(std::string vModelName, glm::mat4& TreeMat);
 		void RenderingDepth(std::string vModelName);
 		void RenderingModel(std::string vModelName, unsigned int depthMap, bool vshadows);
-        void RenderingModelWithWireframe(std::string vModelName, glm::mat4& vModelMatrix);
+        void RenderingModelWithWireframe(std::string vModelName, bool resetModelMatrix, glm::mat4& vModelMatrix);
 		void Render(int vModelIndex);
 		void Draw(CShader & vShader, CSence& vModel, Common::DrawType vType);
 		void setSencePara(CCamera vCamera, int vscrwith, int vscrheight);
@@ -51,6 +51,8 @@ class CRenderStaticSence
 		double getAverage(int vZIndex, int vXIndex);
 
         void setModelScale(float vscale) { m_Modelscales.push_back(vscale); };
+
+        void setVegMeshFragmentShaderRenderingColor(std::string vModelName,glm::vec4 vColor);
 
         int getObjectIndexByNameMap(std::string vObjectName) { return m_ModelNameAndIndexMap[vObjectName]; };
 	private:

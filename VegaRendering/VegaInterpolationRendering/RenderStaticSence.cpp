@@ -155,10 +155,11 @@ void CRenderStaticSence::RenderingModel(std::string vModelName, unsigned int dep
 	Draw(*m_ModelShaders[ModelIndex], *m_Models[ModelIndex], Common::DrawType::TRIANGLES);
 }
 
-void CRenderStaticSence::RenderingModelWithWireframe(std::string vModelName, glm::mat4& vModelMatrix)
+void CRenderStaticSence::RenderingModelWithWireframe(std::string vModelName,bool resetModelMatrix, glm::mat4& vModelMatrix)
 {
     int ModelIndex = m_ModelNameAndIndexMap[vModelName];
     m_ModelShaders[ModelIndex]->use();
+    if(resetModelMatrix==true)
     m_ModelShaders[ModelIndex]->setMat4("model", vModelMatrix);
     Draw(*m_ModelShaders[ModelIndex], *m_Models[ModelIndex], Common::DrawType::LINES);
 }
@@ -425,4 +426,21 @@ void CRenderStaticSence::getTerrainPara(std::vector<double> & vTerrainHeigth, do
 	XDensityScale = m_TerrainXDensityScale;
 	ZDensityScale = m_TerrainZDensityScale;
 	vTerrainHeightZDensity = m_TerrainHeightZDensity;
+}
+
+void CRenderStaticSence::setVegMeshFragmentShaderRenderingColor(std::string vModelName, glm::vec4 vColor)
+{
+    int vModelIndex = m_ModelNameAndIndexMap[vModelName];
+   
+    m_ModelShaders[vModelIndex]->use();
+    //for (unsigned int i = 0; i < sizeof(m_lightVertices) / sizeof(m_lightVertices[0]); ++i)
+    //{
+    //	glm::vec3 newPos = m_lightVertices[i];
+    //	m_ModelShaders[vModelIndex]->setVec3("lightPositions[" + std::to_string(i) + "]", newPos);
+    //	m_ModelShaders[vModelIndex]->setVec3("lightColors[" + std::to_string(i) + "]", m_lightColors[i]);
+    //}
+    m_ModelShaders[vModelIndex]->setFloat("test", 2);
+    
+    m_ModelShaders[vModelIndex]->setVec4("renderingColor", vColor);
+   
 }

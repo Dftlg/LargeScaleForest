@@ -1,7 +1,13 @@
 #version 430 core
-out vec4 FragColor;
+layout (depth_greater) out float gl_FragDepth;
+out vec4 color;
+
+uniform vec4 renderingColor;
+uniform float test;
 
 void main()
-{             
-	FragColor = vec4(1.0,1.0,1.0, 1.0);
+{
+    //color = vec4(0,0.9,0.8,0);
+    color=renderingColor;
+    //gl_FragDepth = gl_FragCoord.z + 0.1f;
 }

@@ -146,7 +146,7 @@ void main()
         float distance = length(lightPositions - v2f_WorldPos);
         float attenuation = 1.0 / (distance * distance);
         //vec3 radiance = lightColors[i] * attenuation;
-		/////////enenene ÓÐÎÊÌâ
+		/////////enenene æœ‰é—®é¢˜
 		//vec3 radiance = lightColors*1.5;
 		vec3 radiance = lightColors;
 		//vec3 radiance = lightColors*3;
@@ -204,5 +204,5 @@ void main()
     //FragColor = vec4(v2f_Normal, 1.0);
 	//FragColor = vec4(1.0,1.0,1.0, 1.0);
     FragColor = vec4(color, 1.0);
-
+    //FragColor = vec4(0,0.4,0.4, 1.0);
 }

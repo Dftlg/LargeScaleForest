@@ -6,6 +6,7 @@ in vec2 v2f_TexCoords;
 in vec3 v2f_WorldPos;
 in vec3 v2f_Normal;
 in vec4 v2f_FragposLightPos;
+in float v2f_Color;
 
 
 // material parameters
@@ -25,6 +26,7 @@ uniform float far_plane;
 uniform bool shadows;
 
 uniform sampler2D texture_diffuse1;
+uniform sampler2D texture_opacity1;
 uniform sampler2D depthMap;
 
 uniform mat4 lightspaceMatrix;
@@ -129,6 +131,15 @@ void main()
 {             
     vec4 texColor = texture(texture_diffuse1, v2f_TexCoords);
    // FragColor = texColor;
+   vec4  texColor2 = texture(texture_opacity1, v2f_TexCoords);
+	if(v2f_Color>0)
+	{
+		if(texColor2.r < 0.07 && texColor2.g < 0.07 && texColor2.b < 0.07)
+			discard;	
+    //FragColor = texColor1;
+	}
+    //FragColor = texColor1;
+	
 
 	vec3 albedo = pow(texture(texture_diffuse1, v2f_TexCoords).rgb, vec3(2.2));
 
@@ -147,7 +158,7 @@ void main()
 //        float distance = length(lightPositions[i] - v2f_WorldPos);
 //        float attenuation = 1.0 / (distance * distance);
 //        //vec3 radiance = lightColors[i] * attenuation;
-//		/////////enenene ÓÐÎÊÌâ
+//		/////////enenene æœ‰é—®é¢˜
 //		vec3 radiance = lightColors[i]*1.5;
 //
 //        // Cook-Torrance BRDF
@@ -168,7 +179,7 @@ void main()
         float distance = length(lightPositions - v2f_WorldPos);
         float attenuation = 1.0 / (distance * distance);
         //vec3 radiance = lightColors[i] * attenuation;
-		/////////enenene ÓÐÎÊÌâ
+		/////////enenene æœ‰é—®é¢˜
 		vec3 radiance = lightColors*1.5;
 
         // Cook-Torrance BRDF
@@ -193,6 +204,9 @@ void main()
 	Lo*=3;
 
 	color = Lo *(1.0 - shadow) + ambient;
+
+    //rendering 
+    color=albedo;
 	// HDR tonemapping
 	color = color / (color + vec3(1.0));
 	// gamma correct

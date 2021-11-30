@@ -8,6 +8,7 @@ out vec2 v2f_TexCoords;
 out vec3 v2f_WorldPos;
 out vec3 v2f_Normal;
 out vec4 v2f_FragposLightPos;
+out float v2f_Color;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -18,6 +19,7 @@ void main()
 {
     v2f_TexCoords = aTexCoords;
 	v2f_Normal = mat3(model) * aNormal;
+    v2f_Color=1.0;
 	v2f_WorldPos = vec3(model*instanceMatrix * vec4(aPos,1.0));
 	v2f_FragposLightPos=lightSpaceMatrix*vec4(v2f_WorldPos,1.0);
     gl_Position = projection * view * model * instanceMatrix * vec4(aPos, 1.0);

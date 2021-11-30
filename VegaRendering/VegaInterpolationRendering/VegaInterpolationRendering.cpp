@@ -3,8 +3,8 @@
 #include <GL/glew.h>
 #include<glm/glm.hpp>
 #include<glm/gtc/type_ptr.hpp>
-//#define STB_IMAGE_WRITE_IMPLEMENTATION
-//#include <stb_image_write.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
 #include<glm/gtc/matrix_transform.hpp>
 #include <GLFW/glfw3.h>
 #include <vector>
@@ -24,15 +24,15 @@
 
 //#define GLFW_EXPOSE_NATIVE_GLX
 
-//#include "imgui.h"
-//#include "imgui_impl_glfw.h"
-//#include "imgui_impl_opengl3.h"
-//#include <stdio.h>
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+#include <stdio.h>
 
 
-//#if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
-//#pragma comment(lib, "legacy_stdio_definitions")
-//#endif
+#if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
+#pragma comment(lib, "legacy_stdio_definitions")
+#endif
 //
 //static void glfw_error_callback(int error, const char* description)
 //{
@@ -56,8 +56,9 @@ unsigned int loadCubemap(std::vector<std::string> faces);
 
 //2560 1440
 //1920 1080  960 1080
-const unsigned int SCR_WIDTH = 1000;
-const unsigned int SCR_HEIGHT = 1000;
+//1000,1000
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
 bool shadows = true;
 bool shadowsKeyPressed = false;
 bool automoveCamera = false;
@@ -116,11 +117,11 @@ int ALLTreeNumber = 3;
 float bendScale[] = { 0.3,0.2,0.5 };
 float primaryOffsetScale[] = { 0.1,0.5,0.1 };
 
-std::string PathString = "video1/";
+std::string PathString = "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/ExperimentResult/outputImagel.bmp";
 
 std::vector<double>timeSum;
 
-
+int frameIndex = 0;
 
 //前一个std::vector表示匹配树的个数，后一个std::vector表示每一帧中需要的数据
 //vMultipleExtraForces 表示每一帧风的方向，每次用5帧来进行搜索
@@ -371,7 +372,7 @@ int main()
 #pragma endregion
 
 
-
+    glEnable(GL_CULL_FACE);
 
 #pragma region skybox VAO and VBO and Texture
 	// skybox VAO
@@ -384,28 +385,29 @@ int main()
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
-
+    std::vector<std::string> faces;
 	//Each time change*************
-	std::vector<std::string> faces
-	{
-		"resources/textures/sky/FluffballDayLeft.png",
-		"resources/textures/sky/FluffballDayRight.png",
-		"resources/textures/sky/FluffballDayTop.png",
-		"resources/textures/sky/FluffballDayBottom.png",
-		"resources/textures/sky/FluffballDayFront.png",
-		"resources/textures/sky/FluffballDayBack.png"
-	};
+    if (Common::renderingTerrainOrWhiltScence == true)
+    {
+        faces.push_back("resources/textures/sky/FluffballDayLeft.png");
+        faces.push_back("resources/textures/sky/FluffballDayRight.png");
+        faces.push_back("resources/textures/sky/FluffballDayTop.png");
+        faces.push_back("resources/textures/sky/FluffballDayBottom.png");
+        faces.push_back("resources/textures/sky/FluffballDayFront.png");
+        faces.push_back("resources/textures/sky/FluffballDayBack.png");
+    }
+    else
+    {
+        faces.push_back("resources/textures/whitesky/white.png");
+        faces.push_back("resources/textures/whitesky/white.png");
+        faces.push_back("resources/textures/whitesky/white.png");
+        faces.push_back("resources/textures/whitesky/white.png");
+        faces.push_back("resources/textures/whitesky/white.png");
+        faces.push_back("resources/textures/whitesky/white.png");
+    }
 	//End Each time change*************
 	//***************
-	/*std::vector<std::string> faces
-	{
-		"resources/textures/whitesky/white.png",
-		"resources/textures/whitesky/white.png",
-		"resources/textures/whitesky/white.png",
-		"resources/textures/whitesky/white.png",
-		"resources/textures/whitesky/white.png",
-		"resources/textures/whitesky/white.png"
-	};*/
+	/**/
 	//***************
 
 
@@ -442,11 +444,18 @@ int main()
 
 
 	//Each time change*************
-	lightProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, near_plane, far_plane);
+    if (Common::renderingTerrainOrWhiltScence == true)
+    {
+        lightProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, near_plane, far_plane);
+    }
+    else
+    {
+        lightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, near_plane, far_plane);
+    }
+	
 	//End Each time change*************
-	//lightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, near_plane, far_plane);
+	//
 	//***************
-
 
 	lightView = glm::lookAt(lightPosition[0], glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.1));
 	lightSpaceMatrix = lightProjection * lightView;
@@ -458,20 +467,27 @@ int main()
 
 	//FirstTypeTerrain
 	//Each time change*************
-	RenderStaticSence.loadStaticModel("terrain", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/terrain/Mountains2.obj");
-	RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-	RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
-    RenderStaticSence.setModelScale(0.06f);
+    if (Common::renderingTerrainOrWhiltScence == true)
+    {
+        RenderStaticSence.loadStaticModel("terrain", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/terrain/Mountains2.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
+        RenderStaticSence.setModelScale(0.06f);
+    }
+    else
+    {
+        RenderStaticSence.loadStaticModel("terrain", "G:/model/plane/plane.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
+        RenderStaticSence.setModelScale(1.0f);
+    }
+	
 	//modelscale.push_back(0.06f);
 	//End Each time change*************
 
 	//SecondTypePlane
 	//**********************
-	/*RenderStaticSence.loadStaticModel("terrain", "G:/model/plane/plane.obj");
-	RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-	RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
-	modelscale.push_back(1.0f);
-	typeStaticNumber++;*/
+	/**/
 	//********************
 
 	std::vector<float> rotations;
@@ -482,10 +498,17 @@ int main()
 	transform.push_back(std::make_pair(0, 0));
 
 	//Each time change*************
-	zTransform.push_back(-12.0);
+    if (Common::renderingTerrainOrWhiltScence == true)
+    {
+        zTransform.push_back(-12.0);
+    }
+    else
+    {
+        zTransform.push_back(0.0);
+    }
 	//End Each time change*************
 	//***************
-	//zTransform.push_back(0.0);
+	//
 	//***************
 
 
@@ -500,7 +523,10 @@ int main()
 	RenderStaticSence.getTerrain("terrain");
 
 	//Each time change*************
-	RenderStaticSence.setTerrainHeightYToZero();
+    if (Common::renderingTerrainOrWhiltScence == true)
+    {
+        RenderStaticSence.setTerrainHeightYToZero();
+    }
 	//End Each time change*************
     //lightsource
     if (Common::renderingLightSource == true)
@@ -637,10 +663,6 @@ int main()
 	//rotations.clear();
 	//transform.clear();
 
-	
-
-	
-
 	std::vector<double> TerrainHeigth;
 	double TerrainX;
 	double TerrainZ;
@@ -741,11 +763,16 @@ int main()
 		MultipleTypeTree.InitMultipleExtraWindData(i);
 		MultipleTypeTree.InitFemFrameStruct(i);
 		MultipleTypeTree.InitScenceShaderData(i, Common::ScaleTree[i]);
-		MultipleTypeTree.calculateTreeDistantWithTerrain(i);
+		
 
 		//End Each time change*************
 		//***************此处也修改了InstanceMatrix得旋转VAO
-		MultipleTypeTree.updataTreeOnTerrain(i);
+        if (Common::renderingTerrainOrWhiltScence == true)
+        {
+            MultipleTypeTree.calculateTreeDistantWithTerrain(i);
+            MultipleTypeTree.updataTreeOnTerrain(i);
+        }
+           
 		//***************
 
 	}
@@ -781,40 +808,151 @@ int main()
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 projection;
 	glm::mat4 view;
-	int frameIndex = 0;
+	
 
     //SET VegMesh
     if (Common::renderingVegMesh == true)
     {
-        RenderStaticSence.loadStaticModel("TreeMeshVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/200/tree200.obj");
+        RenderStaticSence.loadStaticModel("TreeMeshVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/18/tree18.obj");
         RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
         RenderStaticSence.loadSenceShader("VegWireFrame.vert", "VegWireFrame.frag");
         RenderStaticSence.setModelScale(0.2f);
         RenderStaticSence.setObjectTransform("TreeMeshVeg", *MultipleTypeTree.GetFirstTreeModelMatrix());
         RenderStaticSence.initModelShaderVegPara("TreeMeshVeg", *MultipleTypeTree.GetFirstTreeModelMatrix());
+        RenderStaticSence.setVegMeshFragmentShaderRenderingColor("TreeMeshVeg", glm::vec4(0, 0.9, 0.8, 0));
     }
+
+    if (Common::renderingStemMesh == true)
+    {
+        RenderStaticSence.loadStaticModel("StemVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/50/steam/steam50.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("VegWireFrame.vert", "VegWireFrame.frag");
+        RenderStaticSence.setModelScale(0.2f);
+        RenderStaticSence.setObjectTransform("StemVeg", glm::vec3(0,0,0),0);
+        RenderStaticSence.initModelShaderPara("StemVeg");
+        RenderStaticSence.setVegMeshFragmentShaderRenderingColor("StemVeg", glm::vec4(0.73, 0,0, 0));
+
+        RenderStaticSence.loadStaticModel("StemObject", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/stem.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
+        RenderStaticSence.setModelScale(0.2f);
+        RenderStaticSence.setObjectTransform("StemObject", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence.initModelShaderPara("StemObject");
+        
+    }
+
+    if (Common::renderingLeafMesh == true)
+    {
+        RenderStaticSence.loadStaticModel("LeafVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/90/leaf/leaf90.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("VegWireFrame.vert", "VegWireFrame.frag");
+        RenderStaticSence.setModelScale(0.2f);
+        RenderStaticSence.setObjectTransform("LeafVeg", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence.initModelShaderPara("LeafVeg");
+        RenderStaticSence.setVegMeshFragmentShaderRenderingColor("LeafVeg", glm::vec4(0.278, 0.73, 0, 0));
+
+        RenderStaticSence.loadStaticModel("LeafObject", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/leaf.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
+        RenderStaticSence.setModelScale(0.2f);
+        RenderStaticSence.setObjectTransform("LeafObject", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence.initModelShaderPara("LeafObject");
+       
+    }
+
+    if (Common::renderingFibrous == true)
+    {
+        RenderStaticSence.loadStaticModel("FibrousVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/90/fibrous/fibrous90.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("VegWireFrame.vert", "VegWireFrame.frag");
+        RenderStaticSence.setModelScale(0.2f);
+        RenderStaticSence.setObjectTransform("FibrousVeg", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence.initModelShaderPara("FibrousVeg");
+        RenderStaticSence.setVegMeshFragmentShaderRenderingColor("FibrousVeg", glm::vec4(0, 0.474, 1, 0));
+
+        RenderStaticSence.loadStaticModel("FibrousObject", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/fibrous_all.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
+        RenderStaticSence.setModelScale(0.2f);
+        RenderStaticSence.setObjectTransform("FibrousObject", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence.initModelShaderPara("FibrousObject");
+        
+    }
+
+    //testRenderVegLine
+    if (Common::renderAllVeg == true)
+    {
+        RenderStaticSence.loadStaticModel("StemVegLine", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/50/steam/steam50.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("VegWireFrame.vert", "VegWireFrame.frag");
+        RenderStaticSence.setModelScale(0.2f);
+        RenderStaticSence.setObjectTransform("StemVegLine", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence.initModelShaderPara("StemVegLine");
+        RenderStaticSence.setVegMeshFragmentShaderRenderingColor("StemVegLine", glm::vec4(0, 0, 0, 0));
+
+        RenderStaticSence.loadStaticModel("LeafVegLine", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/90/leaf/leaf90.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("VegWireFrame.vert", "VegWireFrame.frag");
+        RenderStaticSence.setModelScale(0.2f);
+        RenderStaticSence.setObjectTransform("LeafVegLine", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence.initModelShaderPara("LeafVegLine");
+        RenderStaticSence.setVegMeshFragmentShaderRenderingColor("LeafVegLine", glm::vec4(0, 0, 0, 0));
+
+        RenderStaticSence.loadStaticModel("FibrousVegLine", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/90/fibrous/fibrous90.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("VegWireFrame.vert", "VegWireFrame.frag");
+        RenderStaticSence.setModelScale(0.2f);
+        RenderStaticSence.setObjectTransform("FibrousVegLine", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence.initModelShaderPara("FibrousVegLine");
+        RenderStaticSence.setVegMeshFragmentShaderRenderingColor("FibrousVegLine", glm::vec4(0, 0, 0, 0));
+    }
+
+    // Rendering experiment ModelMotion
+    if (Common::renderingSameModelMotion == true)
+    {
+        RenderStaticSence.loadStaticModel("ModelPosture1", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/ModelMotion/5.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
+        RenderStaticSence.setModelScale(0.2f);
+        RenderStaticSence.setObjectTransform("ModelPosture1", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence.initModelShaderPara("ModelPosture1");
+
+        RenderStaticSence.loadStaticModel("ModelPosture2", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/ModelMotion/10.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
+        RenderStaticSence.setModelScale(0.2f);
+        RenderStaticSence.setObjectTransform("ModelPosture2", glm::vec3(4, 0, 0), 0);
+        RenderStaticSence.initModelShaderPara("ModelPosture2");
+
+        RenderStaticSence.loadStaticModel("ModelPosture3", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/ModelMotion/15.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
+        RenderStaticSence.setModelScale(0.2f);
+        RenderStaticSence.setObjectTransform("ModelPosture3", glm::vec3(8, 0, 0), 0);
+        RenderStaticSence.initModelShaderPara("ModelPosture3");
+    } 
 
 	////////////////////////
 	// Setup Dear ImGui context
-	/*IMGUI_CHECKVERSION();
+	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;*/
-	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
 	// Setup Dear ImGui style
-	//ImGui::StyleColorsDark();
-	//ImGui::StyleColorsClassic();
+	ImGui::StyleColorsDark();
+	ImGui::StyleColorsClassic();
 
 	// Setup Platform/Renderer backends
-	/*ImGui_ImplGlfw_InitForOpenGL(Window, true);
+	ImGui_ImplGlfw_InitForOpenGL(Window, true);
 	ImGui_ImplOpenGL3_Init(glsl_version);
-*/
+
 
 	// Our state
 	bool show_demo_window = true;
 	bool show_another_window = false;
-	//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	std::vector<float> tempFrame;
 	std::vector<Common::SConnectedFemFiles> vAllReallyLoadConnectedFem = (MultipleTypeTree.getSpecificFemFactory(0))->getAllReallyLoadConnectedFem();
@@ -826,80 +964,65 @@ int main()
 	int numFramePoints = vAllReallyLoadConnectedFem[0].FemDataset[0]->Frames[0].BaseFileDeformations.size();
 	std::vector<glm::vec3>sumDeltaU(numFramePoints);
 
-	//ComputerShaderNormal
-	//ComputerShader * Ourcomputershader = new ComputerShader("calculateNormal.comp");
-	/*for(int i=0;i<Common::TreesTypeNumber;i++)
-	MultipleTypeTree.setTreeModelMatrixToShader(i);*/
-	//if (Common::UseGeomOrCompCalculateNormal == false)
-	//{
-	//	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-	//	for (int i = 0; i < Common::TreesTypeNumber; i++)
-	//	{
-	//		MultipleTypeTree.getSpecificTreeModel(i)->initComputerSSBONormalRelatedData(*Ourcomputershader, i);
-	//		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-	//	}
-	//}
-
-
 	while (!glfwWindowShouldClose(Window))
 	{
 #pragma region Imgui 
 		// Start the Dear ImGui frame
-		/*ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();*/
+		ImGui::NewFrame();
 
-		//// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-		/*if (show_demo_window)
-			ImGui::ShowDemoWindow(&show_demo_window);*/
+		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+		//if (show_demo_window)
+			//ImGui::ShowDemoWindow(&show_demo_window);
 
-		//// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-		//{
-		//	static float f = 0.0f;
-		//	static int counter = 0;
+		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+		{
+			static float f = 0.0f;
+			static int counter = 0;
 
-		//	ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
-		//	ImGui::Text("FrameIndex:%d",frameIndex);               // Display some text (you can use a format strings too)
-		//	ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-		//	ImGui::Checkbox("Another Window", &show_another_window);
+			ImGui::Text("FrameIndex:%d",frameIndex);               // Display some text (you can use a format strings too)
+			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+			ImGui::Checkbox("Another Window", &show_another_window);
 
-		//	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-		//	ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
-		//	if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-		//		counter++;
-		//	ImGui::SameLine();
-		//	ImGui::Text("counter = %d", counter);
+			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+				counter++;
+			ImGui::SameLine();
+			ImGui::Text("counter = %d", counter);
 
-		//	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		//	ImGui::End();
-		//}
-		////std::cout << ImGui::GetIO().Framerate << std::endl;
-		//tempFrame.push_back(ImGui::GetIO().Framerate);
-		//// 3. Show another simple window.
-		//if (show_another_window)
-		//{
-		//	ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-		//	ImGui::Text("Hello from another window!");
-		//	if (ImGui::Button("Close Me"))
-		//		show_another_window = false;
-		//	ImGui::End();
-		//}
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::End();
+		}
+		//std::cout << ImGui::GetIO().Framerate << std::endl;
+		tempFrame.push_back(ImGui::GetIO().Framerate);
+		// 3. Show another simple window.
+		if (show_another_window)
+		{
+			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+			ImGui::Text("Hello from another window!");
+			if (ImGui::Button("Close Me"))
+				show_another_window = false;
+			ImGui::End();
+		}
 
 		////// Rendering
-		//ImGui::Render();
-//		int display_w, display_h;
-//		glfwGetFramebufferSize(Window, &display_w, &display_h);
-//		glViewport(0, 0, display_w, display_h);
-//		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-//		glClear(GL_COLOR_BUFFER_BIT);
-//#pragma endregion
-//		if (automoveCamera == true)
-//		{
-//			Camera.UpdataCameraPosition(FrameNumber);
-//		}
-//
+		ImGui::Render();
+		int display_w, display_h;
+		glfwGetFramebufferSize(Window, &display_w, &display_h);
+		glViewport(0, 0, display_w, display_h);
+		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+		glClear(GL_COLOR_BUFFER_BIT);
+#pragma endregion
+		if (automoveCamera == true)
+		{
+			Camera.UpdataCameraPosition(FrameNumber);
+		}
+
 
 
 		//////////////////
@@ -909,7 +1032,7 @@ int main()
 		LastFrame = currentFrame;
 
 		// input---
-		processInput(Window);
+		
 
 		// render----
 		glClearColor(1.0f, 1.0f, 1.0f, 0.5f);
@@ -1022,18 +1145,58 @@ int main()
         glm::mat4 temp = *MultipleTypeTree.GetFirstTreeModelMatrix();
         if (Common::renderingVegMesh == true)
         {
-            RenderStaticSence.RenderingModelWithWireframe("TreeMeshVeg", *MultipleTypeTree.GetFirstTreeModelMatrix());
+            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            //glDepthFunc(GL_ALWAYS);
+            RenderStaticSence.RenderingModelWithWireframe("TreeMeshVeg",true, *MultipleTypeTree.GetFirstTreeModelMatrix());
+        }
+
+        //experiment one
+        if (Common::renderingStemMesh == true)
+        {
+            RenderStaticSence.RenderingModel("StemObject", depthMap, false);
+            glm::mat4 temp;
+            //RenderStaticSence.RenderingModelWithWireframe("StemVeg",false, temp);
+            RenderStaticSence.RenderingModel("StemVeg", depthMap, false);
+        }
+        if (Common::renderingLeafMesh == true)
+        {
+            RenderStaticSence.RenderingModel("LeafObject", depthMap, false);
+            glm::mat4 temp;
+            //RenderStaticSence.RenderingModelWithWireframe("LeafVeg", false, temp);
+            RenderStaticSence.RenderingModel("LeafVeg", depthMap, false);
+        }
+        if (Common::renderingFibrous == true)
+        {
+            RenderStaticSence.RenderingModel("FibrousObject", depthMap, false);
+            glm::mat4 temp;
+            //RenderStaticSence.RenderingModelWithWireframe("FibrousVeg", false, temp);
+            RenderStaticSence.RenderingModel("FibrousVeg", depthMap, false);
+        }
+        if (Common::renderAllVeg == true)
+        {
+            RenderStaticSence.RenderingModelWithWireframe("StemVegLine", false, temp);
+            RenderStaticSence.RenderingModelWithWireframe("LeafVegLine", false, temp);
+            RenderStaticSence.RenderingModelWithWireframe("FibrousVegLine", false, temp);
+        }
+
+        //experiment two
+        if (Common::renderingSameModelMotion == true)
+        {
+            RenderStaticSence.RenderingModel("ModelPosture1", depthMap, false);
+            RenderStaticSence.RenderingModel("ModelPosture2", depthMap, false);
+            RenderStaticSence.RenderingModel("ModelPosture3", depthMap, false);
         }
             
 		//tree
-		for (int i = 0; i < Common::TreesTypeNumber; i++)
-		{
-			MultipleTypeTree.RenderingModel(i, depthMap, 1, glfwGetTime(), frameIndex, 9, bendScale[i], primaryOffsetScale[i], shadows);
+        if (Common::renderingForest == true)
+        {
+            for (int i = 0; i < Common::TreesTypeNumber; i++)
+            {
+                MultipleTypeTree.RenderingModel(i, depthMap, 1, glfwGetTime(), frameIndex, 9, bendScale[i], primaryOffsetScale[i], shadows);
 
-			renderTree(*(MultipleTypeTree.getSpecificScenceShadowShader(i)), *(MultipleTypeTree.getSpecificTreeModel(i)));
-		}
-
-
+                renderTree(*(MultipleTypeTree.getSpecificScenceShadowShader(i)), *(MultipleTypeTree.getSpecificTreeModel(i)));
+            }
+        }
 
 		/*if (i < 999)
 		{
@@ -1054,7 +1217,7 @@ int main()
 		glDepthFunc(GL_LESS); // set depth function back to default
 
 		//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+        processInput(Window);
 		glfwSwapBuffers(Window);
 		glfwPollEvents();
 
@@ -1074,9 +1237,9 @@ int main()
 	//glDeleteBuffers(1, &SSBO);
 	MultipleTypeTree.getSpecificTreeModel(0)->Clear();
 	// Cleanup
-	//ImGui_ImplOpenGL3_Shutdown();
-	//ImGui_ImplGlfw_Shutdown();
-	//ImGui::DestroyContext();
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 
 	glfwDestroyWindow(Window);
 
@@ -1173,7 +1336,7 @@ bool initWindow(GLFWwindow*& vWindow, int vScreenWidth, int vScreenHeight)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
 #endif
 
-	vWindow = glfwCreateWindow(vScreenWidth, vScreenHeight, "LearnOpenGL", NULL, NULL);
+	vWindow = glfwCreateWindow(vScreenWidth, vScreenHeight, "LargeScaleForest", NULL, NULL);
 	if (vWindow == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -1201,7 +1364,8 @@ bool initWindow(GLFWwindow*& vWindow, int vScreenWidth, int vScreenHeight)
 //FUNCTION:
 int captureScreen2Img(const std::string& vFileName, int vQuality)
 {
-	/*size_t Start = vFileName.find_last_of('.');
+	size_t Start = vFileName.find_last_of('.');
+
 	std::string FilePostfix = vFileName.substr(Start + 1, vFileName.size() - Start);
 	int WindowWidth = 0, WindowHeight = 0;
 	WindowWidth = SCR_WIDTH;
@@ -1218,7 +1382,7 @@ int captureScreen2Img(const std::string& vFileName, int vQuality)
 	else if (FilePostfix == "bmp")
 		return stbi_write_bmp(vFileName.c_str(), WindowWidth, WindowHeight, 4, pScreenData.get());
 	else if (FilePostfix == "jpg")
-		return stbi_write_jpg(vFileName.c_str(), WindowWidth, WindowHeight, 4, pScreenData.get(), vQuality);*/
+		return stbi_write_jpg(vFileName.c_str(), WindowWidth, WindowHeight, 4, pScreenData.get(), vQuality);
 	return -1;
 }
 
@@ -1242,6 +1406,7 @@ void processInput(GLFWwindow* vWindow)
 	if (glfwGetKey(vWindow, GLFW_KEY_Q) == GLFW_PRESS)
 	{
 		captureScreen2Img(PathString, 100);
+        std::cout << "caputure Image in PathString" << std::endl;
 	}
 	if (glfwGetKey(vWindow, GLFW_KEY_T) == GLFW_PRESS)
 	{
