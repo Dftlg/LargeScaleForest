@@ -260,6 +260,9 @@ void RenderVolumetricMesh::Render(VolumetricMesh * volumetricMesh, int wireframe
       color[0] = gray;
       color[1] = gray;
       color[2] = gray;
+   /*   color[0] = 0.05;
+      color[1] = 0.262;
+      color[2] = 0.776;*/
 
       int setIndex = region->getSetIndex(); 
       const VolumetricMesh::Set * elementSet = volumetricMesh->getSet(setIndex);
@@ -268,7 +271,7 @@ void RenderVolumetricMesh::Render(VolumetricMesh * volumetricMesh, int wireframe
 
       for(set<int> :: iterator iter = elements.begin(); iter != elements.end(); iter++)
       {
-        if (wireframe)//¸ü¸ÄÏß¿òµÄÑÕÉ«
+        if (wireframe)//æ›´æ”¹çº¿æ¡†çš„é¢œè‰²
           glColor4d(0, 0, 0, 0.8);
         else
           glColor3f(color[0], color[1], color[2]);
@@ -364,6 +367,10 @@ void RenderVolumetricMesh::Render(VolumetricMesh * volumetricMesh, int wireframe
         glColor4d(0, 0, 0, 0.8);
       else
         glColor3f(colorR, colorG, colorB);
+
+      colorR = 0.05;
+      colorG = 0.262;
+      colorB = 0.776;
 
       if (u == NULL)
       {

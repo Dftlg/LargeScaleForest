@@ -21,6 +21,7 @@
 #include "RenderStaticSence.h"
 #include "../RenderingProcess/ComputerShader.h"
 #include "../Common/common.h"
+#include "../RenderingProcess/CubicVeg.h"
 
 //#define GLFW_EXPOSE_NATIVE_GLX
 
@@ -230,6 +231,14 @@ int main()
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+
+    if (Common::renderingVegMesh == true)
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+        
+
 #pragma endregion
 	/////////////////////////////
 #pragma region build and compile shaders
@@ -542,6 +551,7 @@ int main()
 
 
 	////grass1
+#pragma region grass load
     if (Common::renderingGrass == true)
     {
         //Grass
@@ -659,9 +669,12 @@ int main()
         //RenderStaticSence.setGrassOnTerrain(i);
         //RenderStaticSence.updataGrassOnTerrain(i,1);
     }
+
+#pragma endregion
 	//RenderStaticSence.setModelInstanceAndTransform(2, transform, rotations, haynumber);
 	//rotations.clear();
 	//transform.clear();
+
 
 	std::vector<double> TerrainHeigth;
 	double TerrainX;
@@ -678,7 +691,7 @@ int main()
 	//////////////////////////////
 
 
-#pragma region create depth cubemap transformation matrices and some value
+#pragma region load tree model
 		//生成树木的随机位置
 
 	for (int i = 0; i < Common::TreesTypeNumber; i++)
@@ -782,7 +795,7 @@ int main()
 	{
 		MultipleTypeTree.updataTreeOnTerrainByPara(i);
 	}
-#pragma endregion
+
 	for (int i = 0; i < Common::TreesTypeNumber; i++)
 	{
 		EachFormNumberArray.push_back(MultipleTypeTree.getSpecificLoadWindAndTree(i).getEachFormNumberArray());
@@ -793,7 +806,7 @@ int main()
             MultipleTypeTree.InitScenceNormalMatrixData(i);
         }
 	}
-
+#pragma endregion
 
 
 	//InsertSearchTreeFrameIndex(*(MultipleTypeTree.getSpecificFemFactory(0)), *(MultipleTypeTree.getSpecificTreeModel(0)), *(MultipleTypeTree.getSpecificExtraForces(0)), *(MultipleTypeTree.getSpecificExtraDirection(0)), *(MultipleTypeTree.getSpecificTreesNumberSubjected2SameWind(0)), 0);
@@ -808,14 +821,14 @@ int main()
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 projection;
 	glm::mat4 view;
-	
 
+#pragma region load paper experiment
     //SET VegMesh
-    if (Common::renderingVegMesh == true)
+    if (Common::renderingSurfaceMesh == true)
     {
         RenderStaticSence.loadStaticModel("TreeMeshVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/18/tree18.obj");
         RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("VegWireFrame.vert", "VegWireFrame.frag");
+        RenderStaticSence.loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
         RenderStaticSence.setModelScale(0.2f);
         RenderStaticSence.setObjectTransform("TreeMeshVeg", *MultipleTypeTree.GetFirstTreeModelMatrix());
         RenderStaticSence.initModelShaderVegPara("TreeMeshVeg", *MultipleTypeTree.GetFirstTreeModelMatrix());
@@ -826,7 +839,7 @@ int main()
     {
         RenderStaticSence.loadStaticModel("StemVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/50/steam/steam50.obj");
         RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("VegWireFrame.vert", "VegWireFrame.frag");
+        RenderStaticSence.loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
         RenderStaticSence.setModelScale(0.2f);
         RenderStaticSence.setObjectTransform("StemVeg", glm::vec3(0,0,0),0);
         RenderStaticSence.initModelShaderPara("StemVeg");
@@ -845,7 +858,7 @@ int main()
     {
         RenderStaticSence.loadStaticModel("LeafVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/90/leaf/leaf90.obj");
         RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("VegWireFrame.vert", "VegWireFrame.frag");
+        RenderStaticSence.loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
         RenderStaticSence.setModelScale(0.2f);
         RenderStaticSence.setObjectTransform("LeafVeg", glm::vec3(0, 0, 0), 0);
         RenderStaticSence.initModelShaderPara("LeafVeg");
@@ -864,7 +877,7 @@ int main()
     {
         RenderStaticSence.loadStaticModel("FibrousVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/90/fibrous/fibrous90.obj");
         RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("VegWireFrame.vert", "VegWireFrame.frag");
+        RenderStaticSence.loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
         RenderStaticSence.setModelScale(0.2f);
         RenderStaticSence.setObjectTransform("FibrousVeg", glm::vec3(0, 0, 0), 0);
         RenderStaticSence.initModelShaderPara("FibrousVeg");
@@ -884,7 +897,7 @@ int main()
     {
         RenderStaticSence.loadStaticModel("StemVegLine", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/50/steam/steam50.obj");
         RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("VegWireFrame.vert", "VegWireFrame.frag");
+        RenderStaticSence.loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
         RenderStaticSence.setModelScale(0.2f);
         RenderStaticSence.setObjectTransform("StemVegLine", glm::vec3(0, 0, 0), 0);
         RenderStaticSence.initModelShaderPara("StemVegLine");
@@ -892,7 +905,7 @@ int main()
 
         RenderStaticSence.loadStaticModel("LeafVegLine", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/90/leaf/leaf90.obj");
         RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("VegWireFrame.vert", "VegWireFrame.frag");
+        RenderStaticSence.loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
         RenderStaticSence.setModelScale(0.2f);
         RenderStaticSence.setObjectTransform("LeafVegLine", glm::vec3(0, 0, 0), 0);
         RenderStaticSence.initModelShaderPara("LeafVegLine");
@@ -900,7 +913,7 @@ int main()
 
         RenderStaticSence.loadStaticModel("FibrousVegLine", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/90/fibrous/fibrous90.obj");
         RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("VegWireFrame.vert", "VegWireFrame.frag");
+        RenderStaticSence.loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
         RenderStaticSence.setModelScale(0.2f);
         RenderStaticSence.setObjectTransform("FibrousVegLine", glm::vec3(0, 0, 0), 0);
         RenderStaticSence.initModelShaderPara("FibrousVegLine");
@@ -910,14 +923,15 @@ int main()
     // Rendering experiment ModelMotion
     if (Common::renderingSameModelMotion == true)
     {
-        RenderStaticSence.loadStaticModel("ModelPosture1", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/ModelMotion/5.obj");
+        //RenderStaticSence.loadStaticModel("ModelPosture1", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/ModelMotion/5.obj");
+        RenderStaticSence.loadStaticModel("ModelPosture1", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj");
         RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
         RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
         RenderStaticSence.setModelScale(0.2f);
         RenderStaticSence.setObjectTransform("ModelPosture1", glm::vec3(0, 0, 0), 0);
         RenderStaticSence.initModelShaderPara("ModelPosture1");
 
-        RenderStaticSence.loadStaticModel("ModelPosture2", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/ModelMotion/10.obj");
+        /*RenderStaticSence.loadStaticModel("ModelPosture2", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/ModelMotion/10.obj");
         RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
         RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
         RenderStaticSence.setModelScale(0.2f);
@@ -929,9 +943,28 @@ int main()
         RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
         RenderStaticSence.setModelScale(0.2f);
         RenderStaticSence.setObjectTransform("ModelPosture3", glm::vec3(8, 0, 0), 0);
-        RenderStaticSence.initModelShaderPara("ModelPosture3");
-    } 
+        RenderStaticSence.initModelShaderPara("ModelPosture3");*/
+    }
 
+    CubicVegMesh* VegMesh=nullptr;
+    CShader * CubicVegShader=nullptr;
+    CShader * CubicFiexedVegShader = nullptr;
+    if (Common::renderingVegMesh == true)
+    {
+        VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/tree100.veg");
+        CubicVegShader = new CShader("VegMesh.vert", "VegMesh.frag");
+        glm::mat4 model= glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+        CubicVegShader->use();
+        CubicVegShader->setMat4("model", model);
+
+        CubicFiexedVegShader = new CShader("VegMesh.vert", "VegMesh.frag");
+        CubicFiexedVegShader->use();
+        CubicFiexedVegShader->setMat4("model", model);
+
+    }
+
+#pragma endregion
 	////////////////////////
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
@@ -1143,7 +1176,7 @@ int main()
             RenderStaticSence.RenderingModel("lightsource", depthMap, false);
 
         glm::mat4 temp = *MultipleTypeTree.GetFirstTreeModelMatrix();
-        if (Common::renderingVegMesh == true)
+        if (Common::renderingSurfaceMesh == true)
         {
             //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             //glDepthFunc(GL_ALWAYS);
@@ -1183,8 +1216,26 @@ int main()
         if (Common::renderingSameModelMotion == true)
         {
             RenderStaticSence.RenderingModel("ModelPosture1", depthMap, false);
-            RenderStaticSence.RenderingModel("ModelPosture2", depthMap, false);
-            RenderStaticSence.RenderingModel("ModelPosture3", depthMap, false);
+            //RenderStaticSence.RenderingModel("ModelPosture2", depthMap, false);
+            //RenderStaticSence.RenderingModel("ModelPosture3", depthMap, false);
+        }
+
+        //experiment veg
+        if (Common::renderingVegMesh == true)
+        {
+            CubicVegShader->use();
+            glm::mat4 projection = glm::perspective(glm::radians(Camera.getZoom()), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+            glm::mat4 view = Camera.getViewMatrix();
+            CubicVegShader->setMat4("projection", projection);
+            CubicVegShader->setMat4("view", view);
+            CubicVegShader->setVec4("renderingColor", glm::vec4(0, 0.9, 0.8, 0));
+            VegMesh->DrawVegLine(*CubicVegShader);
+
+            CubicFiexedVegShader->use();
+            CubicFiexedVegShader->setMat4("projection", projection);
+            CubicFiexedVegShader->setMat4("view", view);
+            CubicFiexedVegShader->setVec4("renderingColor", glm::vec4(1.0,0.0,0.0,0));
+            VegMesh->draw(*CubicFiexedVegShader);
         }
             
 		//tree

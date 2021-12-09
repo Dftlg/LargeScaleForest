@@ -93,7 +93,6 @@ void CMesh::draw(const CShader& vShader) const
 }
 
 //****************************************************************************************************
-//必有instance导致每次重复了很多instance旋转矩阵
 void CMesh::drawLine(const CShader& vShader) const
 {
 
@@ -109,7 +108,7 @@ void CMesh::drawLine(const CShader& vShader) const
 //****************************************************************************************************
 //FUNCTION:
 void CMesh::__setupMesh()
-{
+{ 
 	// create buffers/arrays
 	glGenVertexArrays(1, &m_VAO);
 	glGenBuffers(1, &m_VBO);

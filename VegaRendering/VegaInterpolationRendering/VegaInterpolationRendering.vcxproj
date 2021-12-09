@@ -188,8 +188,10 @@
     <None Include="skybox.vert" />
     <None Include="Tree.frag" />
     <None Include="Tree.vert" />
-    <None Include="VegWireFrame.frag" />
-    <None Include="VegWireFrame.vert" />
+    <None Include="VegMesh.frag" />
+    <None Include="VegMesh.vert" />
+    <None Include="VegSurfaceWireFrame.frag" />
+    <None Include="VegSurfaceWireFrame.vert" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.vcxproj">

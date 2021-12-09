@@ -96,19 +96,21 @@ namespace Common
 	static bool UseGeomOrCompCalculateNormal = false;
 
 	static bool renderingGrass = false;
-	static bool renderingLightSource = true;
-    static bool renderingVegMesh = false;
+	static bool renderingLightSource = false;
+    static bool renderingSurfaceMesh = false;
     static bool renderingForest = false;
 
     //experiment
     static bool renderingStemMesh = false;
-    static bool renderingLeafMesh = true;
+    static bool renderingLeafMesh = false;
     static bool renderingFibrous = false;
-    static bool renderAllVeg = true;
+    static bool renderAllVeg = false;
 
-    static bool renderingSameModelMotion = false;
+    static bool renderingSameModelMotion = true;
 
     static bool renderingTerrainOrWhiltScence=false;
+
+    static bool renderingVegMesh = true;
 
     enum DrawType
     {
@@ -349,5 +351,29 @@ namespace Common
 			ConnectedIndex = vConnectedIndex;
 		}
 	};
+
+    //struct SVegVertex
+    //{
+    //    glm::vec3 Position;
+
+    //    SVegVertex() = default;
+    //    SVegVertex(const const glm::vec3& vPosition)
+    //    {
+    //        Position = vPosition;
+    //    }
+    //};
+
+    struct SVegElement
+    {
+        int ElementIndex;
+        std::vector<int> VertexIndex;
+
+        SVegElement() = default;
+        SVegElement(const int& vElementIndex,const std::vector<int>& vVertexIndex)
+        {
+            ElementIndex = vElementIndex;
+            VertexIndex = vVertexIndex;
+        }
+    };
 
 }
