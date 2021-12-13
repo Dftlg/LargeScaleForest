@@ -34,15 +34,20 @@
 CubicVegMesh::CubicVegMesh(const std::string& vModelPath)
 {
     __loadVegMesh(vModelPath);
-    __processVegMesh();
-    __processVegFixedElementsMesh();
-    __setupMesh();
-    __setupFixedElementMesh();
+   
 }
 
 CubicVegMesh::CubicVegMesh(const CubicVegMesh & volumetricMesh)
 {
    
+}
+
+void CubicVegMesh::InitVegRenderingProcess()
+{
+    __processVegMesh();
+    __processVegFixedElementsMesh();
+    __setupMesh();
+    __setupFixedElementMesh();
 }
 
 void CubicVegMesh::draw(const CShader& vShader) const
@@ -300,4 +305,78 @@ std::vector<int> CubicVegMesh::ReadFixedIndex(const std::string& vFilePath)
         }
     }
     return FixedIndex;
+}
+
+void CubicVegMesh::ConstructVoxelGroup()
+{
+    int ElementNumber= m_SetRegionsRelatedData[0].second.size();
+    int HasPushNumber = ElementNumber;
+    std::vector<bool> IsPushInGroup(ElementNumber, false);
+    while (HasPushNumber >0)
+    {
+        std::vector<Common::SVegElement> tempGroupElements;
+        std::set<int> tempGroupVerticesIndex;
+        for (int i = 0; i < ElementNumber; i++)
+        {
+            if (IsPushInGroup[i] == true)
+                continue;
+            Common::SVegElement temp = m_SetRegionsRelatedData[0].second[i];
+            if (tempGroupElements.size() == 0 || __findVoxelVerticesinGroup(tempGroupVerticesIndex, i) == true)
+            {
+                tempGroupElements.push_back(temp);
+                for (int k = 0; k < temp.VertexIndex.size(); k++)
+                {
+                    tempGroupVerticesIndex.insert(temp.VertexIndex[k]);
+                }
+                IsPushInGroup[i] = true;
+                HasPushNumber -= 1;
+            }
+        }
+        m_VoxelGroup.push_back(tempGroupElements);
+        m_GroupVertices.push_back(tempGroupVerticesIndex);
+        tempGroupElements.clear();
+        tempGroupVerticesIndex.clear();
+    }
+
+}
+
+void CubicVegMesh::CalculateGroupVoxelValue()
+{
+    __calculateGroupEdge();
+}
+
+void CubicVegMesh::__calculateGroupEdge()
+{
+    for(int groupIndex=0; groupIndex <m_VoxelGroup.size(); groupIndex++)
+        for (int voxelIndex = 0; voxelIndex < m_VoxelGroup[groupIndex].size(); voxelIndex++)
+        {
+            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[0], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[1]));
+            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[1], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[2]));
+            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[2], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[3]));
+            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[3], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[0]));
+            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[4], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[5]));
+            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[5], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[6]));
+            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[6], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[7]));
+            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[7], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[4]));
+            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[0], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[4]));
+            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[1], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[5]));
+            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[2], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[6]));
+            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[3], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[7]));
+        }
+}
+
+bool CubicVegMesh::__findVoxelVerticesinGroup(std::set<int> & GroupVerticesIndex, int ElementIndex)
+{
+    
+    for (auto it : GroupVerticesIndex)
+    {
+        for (int k = 0; k < 8; k++)
+        {
+            if (it == m_SetRegionsRelatedData[0].second[ElementIndex].VertexIndex[k])
+            {
+                return true;
+            }
+        }  
+    }
+    return false;
 }

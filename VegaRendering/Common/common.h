@@ -106,7 +106,7 @@ namespace Common
     static bool renderingFibrous = false;
     static bool renderAllVeg = false;
 
-    static bool renderingSameModelMotion = true;
+    static bool renderingSameModelMotion = false;
 
     static bool renderingTerrainOrWhiltScence=false;
 
@@ -367,7 +367,7 @@ namespace Common
     {
         int ElementIndex;
         std::vector<int> VertexIndex;
-
+        std::vector<std::pair<int, int>> EdgeVertexIndex;
         SVegElement() = default;
         SVegElement(const int& vElementIndex,const std::vector<int>& vVertexIndex)
         {

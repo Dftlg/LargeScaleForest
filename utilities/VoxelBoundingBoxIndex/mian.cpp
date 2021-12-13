@@ -290,11 +290,11 @@ int main()
 	std::vector<int> findedElementVertices;
 	std::string vegFilePath = "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/tree100.veg";
 	std::string objFilePath = "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj";
-	std::string skeletonFilePath = "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/skel/100/tree100.skel";
+	std::string skeletonFilePath = "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/treeply/treeskel/stem_test.skel";
 	std::string cubicIndexFilePath1 = "D:/GraduationProject/LargeScaleForest/models/yellow_tree_skeleton/test.bou";
 	std::string cubicIndexFilePath2 = "D:/GraduationProject/LargeScaleForest/models/yellow_tree_skeleton/stem_003_cubic_index.txt";
 	//std::string cubicIndexFilePath3 = "D:/GraduationProject/Vega/models/10.20/fibrous_all_cubic_index1.txt";
-	std::string cubicIndexOutputPath = "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/skel/100/tree100_cubic_index.txt";
+	std::string cubicIndexOutputPath = "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/EachPartSkelCubic_index/stem_test_cublic_index.txt";
 	std::string cubicVerticesOputputPath = "D:/GraduationProject/LargeScaleForest/models/yellow_tree_skeleton/test_vertices_index.bou";
 
 #pragma region findCubicIndex

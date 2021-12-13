@@ -385,6 +385,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VegaAnimationInterpolationR
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComputeTrajectoryError", "VegaRendering\ComputeTrajectoryError\ComputeTrajectoryError.vcxproj", "{F20D778F-0D2C-4C56-8665-88FB7A5421DC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpatialVoxelExtraction", "SpatialVoxelExtraction\SpatialVoxelExtraction.vcxproj", "{8B755E78-6756-48CA-88CF-8258633EBE6B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FFE4174E-9A25-4028-B22F-8D29A453EE6F} = {FFE4174E-9A25-4028-B22F-8D29A453EE6F}
+		{DBD25957-7E9F-40A3-AD16-17FC2DC796EF} = {DBD25957-7E9F-40A3-AD16-17FC2DC796EF}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -833,6 +839,14 @@ Global
 		{F20D778F-0D2C-4C56-8665-88FB7A5421DC}.Release|x64.Build.0 = Release|x64
 		{F20D778F-0D2C-4C56-8665-88FB7A5421DC}.Release|x86.ActiveCfg = Release|Win32
 		{F20D778F-0D2C-4C56-8665-88FB7A5421DC}.Release|x86.Build.0 = Release|Win32
+		{8B755E78-6756-48CA-88CF-8258633EBE6B}.Debug|x64.ActiveCfg = Debug|x64
+		{8B755E78-6756-48CA-88CF-8258633EBE6B}.Debug|x64.Build.0 = Debug|x64
+		{8B755E78-6756-48CA-88CF-8258633EBE6B}.Debug|x86.ActiveCfg = Debug|Win32
+		{8B755E78-6756-48CA-88CF-8258633EBE6B}.Debug|x86.Build.0 = Debug|Win32
+		{8B755E78-6756-48CA-88CF-8258633EBE6B}.Release|x64.ActiveCfg = Release|x64
+		{8B755E78-6756-48CA-88CF-8258633EBE6B}.Release|x64.Build.0 = Release|x64
+		{8B755E78-6756-48CA-88CF-8258633EBE6B}.Release|x86.ActiveCfg = Release|Win32
+		{8B755E78-6756-48CA-88CF-8258633EBE6B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -909,6 +923,7 @@ Global
 		{8870BC09-45A6-471D-A908-FC606F8614F8} = {80A490F9-B062-4D56-BE90-1C62B0DF0424}
 		{0AF877A5-4A83-4B8D-AA5F-236E03969CC1} = {CA1278B1-FDCB-4C3B-A993-8FE7C38FB1AC}
 		{F20D778F-0D2C-4C56-8665-88FB7A5421DC} = {CA1278B1-FDCB-4C3B-A993-8FE7C38FB1AC}
+		{8B755E78-6756-48CA-88CF-8258633EBE6B} = {CA1278B1-FDCB-4C3B-A993-8FE7C38FB1AC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {99173D97-76A2-4076-8802-0EB16E2D5191}

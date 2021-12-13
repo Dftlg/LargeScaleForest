@@ -15,18 +15,6 @@
 #include<glm/gtc/matrix_transform.hpp>
 #include "stb_image.h"
 #include "common.h"
-#include "ExtraTool.h"
-#include "VegaFemFactory.h"
-#include "ObjStruct.h"
-#include "objMesh.h"
-#include "sceneObject.h"
-#include "objMeshRender.h"
-#include "ComputerShader.h"
-#include "BaseMesh.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <vector>
 #include <set>
 #include <string>
@@ -48,6 +36,9 @@ public:
     ~CubicVegMesh()=default;
 
 
+    void InitVegRenderingProcess();
+    void ConstructVoxelGroup();
+    void CalculateGroupVoxelValue();
     std::vector<int> ReadFixedIndex(const std::string& vFilePath);
     void draw(const CShader& vShader) const;
     void DrawVegLine(const CShader& vShader) const;
@@ -61,6 +52,8 @@ private:
     void __setupMesh();
     void __setupFixedElementMesh();
     void __RegionRelatedVegElement();
+    bool __findVoxelVerticesinGroup(std::set<int> & vGroupVerticesIndex,int ElementIndex);
+    void __calculateGroupEdge();
 
     unsigned int m_FixedEleVAO;
     unsigned int m_FixedEleVBO;
@@ -74,9 +67,10 @@ private:
 
     std::vector < std::pair<std::string, std::vector<int>>> m_SetRegions;
     std::vector<std::pair<std::string, std::vector<Common::SVegElement>>> m_SetRegionsRelatedData;
+    std::vector<std::vector<Common::SVegElement>> m_VoxelGroup;
+    std::vector<std::set<int>> m_GroupVertices;
     std::vector<glm::vec3> m_VegVertices;
     std::vector<Common::SVegElement> m_VegElements;
-
     std::vector<int> m_LineIndiceStruct;
     std::vector<int> m_CubeIndiceStruct;
 
