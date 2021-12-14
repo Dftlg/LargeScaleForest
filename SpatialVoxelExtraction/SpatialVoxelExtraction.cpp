@@ -1,5 +1,6 @@
 // SpatialVoxelExtraction.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
+//calculate Labeled voxel
 
 #include "pch.h"
 #include <iostream>

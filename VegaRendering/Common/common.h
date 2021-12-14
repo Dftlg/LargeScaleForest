@@ -374,6 +374,10 @@ namespace Common
             ElementIndex = vElementIndex;
             VertexIndex = vVertexIndex;
         }
+        bool operator ==(const SVegElement& vegElement) const
+        {
+            return vegElement.ElementIndex == this->ElementIndex;
+        }
     };
 
 }

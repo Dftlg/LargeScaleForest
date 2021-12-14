@@ -37,10 +37,12 @@ public:
 
 
     void InitVegRenderingProcess();
+    void InitVegRenderingLabeledVoxel();
     void ConstructVoxelGroup();
     void CalculateGroupVoxelValue();
     std::vector<int> ReadFixedIndex(const std::string& vFilePath);
-    void draw(const CShader& vShader) const;
+    void draw(const CShader& vShader) const {};
+    void DrawVegFiexedCubic(const CShader& vShader) const;
     void DrawVegLine(const CShader& vShader) const;
 
 protected:
@@ -50,14 +52,16 @@ private:
     void __processVegMesh();
     void __processVegFixedElementsMesh();
     void __setupMesh();
-    void __setupFixedElementMesh();
+    void __setupFixedElementMesh(int vRegionsIndex);
     void __RegionRelatedVegElement();
+    void __SearchIntersectVoxelGroup(int vFirstRegionsIndex,int vSecondRegionsIndex);
     bool __findVoxelVerticesinGroup(std::set<int> & vGroupVerticesIndex,int ElementIndex);
     void __calculateGroupEdge();
+    void __pushbackVoxelFace(int vRegionsCubeStructIndex,Common::SVegElement & vVoxelElement);
 
-    unsigned int m_FixedEleVAO;
-    unsigned int m_FixedEleVBO;
-    unsigned int m_FixedEleEBO;
+    std::vector<unsigned int> m_FixedEleVAO;
+    std::vector<unsigned int> m_FixedEleVBO;
+    std::vector<unsigned int> m_FixedEleEBO;
 
     int m_CountNumberVertices=0;
     int m_CountNumElements = 0;
@@ -65,15 +69,16 @@ private:
     int m_NumRegions = 0;
     int m_NumMaterials = 0;
 
+    int m_NumIntersectRegions = 0;
+
     std::vector < std::pair<std::string, std::vector<int>>> m_SetRegions;
     std::vector<std::pair<std::string, std::vector<Common::SVegElement>>> m_SetRegionsRelatedData;
+    std::vector<std::vector<Common::SVegElement>> m_DifferentRegionsIntersectVoxel;
     std::vector<std::vector<Common::SVegElement>> m_VoxelGroup;
     std::vector<std::set<int>> m_GroupVertices;
     std::vector<glm::vec3> m_VegVertices;
     std::vector<Common::SVegElement> m_VegElements;
     std::vector<int> m_LineIndiceStruct;
-    std::vector<int> m_CubeIndiceStruct;
+    std::vector<std::vector<int>> m_DifferentRegionsCubeIndiceStruct;
 
 };
-
-

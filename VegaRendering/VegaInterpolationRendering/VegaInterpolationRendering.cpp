@@ -953,6 +953,7 @@ int main()
     {
         VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/tree100.veg");
         VegMesh->InitVegRenderingProcess();
+        VegMesh->InitVegRenderingLabeledVoxel();
         CubicVegShader = new CShader("VegMesh.vert", "VegMesh.frag");
         glm::mat4 model= glm::mat4(1.0f);
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
@@ -1235,8 +1236,8 @@ int main()
             CubicFiexedVegShader->use();
             CubicFiexedVegShader->setMat4("projection", projection);
             CubicFiexedVegShader->setMat4("view", view);
-            CubicFiexedVegShader->setVec4("renderingColor", glm::vec4(1.0,0.0,0.0,0.8));
-            VegMesh->draw(*CubicFiexedVegShader);
+            //CubicFiexedVegShader->setVec4("renderingColor", glm::vec4(1.0,0.0,0.0,0.8));
+            VegMesh->DrawVegFiexedCubic(*CubicFiexedVegShader);
         }
             
 		//tree

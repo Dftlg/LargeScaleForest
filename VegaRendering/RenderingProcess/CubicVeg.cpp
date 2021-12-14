@@ -34,7 +34,15 @@
 CubicVegMesh::CubicVegMesh(const std::string& vModelPath)
 {
     __loadVegMesh(vModelPath);
-   
+    m_NumRegions = m_SetRegionsRelatedData.size();
+    for (int i = 0; i < m_NumRegions; i++)
+    {
+        for (int k = i + 1; k < m_NumRegions; k++)
+        {
+            __SearchIntersectVoxelGroup(i, k);
+        }
+    }
+    m_NumIntersectRegions = m_DifferentRegionsIntersectVoxel.size();
 }
 
 CubicVegMesh::CubicVegMesh(const CubicVegMesh & volumetricMesh)
@@ -45,17 +53,60 @@ CubicVegMesh::CubicVegMesh(const CubicVegMesh & volumetricMesh)
 void CubicVegMesh::InitVegRenderingProcess()
 {
     __processVegMesh();
-    __processVegFixedElementsMesh();
+
     __setupMesh();
-    __setupFixedElementMesh();
+    
 }
 
-void CubicVegMesh::draw(const CShader& vShader) const
+void CubicVegMesh::InitVegRenderingLabeledVoxel()
 {
-    glBindVertexArray(m_FixedEleVAO);
-    glDrawElements(GL_TRIANGLES, m_CubeIndiceStruct.size(), GL_UNSIGNED_INT, 0);
-    //glDrawElementsInstanced(GL_LINES, m_Indices.size(), GL_UNSIGNED_INT, 0, m_InstanceTreeNumber);
-    glBindVertexArray(0);
+    __processVegFixedElementsMesh();
+    m_FixedEleVAO.resize(m_NumRegions + m_NumIntersectRegions);
+    m_FixedEleVBO.resize(m_NumRegions + m_NumIntersectRegions);
+    m_FixedEleEBO.resize(m_NumRegions + m_NumIntersectRegions);
+    for(int i=0;i<m_NumRegions+m_NumIntersectRegions;i++)
+    __setupFixedElementMesh(i);
+}
+
+//void CubicVegMesh::draw(const CShader& vShader) const
+//{
+//    //glBindVertexArray(m_FixedEleVAO);
+//    //glDrawElements(GL_TRIANGLES, m_CubeIndiceStruct.size(), GL_UNSIGNED_INT, 0);
+//    ////glDrawElementsInstanced(GL_LINES, m_Indices.size(), GL_UNSIGNED_INT, 0, m_InstanceTreeNumber);
+//    //glBindVertexArray(0);
+//}
+
+void CubicVegMesh::DrawVegFiexedCubic(const CShader& vShader) const
+{
+    std::vector<glm::vec4> renderingColor;
+    renderingColor.resize(m_NumIntersectRegions + m_NumRegions);
+    //different model should change
+ 
+    renderingColor[0] = glm::vec4(0.73, 0, 0, 1);
+    renderingColor[1] = glm::vec4(0.278, 0.73, 0, 1);
+    renderingColor[2] = glm::vec4(0, 0.474, 1, 1);
+
+    
+
+    for (int i = m_NumIntersectRegions + m_NumRegions; i >= 0; i--)
+    {      
+        if (i < m_NumRegions)
+        {
+            //continue;
+            //vShader.setVec4("renderingColor", glm::vec4(0,0,0,1));
+            vShader.setVec4("renderingColor", renderingColor[i]);
+        }
+        else
+        {
+            vShader.setVec4("renderingColor", glm::vec4(0.501, 0.0, 0.501, 1));
+        }
+        
+        glBindVertexArray(m_FixedEleVAO[i]);
+        glDrawElements(GL_TRIANGLES, m_DifferentRegionsCubeIndiceStruct[i].size(), GL_UNSIGNED_INT, 0);
+        //glDrawElementsInstanced(GL_LINES, m_Indices.size(), GL_UNSIGNED_INT, 0, m_InstanceTreeNumber);
+        glBindVertexArray(0);
+    }
+    
 }
 
 void CubicVegMesh::DrawVegLine(const CShader& vShader) const
@@ -101,60 +152,69 @@ void CubicVegMesh::__processVegMesh()
 
 void CubicVegMesh::__processVegFixedElementsMesh()
 {
+    m_DifferentRegionsCubeIndiceStruct.resize(m_NumRegions + m_NumIntersectRegions);
     //cull face needs to be counterclockwise
-    //first version not consider different region
     for(int i=0;i<m_SetRegionsRelatedData.size();i++)
         for (int k = 0; k < m_SetRegionsRelatedData[i].second.size(); k++)
         {
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[0]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[3]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[1]);
-                                        
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[1]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[3]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[2]);
-                                         
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[4]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[5]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[7]);
-                                        
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[5]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[6]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[7]);
-                                       
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[0]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[1]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[4]);
-                                        
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[1]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[5]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[4]);
-                                         
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[2]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[3]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[7]);
-                                         
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[6]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[2]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[7]);
-                                        
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[0]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[4]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[3]);
-                                    
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[4]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[7]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[3]);
-                                  
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[1]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[2]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[5]);
-                                         
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[5]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[2]);
-            m_CubeIndiceStruct.push_back(m_SetRegionsRelatedData[i].second[k].VertexIndex[6]);
+            __pushbackVoxelFace(i, m_SetRegionsRelatedData[i].second[k]);           
         }
-   
+    for(int i = 0; i < m_NumIntersectRegions; i++)
+        for (int k = 0; k < m_DifferentRegionsIntersectVoxel[i].size(); k++)
+        {
+            __pushbackVoxelFace(i+m_NumRegions, m_DifferentRegionsIntersectVoxel[i][k]);
+        }
+}
+
+void CubicVegMesh::__pushbackVoxelFace(int vRegionsCubeStructIndex, Common::SVegElement & vVoxelElement)
+{
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[0]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[3]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[1]);
+                                       
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[1]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[3]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[2]);
+                                      
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[4]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[5]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[7]);
+                                       
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[5]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[6]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[7]);
+                                      
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[0]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[1]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[4]);
+                                      
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[1]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[5]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[4]);
+                                       
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[2]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[3]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[7]);
+                                      
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[6]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[2]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[7]);
+                                      
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[0]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[4]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[3]);
+                                      
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[4]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[7]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[3]);
+                                      
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[1]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[2]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[5]);
+                                       
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[5]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[2]);
+    m_DifferentRegionsCubeIndiceStruct[vRegionsCubeStructIndex].push_back(vVoxelElement.VertexIndex[6]);
 }
 
 void CubicVegMesh::__setupMesh()
@@ -184,23 +244,23 @@ void CubicVegMesh::__setupMesh()
     glBindVertexArray(0);
 }
 
-void CubicVegMesh::__setupFixedElementMesh()
+void CubicVegMesh::__setupFixedElementMesh(int vRegionsIndex)
 {
-    glGenVertexArrays(1, &m_FixedEleVAO);
-    glGenBuffers(1, &m_FixedEleVBO);
-    glGenBuffers(1, &m_FixedEleEBO);
+    glGenVertexArrays(1, &m_FixedEleVAO[vRegionsIndex]);
+    glGenBuffers(1, &m_FixedEleVBO[vRegionsIndex]);
+    glGenBuffers(1, &m_FixedEleEBO[vRegionsIndex]);
 
-    glBindVertexArray(m_FixedEleVAO);
+    glBindVertexArray(m_FixedEleVAO[vRegionsIndex]);
     // load data into vertex buffers
-    glBindBuffer(GL_ARRAY_BUFFER, m_FixedEleVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_FixedEleVBO[vRegionsIndex]);
     // A great thing about structs is that their memory layout is sequential for all its items.
     // The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
     // again translates to 3/2 floats which translates to a byte array.
     //m_Mesh.
     glBufferData(GL_ARRAY_BUFFER, m_VegVertices.size() * sizeof(glm::vec3), &m_VegVertices[0], GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_FixedEleEBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_CubeIndiceStruct.size() * sizeof(unsigned int), &m_CubeIndiceStruct[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_FixedEleEBO[vRegionsIndex]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_DifferentRegionsCubeIndiceStruct[vRegionsIndex].size() * sizeof(unsigned int), &m_DifferentRegionsCubeIndiceStruct[vRegionsIndex][0], GL_STATIC_DRAW);
 
     // set the vertex attribute pointers
     // vertex Positions
@@ -285,6 +345,27 @@ void CubicVegMesh::__RegionRelatedVegElement()
         }
         m_SetRegionsRelatedData.push_back(std::make_pair(m_SetRegions[i].first, tempVegElement));     
     }
+}
+
+void CubicVegMesh::__SearchIntersectVoxelGroup(int vFirstRegionsIndex, int vSecondRegionsIndex)
+{
+    std::vector<Common::SVegElement> IntersectVoxels;
+    for (auto FirstRegionsVoxel : m_SetRegionsRelatedData[vFirstRegionsIndex].second)
+    {
+        for (auto SecondRegionsVoxel : m_SetRegionsRelatedData[vSecondRegionsIndex].second)
+        {
+            if (FirstRegionsVoxel == SecondRegionsVoxel)
+            {
+                IntersectVoxels.push_back(FirstRegionsVoxel);
+
+            }
+        }
+    }
+    if (IntersectVoxels.size() != 0)
+    {
+        m_DifferentRegionsIntersectVoxel.push_back(IntersectVoxels);
+    }
+    
 }
 
 std::vector<int> CubicVegMesh::ReadFixedIndex(const std::string& vFilePath)
