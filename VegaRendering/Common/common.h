@@ -20,6 +20,13 @@ namespace Common
 		TwoRelatedFiles,
 		FourRelatedFiles
 	};
+
+    enum EMaterialType
+    {
+        ENU,
+        ORTHOTROPIC_N1
+    };
+
 	constexpr size_t NumOfBoundingBoxVertices = 8;
 	static inline glm::vec3 vec3_cast(const aiVector3D &vec3) { return glm::vec3(vec3.x, vec3.y, vec3.z); }
 	static inline glm::vec2 vec2_cast(const aiVector3D &vec2) { return glm::vec2(vec2.x, vec2.y); } // it's aiVector3D because assimp's texture coordinates use that
@@ -363,11 +370,46 @@ namespace Common
     //    }
     //};
 
+    struct SLine
+    {
+        int FirstVertexIndex;
+        int SecondVertexIndex;
+        SLine() = default;
+        SLine(const int& vFirstVertexIndex, const int & vSecondVertexIndex)
+        {
+            FirstVertexIndex = vFirstVertexIndex;
+            SecondVertexIndex = vSecondVertexIndex;
+        }
+
+        bool operator ==(const SLine & vLine) const
+        {
+            return vLine.FirstVertexIndex == this->FirstVertexIndex&& vLine.SecondVertexIndex == this->SecondVertexIndex;
+        }
+    };
+
+
+//     3 - - - 2
+//    /|      /|
+//   7 - - - 6 |       y
+//   | |     | |       |
+//   | 0 - - | 1       |_ _ _x
+//   |/      |/       /
+//   4 - - - 5       z
+//DrawLine顺序，0-1，1-2，2-3，3-0
+// 4-5,5-6,6-7,7-4
+//0-4,1-5,2-6,3-7
+//EdgeVertexIndex存储的边的顺序都是按x,y,z轴正向坐标存储且都是逆时针，0-1,4-5,7-6,3-2,0-3,1-2,5-6,4-7,0-4,3-7,2-6,1-5
+//存储相邻体素，包含6个对面相关FaceRelatedIndex，12个对面相关EdgeRelatedIndex，8个顶点相关省略
+//面相关存储顺序体素为先存储0123相邻面，4567，0154，3762，0473，1265  共6个 //其存储到FaceRelatedIndex中的6个面无序
+//边相关体素存储顺序先存储0-1相邻边,4-5,7-6,3-2,0-3,1-2,5-6,4-7,0-4,3-7,2-6,1-5  共12个
+//                      0         1    2  3    4  5   6   7   8   9   10  11
     struct SVegElement
     {
         int ElementIndex;
         std::vector<int> VertexIndex;
-        std::vector<std::pair<int, int>> EdgeVertexIndex;
+        std::vector<SLine> EdgeVertexIndex;
+        std::vector<int> FaceRelatedIndex;
+        std::vector<int> EdgeRelatedIndex;
         SVegElement() = default;
         SVegElement(const int& vElementIndex,const std::vector<int>& vVertexIndex)
         {
@@ -379,5 +421,7 @@ namespace Common
             return vegElement.ElementIndex == this->ElementIndex;
         }
     };
+
+
 
 }

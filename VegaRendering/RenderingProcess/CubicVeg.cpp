@@ -1,4 +1,5 @@
 #include"CubicVeg.h"
+#pragma optimize("", off)
 
 //     3 - - - 2
 //    /|      /|
@@ -31,9 +32,14 @@
 //1, 2, 5,
 //2, 5, 6
 
-CubicVegMesh::CubicVegMesh(const std::string& vModelPath)
+//对于一个体素周围相关体素有27个，一个是自身，8个是顶点相关省略，6个对面相关，12个对边相关
+//从27个体素最里测最下面一行开始计算
+
+//EdgeVertexIndex存储的边的顺序都是按x,y,z轴正向坐标存储且都是逆时针，0-1,4-5,7-6,3-2,0-3,1-2,5-6,4-7,0-4,3-7,2-6,1-5
+
+CubicVegMesh::CubicVegMesh(const std::string& vModelPath,bool vCalculateVoxelRelated)
 {
-    __loadVegMesh(vModelPath);
+    __loadVegMesh(vModelPath,vCalculateVoxelRelated);
     m_NumRegions = m_SetRegionsRelatedData.size();
     for (int i = 0; i < m_NumRegions; i++)
     {
@@ -48,6 +54,51 @@ CubicVegMesh::CubicVegMesh(const std::string& vModelPath)
 CubicVegMesh::CubicVegMesh(const CubicVegMesh & volumetricMesh)
 {
    
+}
+
+void CubicVegMesh::SetMassAndMaterialCalulacteValueRelated(double vmaxLinearPara, double vminLinearPara)
+{
+    m_MaterialLinearMaxPara = vmaxLinearPara;
+    m_MaterialLinearMinPara = vminLinearPara;
+    m_MaterialLinearMaxAndMinDiffPara = m_MaterialLinearMaxPara - m_MaterialLinearMinPara;
+    m_MinMassPara = DBL_MAX;
+    m_MinStiffnessMaterialPara = DBL_MAX;
+    m_MaxStiffnessMaterialPara = 0;
+    CENUMaterial *tempENU=nullptr;
+    CORTHOTROPIC_N1Material *tempCORTHOTROPIC_N1=nullptr;
+    for (int RegionsNumber = 0; RegionsNumber < m_SetRegionsRelatedData.size(); RegionsNumber++)
+    {
+        CMaterial* tempMaterial = __GetGroupSetRelatedMaterial(RegionsNumber);
+        Common::EMaterialType tempMaterialType = tempMaterial->MaterialType;
+        if (tempMaterialType == Common::EMaterialType::ENU)
+        {
+            tempENU = dynamic_cast<CENUMaterial*>(tempMaterial);
+            if (m_MinMassPara > tempENU->Mass) m_MinMassPara = tempENU->Mass;
+            //m_MinMassPara = std::min(m_MinMassPara, tempENU->Mass);
+            if (m_MinStiffnessMaterialPara > tempENU->E) m_MinStiffnessMaterialPara = tempENU->E;
+            if(m_MaxStiffnessMaterialPara< tempENU->E) m_MaxStiffnessMaterialPara= tempENU->E;
+            //m_MinStiffnessMaterialPara = std::min(m_MinStiffnessMaterialPara, tempENU->E);
+            //m_MaxStiffnessMaterialPara = std::max(m_MaxStiffnessMaterialPara, tempENU->E);
+        }
+        else if (tempMaterialType == Common::EMaterialType::ORTHOTROPIC_N1)
+        {
+            tempCORTHOTROPIC_N1 = dynamic_cast<CORTHOTROPIC_N1Material*>(tempMaterial);
+            //m_MinMassPara = std::min(m_MinMassPara, tempCORTHOTROPIC_N1->Mass);
+            if (m_MinMassPara > tempCORTHOTROPIC_N1->Mass) m_MinMassPara = tempCORTHOTROPIC_N1->Mass;
+            if (m_MinStiffnessMaterialPara > tempCORTHOTROPIC_N1->E11) m_MinStiffnessMaterialPara = tempCORTHOTROPIC_N1->E11;
+            if (m_MinStiffnessMaterialPara > tempCORTHOTROPIC_N1->E22) m_MinStiffnessMaterialPara = tempCORTHOTROPIC_N1->E22;
+            if (m_MinStiffnessMaterialPara > tempCORTHOTROPIC_N1->E33) m_MinStiffnessMaterialPara = tempCORTHOTROPIC_N1->E33;
+
+            if (m_MaxStiffnessMaterialPara < tempCORTHOTROPIC_N1->E11) m_MaxStiffnessMaterialPara = tempCORTHOTROPIC_N1->E11;
+            if (m_MaxStiffnessMaterialPara < tempCORTHOTROPIC_N1->E22) m_MaxStiffnessMaterialPara = tempCORTHOTROPIC_N1->E22;
+            if (m_MaxStiffnessMaterialPara < tempCORTHOTROPIC_N1->E33) m_MaxStiffnessMaterialPara = tempCORTHOTROPIC_N1->E33;
+
+            //m_MinStiffnessMaterialPara = std::min(std::min(std::min(m_MinStiffnessMaterialPara, tempCORTHOTROPIC_N1->E11), tempCORTHOTROPIC_N1->E22), tempCORTHOTROPIC_N1->E33);
+            //m_MaxStiffnessMaterialPara = std::max(std::max(std::max(m_MinStiffnessMaterialPara, tempCORTHOTROPIC_N1->E11), tempCORTHOTROPIC_N1->E22), tempCORTHOTROPIC_N1->E33);
+        }
+        
+    }
+    m_MaxAndMinMaterialDiffPara = m_MaxStiffnessMaterialPara - m_MinStiffnessMaterialPara;
 }
 
 void CubicVegMesh::InitVegRenderingProcess()
@@ -68,6 +119,26 @@ void CubicVegMesh::InitVegRenderingLabeledVoxel()
     __setupFixedElementMesh(i);
 }
 
+void CubicVegMesh::SaveKeyStiffnessVoxel(const std::string & vDirectionPath)
+{
+    for (int RegionsNumber = 0; RegionsNumber < m_VoxelGroups.size(); RegionsNumber++)
+    {
+        std::string FilePath = vDirectionPath;
+        FilePath += "/newTest";
+        FilePath += std::to_string(RegionsNumber);
+        FilePath += ".txt";
+        ofstream fout(FilePath.c_str());
+        for (int ChildRegionsIndex = 0; ChildRegionsIndex < m_VoxelGroups[RegionsNumber].size(); ChildRegionsIndex++)
+        {
+            for (int VoxelIndex = 0; VoxelIndex < m_VoxelGroups[RegionsNumber][ChildRegionsIndex].size(); VoxelIndex++)
+            {
+                fout << m_VoxelGroups[RegionsNumber][ChildRegionsIndex][VoxelIndex].first.ElementIndex<<",";
+            }
+        }
+        fout.close();       
+    }
+}
+
 //void CubicVegMesh::draw(const CShader& vShader) const
 //{
 //    //glBindVertexArray(m_FixedEleVAO);
@@ -81,13 +152,14 @@ void CubicVegMesh::DrawVegFiexedCubic(const CShader& vShader) const
     std::vector<glm::vec4> renderingColor;
     renderingColor.resize(m_NumIntersectRegions + m_NumRegions);
     //different model should change
- 
     renderingColor[0] = glm::vec4(0.73, 0, 0, 1);
-    renderingColor[1] = glm::vec4(0.278, 0.73, 0, 1);
-    renderingColor[2] = glm::vec4(0, 0.474, 1, 1);
-
-    
-
+    if (renderingColor.size() >= 3)
+    {
+        renderingColor[0] = glm::vec4(0.73, 0, 0, 1);
+        renderingColor[1] = glm::vec4(0.278, 0.73, 0, 1);
+        renderingColor[2] = glm::vec4(0, 0.474, 1, 1);
+    }
+   
     for (int i = m_NumIntersectRegions + m_NumRegions; i >= 0; i--)
     {      
         if (i < m_NumRegions)
@@ -270,7 +342,7 @@ void CubicVegMesh::__setupFixedElementMesh(int vRegionsIndex)
     glBindVertexArray(0);
 }
 
-void CubicVegMesh::__loadVegMesh(const std::string& vModelPath)
+void CubicVegMesh::__loadVegMesh(const std::string& vModelPath,bool vCalculateVoxelRelated)
 {
     std::ifstream VegFile(vModelPath);
     std::string lineString;
@@ -313,6 +385,27 @@ void CubicVegMesh::__loadVegMesh(const std::string& vModelPath)
             }
         }
 
+        std::vector<std::string> Material;
+        boost::split(Material, lineString, boost::is_any_of(" "), boost::token_compress_off);
+        if (Material[0] == "*MATERIAL")
+        {
+            getline(VegFile, lineString);
+            std::vector<std::string> MaterialData;
+            boost::split(MaterialData, lineString, boost::is_any_of(","), boost::token_compress_off);
+            if (MaterialData[0] == "ENU")
+            {
+                CENUMaterial* temp=new CENUMaterial(atof(MaterialData[1].c_str()), atof(MaterialData[2].c_str()), atof(MaterialData[3].c_str()));
+                m_Materials[Material[1]]= temp;
+
+                CENUMaterial* test = dynamic_cast<CENUMaterial*>(m_Materials[Material[1]]);
+            }
+            else if(MaterialData[0]=="ORTHOTROPIC_N1")
+            {
+                CORTHOTROPIC_N1Material *temp = new CORTHOTROPIC_N1Material(atof(MaterialData[1].c_str()), atof(MaterialData[2].c_str()), atof(MaterialData[3].c_str()), atof(MaterialData[4].c_str()), atof(MaterialData[5].c_str()));
+                m_Materials[Material[1]] = temp;
+            }
+        }
+
         std::vector<std::string> SETS;
         boost::split(SETS, lineString, boost::is_any_of(" "), boost::token_compress_off);
         if (SETS[0] == "*SET")
@@ -323,9 +416,33 @@ void CubicVegMesh::__loadVegMesh(const std::string& vModelPath)
             std::vector<int> ElementIndex = ReadFixedIndex(RegionPath[1]);
             m_SetRegions.push_back(std::make_pair(SETS[1], ElementIndex));
         }
+
+        std::vector<std::string> REGION;   
+        if (lineString == "*REGION")
+        {       
+            getline(VegFile, lineString);
+            std::vector<std::string> RegionWithMaterial;
+            boost::split(RegionWithMaterial, lineString, boost::is_any_of(", "), boost::token_compress_on);
+            m_FileRegionWithMaterials[RegionWithMaterial[0]] = RegionWithMaterial[1];
+        }
     }
+    //前面的不同Set可能用相同的Material，以及不需要用到的Regions所以在存储后重新组织成与Set相同的REGION大小构成  
+
+    if(vCalculateVoxelRelated==true)
+    __CalculateVoxelRelatedVoxel();
+
     __RegionRelatedVegElement();
 }
+
+//void CubicVegMesh::__ResetRegionWithMaterialsDataSet()
+//{
+//    for (auto setRegion : m_SetRegions)
+//    {
+//        setRegion.first
+//    }
+//    m_ReSetRegionsWithMaterials
+//}
+
 
 void CubicVegMesh::__RegionRelatedVegElement()
 {
@@ -388,72 +505,227 @@ std::vector<int> CubicVegMesh::ReadFixedIndex(const std::string& vFilePath)
     return FixedIndex;
 }
 
+//Skeleton voxel grouping
+//两种方案一种是用m_VoxelGroups来进行小的组的构建
+//另一种是直接用不同的Groups来进行构建m_VoxelGroupWithEachRegions
+
 void CubicVegMesh::ConstructVoxelGroup()
 {
-    int ElementNumber= m_SetRegionsRelatedData[0].second.size();
-    int HasPushNumber = ElementNumber;
-    std::vector<bool> IsPushInGroup(ElementNumber, false);
-    while (HasPushNumber >0)
+    m_VoxelGroups.resize(m_SetRegionsRelatedData.size());
+    m_VoxelGroupWithEachRegions.resize(m_SetRegionsRelatedData.size());
+    for (int RegionsNumber = 0; RegionsNumber < m_SetRegionsRelatedData.size(); RegionsNumber++)
     {
-        std::vector<Common::SVegElement> tempGroupElements;
-        std::set<int> tempGroupVerticesIndex;
-        for (int i = 0; i < ElementNumber; i++)
+        int ElementNumber = m_SetRegionsRelatedData[RegionsNumber].second.size();
+        int HasPushNumber = ElementNumber;
+        std::vector<bool> IsPushInGroup(ElementNumber, false);
+        while (HasPushNumber > 0)
         {
-            if (IsPushInGroup[i] == true)
-                continue;
-            Common::SVegElement temp = m_SetRegionsRelatedData[0].second[i];
-            if (tempGroupElements.size() == 0 || __findVoxelVerticesinGroup(tempGroupVerticesIndex, i) == true)
+            std::vector<std::pair<Common::SVegElement,int>> tempGroupElements;
+            std::set<int> tempGroupVerticesIndex;
+            for (int i = 0; i < ElementNumber; i++)
             {
-                tempGroupElements.push_back(temp);
-                for (int k = 0; k < temp.VertexIndex.size(); k++)
+                if (IsPushInGroup[i] == true)
+                    continue;
+                Common::SVegElement temp = m_SetRegionsRelatedData[RegionsNumber].second[i];
+                if (tempGroupElements.size() == 0 || __findVoxelVerticesinGroup(tempGroupVerticesIndex, RegionsNumber, i) == true)
                 {
-                    tempGroupVerticesIndex.insert(temp.VertexIndex[k]);
+                    tempGroupElements.push_back(std::make_pair(temp,0));
+                    for (int k = 0; k < temp.VertexIndex.size(); k++)
+                    {
+                        tempGroupVerticesIndex.insert(temp.VertexIndex[k]);
+                    }
+                    IsPushInGroup[i] = true;
+                    HasPushNumber -= 1;
                 }
-                IsPushInGroup[i] = true;
-                HasPushNumber -= 1;
             }
+            m_VoxelGroups[RegionsNumber].push_back(tempGroupElements);
+            m_GroupVertices.push_back(tempGroupVerticesIndex);
+            tempGroupElements.clear();
+            tempGroupVerticesIndex.clear();
         }
-        m_VoxelGroup.push_back(tempGroupElements);
-        m_GroupVertices.push_back(tempGroupVerticesIndex);
-        tempGroupElements.clear();
-        tempGroupVerticesIndex.clear();
+    }
+   
+}
+
+void CubicVegMesh::__CalculateGroupVoxelValue()
+{
+    CENUMaterial *tempENU=nullptr;
+    CORTHOTROPIC_N1Material *tempCORTHOTROPIC_N1=nullptr;
+    for (int RegionsNumber = 0; RegionsNumber < m_VoxelGroups.size(); RegionsNumber++)
+    {
+       
+        CMaterial* tempMaterial= __GetGroupSetRelatedMaterial(RegionsNumber);
+        Common::EMaterialType tempMaterialType = tempMaterial->MaterialType;
+        if (tempMaterialType == Common::EMaterialType::ENU)
+        {
+            tempENU= dynamic_cast<CENUMaterial*>(tempMaterial);
+        }
+        else if(tempMaterialType == Common::EMaterialType::ORTHOTROPIC_N1)
+        {
+            tempCORTHOTROPIC_N1 =dynamic_cast<CORTHOTROPIC_N1Material*>(tempMaterial);
+        }
+
+        std::vector<std::pair<Common::SVegElement, int>> tempGroupsVoxel;
+        
+        for (int ChildRegionsIndex = 0; ChildRegionsIndex < m_VoxelGroups[RegionsNumber].size(); ChildRegionsIndex++)
+        {
+            if (tempMaterialType == Common::EMaterialType::ENU)
+            {
+                __calculateChildGroupsValue(RegionsNumber, ChildRegionsIndex, *tempENU);
+            }
+            else if(tempMaterialType== Common::EMaterialType::ORTHOTROPIC_N1)
+            {
+                __calculateChildGroupsValue(RegionsNumber, ChildRegionsIndex, *tempCORTHOTROPIC_N1);
+            }                         
+        }
+               
     }
 
 }
 
-void CubicVegMesh::CalculateGroupVoxelValue()
+void CubicVegMesh::EraseMaxValueVoxelWithAllChildGroup(int vIndexRegionNumber)
 {
-    __calculateGroupEdge();
-}
-
-void CubicVegMesh::__calculateGroupEdge()
-{
-    for(int groupIndex=0; groupIndex <m_VoxelGroup.size(); groupIndex++)
-        for (int voxelIndex = 0; voxelIndex < m_VoxelGroup[groupIndex].size(); voxelIndex++)
+    if (vIndexRegionNumber < m_VoxelGroups.size())
+    {
+        __CalculateGroupVoxelValue();
+        int tempMax = -1;
+        int ChildIndex = -1;
+        for (int ChildRegionsIndex = 0; ChildRegionsIndex < m_VoxelGroups[vIndexRegionNumber].size(); ChildRegionsIndex++)
         {
-            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[0], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[1]));
-            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[1], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[2]));
-            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[2], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[3]));
-            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[3], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[0]));
-            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[4], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[5]));
-            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[5], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[6]));
-            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[6], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[7]));
-            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[7], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[4]));
-            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[0], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[4]));
-            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[1], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[5]));
-            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[2], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[6]));
-            m_VoxelGroup[groupIndex][voxelIndex].EdgeVertexIndex.push_back(std::make_pair(m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[3], m_VoxelGroup[groupIndex][voxelIndex].VertexIndex[7]));
-        }
+            __sortMaximumValueVoxels(m_VoxelGroups[vIndexRegionNumber][ChildRegionsIndex]);
+
+            if (m_VoxelGroups[vIndexRegionNumber][ChildRegionsIndex].size()!=0&&m_VoxelGroups[vIndexRegionNumber][ChildRegionsIndex][0].second > tempMax)
+            {
+                tempMax = m_VoxelGroups[vIndexRegionNumber][ChildRegionsIndex][0].second;
+                ChildIndex = ChildRegionsIndex;
+            }
+        }      
+        //std::cout << "ChildIndex" << ChildIndex << std::endl;
+        __eraseMaximumValueVoxels(m_VoxelGroups[vIndexRegionNumber][ChildIndex]);
+    }
+    else
+    {
+        std::cout << "RegionsIndex Error" << std::endl;
+    }  
 }
 
-bool CubicVegMesh::__findVoxelVerticesinGroup(std::set<int> & GroupVerticesIndex, int ElementIndex)
+//重写几种类别的输入材质,如果再这个函数转换类型，会产生多次dynamic转换
+#pragma region __calculateChildGroupsValue
+void CubicVegMesh::__calculateChildGroupsValue(int vRegionsNumber, int vChildRegionsIndex)
+{
+    for (auto& Voxel : m_VoxelGroups[vRegionsNumber][vChildRegionsIndex])
+    {
+        for (auto &SeconVoxel : m_VoxelGroups[vRegionsNumber][vChildRegionsIndex])
+        {
+            for (int i = 0; i < Voxel.first.FaceRelatedIndex.size(); i++)
+            {
+                //Voxel.second = 4;
+                if (Voxel.first.FaceRelatedIndex[i] == SeconVoxel.first.ElementIndex)
+                {
+                    
+                    Voxel.second += 4;
+                }
+            }
+
+            for (int i = 0; i < Voxel.first.EdgeRelatedIndex.size(); i++)
+            {
+                if (Voxel.first.EdgeRelatedIndex[i] == SeconVoxel.first.ElementIndex)
+                {
+                    Voxel.second += 1;
+                }
+            }
+        }      
+    }
+}
+
+void CubicVegMesh::__calculateChildGroupsValue(int vRegionsNumber, int vChildRegionsIndex, CENUMaterial vMaterial)
+{
+    for (auto& Voxel : m_VoxelGroups[vRegionsNumber][vChildRegionsIndex])
+    {
+        for (auto &SeconVoxel : m_VoxelGroups[vRegionsNumber][vChildRegionsIndex])
+        {
+            for (int i = 0; i < Voxel.first.FaceRelatedIndex.size(); i++)
+            {
+                //Voxel.second = 4;
+                if (Voxel.first.FaceRelatedIndex[i] == SeconVoxel.first.ElementIndex)
+                {
+
+                    Voxel.second += 4;
+                }
+            }
+
+            for (int i = 0; i < Voxel.first.EdgeRelatedIndex.size(); i++)
+            {
+                if (Voxel.first.EdgeRelatedIndex[i] == SeconVoxel.first.ElementIndex)
+                {
+                    Voxel.second += 1;
+                }
+            }
+        }
+
+        Voxel.second += vMaterial.Mass / m_MinMassPara;
+        Voxel.second += __MaterialKValue(vMaterial.E);
+    }
+}
+
+void CubicVegMesh::__calculateChildGroupsValue(int vRegionsNumber, int vChildRegionsIndex, CORTHOTROPIC_N1Material vMaterial)
+{
+    for (auto& Voxel : m_VoxelGroups[vRegionsNumber][vChildRegionsIndex])
+    {
+        for (auto &SeconVoxel : m_VoxelGroups[vRegionsNumber][vChildRegionsIndex])
+        {
+            for (int i = 0; i < Voxel.first.FaceRelatedIndex.size(); i++)
+            {
+                //Voxel.second = 4;
+                if (Voxel.first.FaceRelatedIndex[i] == SeconVoxel.first.ElementIndex)
+                {
+
+                    Voxel.second += 4;
+                }
+            }
+
+            for (int i = 0; i < Voxel.first.EdgeRelatedIndex.size(); i++)
+            {
+                if (Voxel.first.EdgeRelatedIndex[i] == SeconVoxel.first.ElementIndex)
+                {
+                    Voxel.second += 1;
+                }
+            }
+        }
+
+        Voxel.second += vMaterial.Mass / m_MinMassPara;
+        Voxel.second += 1/3*(__MaterialKValue(vMaterial.E11)+ __MaterialKValue(vMaterial.E22)+ __MaterialKValue(vMaterial.E33));
+    }
+}
+#pragma endregion
+
+void CubicVegMesh::__sortMaximumValueVoxels(std::vector<std::pair<Common::SVegElement, int>> &vChildGroup)
+{
+    std::sort(vChildGroup.begin(), vChildGroup.end(), __compVoxelValue);
+    /*if (vChildGroup.size() > 0)
+    {
+        std::vector<std::pair<Common::SVegElement, int>>::iterator it = vChildGroup.begin();
+        vChildGroup.erase(it);
+    }*/
+}
+
+void CubicVegMesh::__eraseMaximumValueVoxels(std::vector<std::pair<Common::SVegElement, int>> &vChildGroup)
+{    
+    if (vChildGroup.size() > 0)
+    {
+        std::vector<std::pair<Common::SVegElement, int>>::iterator it = vChildGroup.begin();
+        vChildGroup.erase(it);
+    }
+}
+
+bool CubicVegMesh::__findVoxelVerticesinGroup(std::set<int> & GroupVerticesIndex, int RegionsIndex, int ElementIndex)
 {
     
     for (auto it : GroupVerticesIndex)
     {
         for (int k = 0; k < 8; k++)
         {
-            if (it == m_SetRegionsRelatedData[0].second[ElementIndex].VertexIndex[k])
+            if (it == m_SetRegionsRelatedData[RegionsIndex].second[ElementIndex].VertexIndex[k])
             {
                 return true;
             }
@@ -461,3 +733,209 @@ bool CubicVegMesh::__findVoxelVerticesinGroup(std::set<int> & GroupVerticesIndex
     }
     return false;
 }
+
+void CubicVegMesh::__CalculateVoxelRelatedVoxel()
+{
+    __calculateVoxelEdge();
+    for (int i = 0; i < m_CountNumElements; i++)
+    {
+        int start = i - 300;
+        if (start < 0)
+            start = 0;
+        int end = i + 300;
+        if (end > m_CountNumElements)
+            end = m_CountNumElements;
+        for (int k = start; k < end; k++)
+        {
+            //calculate RealteFace backface
+            if (m_VegElements[i].EdgeVertexIndex[0] == m_VegElements[k].EdgeVertexIndex[1]&&
+                m_VegElements[i].EdgeVertexIndex[3]== m_VegElements[k].EdgeVertexIndex[2] &&
+                m_VegElements[i].EdgeVertexIndex[4] == m_VegElements[k].EdgeVertexIndex[7] &&
+                m_VegElements[i].EdgeVertexIndex[5] == m_VegElements[k].EdgeVertexIndex[6])
+            {
+                m_VegElements[i].FaceRelatedIndex.push_back(k+1);
+                continue;
+            }
+
+            //frontface
+            if (m_VegElements[i].EdgeVertexIndex[1] == m_VegElements[k].EdgeVertexIndex[0] &&
+                m_VegElements[i].EdgeVertexIndex[2] == m_VegElements[k].EdgeVertexIndex[3] &&
+                m_VegElements[i].EdgeVertexIndex[7] == m_VegElements[k].EdgeVertexIndex[4] &&
+                m_VegElements[i].EdgeVertexIndex[6] == m_VegElements[k].EdgeVertexIndex[5])
+            {
+                m_VegElements[i].FaceRelatedIndex.push_back(k+1);
+                continue;
+            }
+
+            //leftface
+            if (m_VegElements[i].EdgeVertexIndex[8] == m_VegElements[k].EdgeVertexIndex[11] &&
+                m_VegElements[i].EdgeVertexIndex[9] == m_VegElements[k].EdgeVertexIndex[10] &&
+                m_VegElements[i].EdgeVertexIndex[4] == m_VegElements[k].EdgeVertexIndex[5] &&
+                m_VegElements[i].EdgeVertexIndex[7] == m_VegElements[k].EdgeVertexIndex[6])
+            {
+                m_VegElements[i].FaceRelatedIndex.push_back(k+1);
+                continue;
+            }
+            //rightface
+            if (m_VegElements[i].EdgeVertexIndex[11] == m_VegElements[k].EdgeVertexIndex[8] &&
+                m_VegElements[i].EdgeVertexIndex[10] == m_VegElements[k].EdgeVertexIndex[9] &&
+                m_VegElements[i].EdgeVertexIndex[5] == m_VegElements[k].EdgeVertexIndex[4] &&
+                m_VegElements[i].EdgeVertexIndex[6] == m_VegElements[k].EdgeVertexIndex[7])
+            {
+                m_VegElements[i].FaceRelatedIndex.push_back(k+1);
+                continue;
+            }
+            //botface
+            if (m_VegElements[i].EdgeVertexIndex[0] == m_VegElements[k].EdgeVertexIndex[3] &&
+                m_VegElements[i].EdgeVertexIndex[1] == m_VegElements[k].EdgeVertexIndex[2] &&
+                m_VegElements[i].EdgeVertexIndex[8] == m_VegElements[k].EdgeVertexIndex[9] &&
+                m_VegElements[i].EdgeVertexIndex[11] == m_VegElements[k].EdgeVertexIndex[10])
+            {
+                m_VegElements[i].FaceRelatedIndex.push_back(k+1);
+                continue;
+            }
+            //topface
+            if (m_VegElements[i].EdgeVertexIndex[3] == m_VegElements[k].EdgeVertexIndex[0] &&
+                m_VegElements[i].EdgeVertexIndex[2] == m_VegElements[k].EdgeVertexIndex[1] &&
+                m_VegElements[i].EdgeVertexIndex[9] == m_VegElements[k].EdgeVertexIndex[8] &&
+                m_VegElements[i].EdgeVertexIndex[10] == m_VegElements[k].EdgeVertexIndex[11])
+            {
+                m_VegElements[i].FaceRelatedIndex.push_back(k+1);
+                continue;
+            }
+
+            //x axis edge
+            //0-1edge with 7-6 edge
+            if (m_VegElements[i].EdgeVertexIndex[0] == m_VegElements[k].EdgeVertexIndex[2])
+            {
+                m_VegElements[i].EdgeRelatedIndex.push_back(k+1);
+                continue;
+            }
+            //4-5edge with 3-2 edge
+            if (m_VegElements[i].EdgeVertexIndex[1] == m_VegElements[k].EdgeVertexIndex[3])
+            {
+                m_VegElements[i].EdgeRelatedIndex.push_back(k+1);
+                continue;
+            }
+            //7-6edge with 0-1 edge
+            if (m_VegElements[i].EdgeVertexIndex[2] == m_VegElements[k].EdgeVertexIndex[0])
+            {
+                m_VegElements[i].EdgeRelatedIndex.push_back(k+1);
+                continue;
+            }
+            //3-2edge with 4-5edge
+            if (m_VegElements[i].EdgeVertexIndex[3] == m_VegElements[k].EdgeVertexIndex[1])
+            {
+                m_VegElements[i].EdgeRelatedIndex.push_back(k+1);
+                continue;
+            }
+            //y axis edge
+            //0-3edge with 5-6 edge
+            if (m_VegElements[i].EdgeVertexIndex[4] == m_VegElements[k].EdgeVertexIndex[6])
+            {
+                m_VegElements[i].EdgeRelatedIndex.push_back(k+1);
+                continue;
+            }
+            //1-2edge with 4-7 edge
+            if (m_VegElements[i].EdgeVertexIndex[5] == m_VegElements[k].EdgeVertexIndex[7])
+            {
+                m_VegElements[i].EdgeRelatedIndex.push_back(k+1);
+                continue;
+            }
+            //5-6edge with 0-3 edge
+            if (m_VegElements[i].EdgeVertexIndex[6] == m_VegElements[k].EdgeVertexIndex[4])
+            {
+                m_VegElements[i].EdgeRelatedIndex.push_back(k+1);
+                continue;
+            }
+            //4-7edge with 1-2 edge
+            if (m_VegElements[i].EdgeVertexIndex[7] == m_VegElements[k].EdgeVertexIndex[5])
+            {
+                m_VegElements[i].EdgeRelatedIndex.push_back(k+1);
+                continue;
+            }
+            //z axis edge
+            //0-4edge with 2-6 edge
+            if (m_VegElements[i].EdgeVertexIndex[8] == m_VegElements[k].EdgeVertexIndex[10])
+            {
+                m_VegElements[i].EdgeRelatedIndex.push_back(k+1);
+                continue;
+            }
+            //3-7edge with 1-5 edge
+            if (m_VegElements[i].EdgeVertexIndex[9] == m_VegElements[k].EdgeVertexIndex[11])
+            {
+                m_VegElements[i].EdgeRelatedIndex.push_back(k+1);
+                continue;
+            }
+            //2-6edge with 0-4 edge
+            if (m_VegElements[i].EdgeVertexIndex[10] == m_VegElements[k].EdgeVertexIndex[8])
+            {
+                m_VegElements[i].EdgeRelatedIndex.push_back(k+1);
+                continue;
+            }
+            //1-5edge with 3-7 edge
+            if (m_VegElements[i].EdgeVertexIndex[11] == m_VegElements[k].EdgeVertexIndex[9])
+            {
+                m_VegElements[i].EdgeRelatedIndex.push_back(k+1);
+                continue;
+            }
+
+            if (m_VegElements[i].EdgeRelatedIndex.size() + m_VegElements[i].FaceRelatedIndex.size() == 18)
+                break;
+
+        }
+    }
+
+}
+
+void CubicVegMesh::__calculateVoxelEdge()
+{
+    for (int i = 0; i < m_CountNumElements; i++)
+    {
+        m_VegElements[i].EdgeVertexIndex.push_back(Common::SLine(m_VegElements[i].VertexIndex[0], m_VegElements[i].VertexIndex[1]));
+        m_VegElements[i].EdgeVertexIndex.push_back(Common::SLine(m_VegElements[i].VertexIndex[4], m_VegElements[i].VertexIndex[5]));
+        m_VegElements[i].EdgeVertexIndex.push_back(Common::SLine(m_VegElements[i].VertexIndex[7], m_VegElements[i].VertexIndex[6]));
+        m_VegElements[i].EdgeVertexIndex.push_back(Common::SLine(m_VegElements[i].VertexIndex[3], m_VegElements[i].VertexIndex[2]));
+        m_VegElements[i].EdgeVertexIndex.push_back(Common::SLine(m_VegElements[i].VertexIndex[0], m_VegElements[i].VertexIndex[3]));
+        m_VegElements[i].EdgeVertexIndex.push_back(Common::SLine(m_VegElements[i].VertexIndex[1], m_VegElements[i].VertexIndex[2]));
+        m_VegElements[i].EdgeVertexIndex.push_back(Common::SLine(m_VegElements[i].VertexIndex[5], m_VegElements[i].VertexIndex[6]));
+        m_VegElements[i].EdgeVertexIndex.push_back(Common::SLine(m_VegElements[i].VertexIndex[4], m_VegElements[i].VertexIndex[7]));
+        m_VegElements[i].EdgeVertexIndex.push_back(Common::SLine(m_VegElements[i].VertexIndex[0], m_VegElements[i].VertexIndex[4]));
+        m_VegElements[i].EdgeVertexIndex.push_back(Common::SLine(m_VegElements[i].VertexIndex[3], m_VegElements[i].VertexIndex[7]));
+        m_VegElements[i].EdgeVertexIndex.push_back(Common::SLine(m_VegElements[i].VertexIndex[2], m_VegElements[i].VertexIndex[6]));
+        m_VegElements[i].EdgeVertexIndex.push_back(Common::SLine(m_VegElements[i].VertexIndex[1], m_VegElements[i].VertexIndex[5]));
+    }
+}
+
+std::vector<int>& CubicVegMesh::GetAfterEraseRegionVoxelNumber()
+{
+    for (int RegionsIndex = 0; RegionsIndex < m_VoxelGroups.size(); RegionsIndex++)
+    {
+        int RegionsVoxelNumber = 0;
+        for (int ChildRegionsIndex = 0; ChildRegionsIndex < m_VoxelGroups[RegionsIndex].size(); ChildRegionsIndex++)
+        {
+            RegionsVoxelNumber += m_VoxelGroups[RegionsIndex][ChildRegionsIndex].size();
+        }
+        m_AfterEraseVoxelNumber.push_back(RegionsVoxelNumber);
+    }
+    return m_AfterEraseVoxelNumber;
+}
+
+bool CubicVegMesh::__compVoxelValue(std::pair<Common::SVegElement, int> &vFirst, std::pair<Common::SVegElement, int>& vSecond)
+{
+    return vFirst.second > vSecond.second;
+}
+
+CMaterial* CubicVegMesh::__GetGroupSetRelatedMaterial(int vGroupIndex)
+{
+    std::string SETName= m_SetRegionsRelatedData[vGroupIndex].first;
+    std::string MaterialName= m_FileRegionWithMaterials[SETName];
+    return m_Materials[MaterialName];
+}
+
+double CubicVegMesh::__MaterialKValue(double vMaterialK)
+{
+    return m_MaterialLinearMaxAndMinDiffPara / m_MaxAndMinMaterialDiffPara * vMaterialK + (m_MaterialLinearMinPara* m_MaxStiffnessMaterialPara - m_MaterialLinearMaxPara * m_MinStiffnessMaterialPara) / m_MaxAndMinMaterialDiffPara;
+}
+
+#pragma optimize("", on)

@@ -7,11 +7,32 @@
 #include "../VegaRendering/Common/common.h"
 #include "../VegaRendering/RenderingProcess/CubicVeg.h"
 #include <limits>
+#pragma optimize("", off)
+
 int main()
 {
     CubicVegMesh* VegMesh = nullptr;
-    VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/tree100.veg");
+    VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/tree100.veg",true);
+    VegMesh->SetMassAndMaterialCalulacteValueRelated(2, 1);
     VegMesh->ConstructVoxelGroup();
+
+    std::vector<int> tempBaseGroupVoxel = VegMesh->GetAfterEraseRegionVoxelNumber();
+    for (int i = 0; i < 120; i++)
+    {
+        VegMesh->EraseMaxValueVoxelWithAllChildGroup(0);
+    }
+    for (int i = 0; i < 160; i++)
+    {
+        VegMesh->EraseMaxValueVoxelWithAllChildGroup(1);
+    }
+    for (int i = 0; i <500 ; i++)
+    {
+        VegMesh->EraseMaxValueVoxelWithAllChildGroup(2);
+    }
+
+    std::vector<int> tempGroupVoxel= VegMesh->GetAfterEraseRegionVoxelNumber();
+
+    VegMesh->SaveKeyStiffnessVoxel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/EachPartSkelCubic_index");
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
@@ -24,3 +45,4 @@ int main()
 //   4. Use the Error List window to view errors
 //   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
 //   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+#pragma optimize("", on)
