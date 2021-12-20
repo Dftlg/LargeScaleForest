@@ -422,6 +422,17 @@ namespace Common
         }
     };
 
+    struct SSubgGroupMaxValVoxel
+    {
+        int ChildIndex;
+        int Value;
+        SSubgGroupMaxValVoxel() = default;
+        SSubgGroupMaxValVoxel(const int& vChildIndex, const int & vValue)
+        {
+            ChildIndex = vChildIndex;
+            Value = vValue;
+        }
+    };
 
 
 }

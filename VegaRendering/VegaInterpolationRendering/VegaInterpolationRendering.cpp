@@ -951,7 +951,7 @@ int main()
     CShader * CubicFiexedVegShader = nullptr;
     if (Common::renderingVegMesh == true)
     {
-        VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/tree100Rendering.veg",false);
+        VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/tree100Rendering.veg","D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/treebase.txt",false,true);
         VegMesh->InitVegRenderingProcess();
         VegMesh->InitVegRenderingLabeledVoxel();
         CubicVegShader = new CShader("VegMesh.vert", "VegMesh.frag");

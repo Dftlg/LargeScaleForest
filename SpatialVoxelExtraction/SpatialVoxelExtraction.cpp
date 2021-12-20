@@ -11,8 +11,10 @@
 
 int main()
 {
+   
     CubicVegMesh* VegMesh = nullptr;
-    VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/tree100.veg",true);
+    VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/tree100.veg","",true,false);
+    //VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/tree100.veg", true);
     VegMesh->SetMassAndMaterialCalulacteValueRelated(2, 1);
     VegMesh->ConstructVoxelGroup();
 
@@ -21,11 +23,23 @@ int main()
     {
         VegMesh->EraseMaxValueVoxelWithAllChildGroup(0);
     }
-    for (int i = 0; i < 160; i++)
+    std::cout << std::endl;
+    std::cout << "------------------------------" << std::endl;
+    std::cout << std::endl;
+    for (int i = 0; i < 155; i++)
     {
+        if (i == 85)
+        {
+            int k = 0;
+        }
         VegMesh->EraseMaxValueVoxelWithAllChildGroup(1);
+        
     }
-    for (int i = 0; i <500 ; i++)
+
+    std::cout << std::endl;
+    std::cout << "------------------------------" << std::endl;
+    std::cout << std::endl;
+    for (int i = 0; i <470 ; i++)
     {
         VegMesh->EraseMaxValueVoxelWithAllChildGroup(2);
     }

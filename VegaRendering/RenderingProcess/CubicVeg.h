@@ -24,6 +24,7 @@
 #include "../../libraries/volumetricMesh/volumetricMeshParser.h"
 #include "minivector.h"
 #include "boundingBox.h"
+#include <random>
 
 class CubicVegMesh:public CBaseMesh
 {
@@ -31,7 +32,12 @@ public:
 
     // Note: This class is abstract and cannot be instantiated; use the constructors in the derived classes (TetMesh, CubicMesh) to initialize a mesh, or use the load routine in volumetricMeshLoader.h
     CubicVegMesh() = default;
-    CubicVegMesh(const std::string& vModelPath,bool vCalculateVoxelRelated);
+
+    //in RenderingProgress vCalculateVoxelRelated set false, and vUseOriginVegCalculateIntersectVoxel set true
+
+    //CubicVegMesh(const std::string& vModelPath, bool vCalculateVoxelRelated);
+
+    CubicVegMesh(const std::string& vModelPath, const std::string& vOriginVegSetPath,bool vCalculateVoxelRelated, bool vUseOriginVegCalculateIntersectVoxel);
     // copy constructor, destructor
     CubicVegMesh(const CubicVegMesh & volumetricMesh);
     //virtual CubicVegMesh * clone() = 0;
@@ -45,6 +51,7 @@ public:
     std::vector<int>& GetAfterEraseRegionVoxelNumber();
     void EraseMaxValueVoxelWithAllChildGroup(int vIndexRegionNumber);
     void SaveKeyStiffnessVoxel(const std::string & vDirectionPath);
+    void ReadBaseVegRegionVoxel(const std::string &vPath);
     std::vector<int> ReadFixedIndex(const std::string& vFilePath);
     void draw(const CShader& vShader) const {};
     void DrawVegFiexedCubic(const CShader& vShader) const;
@@ -59,18 +66,21 @@ private:
     void __setupMesh();
     void __setupFixedElementMesh(int vRegionsIndex);
     void __RegionRelatedVegElement();
+    void __OriginRegionRelatedVegElement();
     void __CalculateVoxelRelatedVoxel();
     void __SearchIntersectVoxelGroup(int vFirstRegionsIndex,int vSecondRegionsIndex);
+    void __OriginSearchIntersectVoxelGroup(int vFirstRegionsIndex, int vSecondRegionsIndex);
     bool __findVoxelVerticesinGroup(std::set<int> & vGroupVerticesIndex,int RegionsIndex,int ElementIndex);
     void __calculateVoxelEdge();
     void __sortMaximumValueVoxels(std::vector<std::pair<Common::SVegElement, int>> & vChildGroup);
     void __eraseMaximumValueVoxels(std::vector<std::pair<Common::SVegElement, int>> & vChildGroup);
-    int __SubgroupRandomSameValueVoxelIndex();
+    int __SubgroupRandomSameValueVoxelIndex(std::vector<Common::SSubgGroupMaxValVoxel>& GroupMaxValVoxeles);
     void __calculateChildGroupsValue(int vRegionsNumber,int vChildRegionsIndex);
     void __calculateChildGroupsValue(int vRegionsNumber, int vChildRegionsIndex, CENUMaterial vMaterial);
     void __calculateChildGroupsValue(int vRegionsNumber, int vChildRegionsIndex, CORTHOTROPIC_N1Material vMaterial);
     void __pushbackVoxelFace(int vRegionsCubeStructIndex,Common::SVegElement & vVoxelElement);
     static bool __compVoxelValue(std::pair<Common::SVegElement, int>& vFirst, std::pair<Common::SVegElement, int>& vSecond);
+    static bool __compSubgroupVoxelValue(Common::SSubgGroupMaxValVoxel& vFirst, Common::SSubgGroupMaxValVoxel& vSecond);
     void __CalculateGroupVoxelValue();
     //void __ResetRegionWithMaterialsDataSet();
     CMaterial* __GetGroupSetRelatedMaterial(int vGroupIndex);
@@ -128,16 +138,10 @@ private:
     double m_MaxStiffnessMaterialPara;
     double m_MinStiffnessMaterialPara;
     double m_MaxAndMinMaterialDiffPara;
+
+    //m_SetRegions存储了原始Origin文件中的体素索引，因为原先的m_SetRegions可以表示经过体素提取后的
+
+    std::vector < std::pair<std::string, std::vector<int>>> m_OriginSetRegions;
+    std::vector<std::pair<std::string, std::vector<Common::SVegElement>>> m_OriginSetRegionsRelatedData;
 };
 
-struct SSbugGroupMaxValVoxel
-{
-    int ChildIndex;
-    int Value;
-    SSbugGroupMaxValVoxel() = default;
-    SSbugGroupMaxValVoxel(const int& vChildIndex, const int & vValue)
-    {
-        ChildIndex = vChildIndex;
-        Value = vValue;
-    }
-};

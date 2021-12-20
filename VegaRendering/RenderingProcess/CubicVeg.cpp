@@ -36,17 +36,52 @@
 //从27个体素最里测最下面一行开始计算
 
 //EdgeVertexIndex存储的边的顺序都是按x,y,z轴正向坐标存储且都是逆时针，0-1,4-5,7-6,3-2,0-3,1-2,5-6,4-7,0-4,3-7,2-6,1-5
+//其中相交体素是通过给定的veg文件中的set求相交，但是经过SpatialVoxelExtraction获取降维后的Set后导致相交的数据量减少
 
-CubicVegMesh::CubicVegMesh(const std::string& vModelPath,bool vCalculateVoxelRelated)
+//CubicVegMesh::CubicVegMesh(const std::string& vModelPath, bool vCalculateVoxelRelated)
+//{
+//    __loadVegMesh(vModelPath, vCalculateVoxelRelated);
+//
+//
+//    m_NumRegions = m_SetRegionsRelatedData.size();
+//    for (int i = 0; i < m_NumRegions; i++)
+//        {
+//            for (int k = i + 1; k < m_NumRegions; k++)
+//            {
+//                __SearchIntersectVoxelGroup(i, k);
+//            }
+//        }
+//
+//    m_NumIntersectRegions = m_DifferentRegionsIntersectVoxel.size();
+//}
+
+CubicVegMesh::CubicVegMesh(const std::string& vModelPath, const std::string& vOriginVegSetPath, bool vCalculateVoxelRelated, bool vUseOriginVegCalculateIntersectVoxel)
 {
     __loadVegMesh(vModelPath,vCalculateVoxelRelated);
-    m_NumRegions = m_SetRegionsRelatedData.size();
-    for (int i = 0; i < m_NumRegions; i++)
+
+    if (vUseOriginVegCalculateIntersectVoxel == true)
     {
-        for (int k = i + 1; k < m_NumRegions; k++)
+        ReadBaseVegRegionVoxel(vOriginVegSetPath);
+        __OriginRegionRelatedVegElement();
+        m_NumRegions = m_OriginSetRegionsRelatedData.size();
+        for (int i = 0; i < m_NumRegions; i++)
         {
-            __SearchIntersectVoxelGroup(i, k);
+            for (int k = i + 1; k < m_NumRegions; k++)
+            {
+                __OriginSearchIntersectVoxelGroup(i, k);
+            }
         }
+    }
+    else
+    {
+        m_NumRegions = m_SetRegionsRelatedData.size();
+        for (int i = 0; i < m_NumRegions; i++)
+        {
+            for (int k = i + 1; k < m_NumRegions; k++)
+            {
+                __SearchIntersectVoxelGroup(i, k);
+            }
+        }      
     }
     m_NumIntersectRegions = m_DifferentRegionsIntersectVoxel.size();
 }
@@ -54,6 +89,25 @@ CubicVegMesh::CubicVegMesh(const std::string& vModelPath,bool vCalculateVoxelRel
 CubicVegMesh::CubicVegMesh(const CubicVegMesh & volumetricMesh)
 {
    
+}
+
+void CubicVegMesh::ReadBaseVegRegionVoxel(const std::string &vPath)
+{
+    std::ifstream VegFile(vPath);
+    std::string lineString;
+    while (getline(VegFile, lineString))
+    {
+        std::vector<std::string> SETS;
+        boost::split(SETS, lineString, boost::is_any_of(" "), boost::token_compress_off);
+        if (SETS[0] == "*SET")
+        {
+            getline(VegFile, lineString);
+            std::vector<std::string> RegionPath;
+            boost::split(RegionPath, lineString, boost::is_any_of(" "), boost::token_compress_off);
+            std::vector<int> ElementIndex = ReadFixedIndex(RegionPath[1]);
+            m_OriginSetRegions.push_back(std::make_pair(SETS[1], ElementIndex));
+        }        
+    }
 }
 
 void CubicVegMesh::SetMassAndMaterialCalulacteValueRelated(double vmaxLinearPara, double vminLinearPara)
@@ -443,6 +497,7 @@ void CubicVegMesh::__loadVegMesh(const std::string& vModelPath,bool vCalculateVo
 //    m_ReSetRegionsWithMaterials
 //}
 
+#pragma region MainlyUseFirstButInRenderingUseSecondfunction
 
 void CubicVegMesh::__RegionRelatedVegElement()
 {
@@ -464,6 +519,30 @@ void CubicVegMesh::__RegionRelatedVegElement()
     }
 }
 
+void CubicVegMesh::__OriginRegionRelatedVegElement()
+{
+    for (int i = 0; i < m_OriginSetRegions.size(); i++)
+    {
+        std::vector<Common::SVegElement> tempVegElement;
+        for (int k = 0; k < m_OriginSetRegions[i].second.size(); k++)
+        {
+            for (int ElementsIndex = 0; ElementsIndex < m_CountNumElements; ElementsIndex++)
+            {
+                if (m_VegElements[ElementsIndex].ElementIndex == m_OriginSetRegions[i].second[k])
+                {
+                    tempVegElement.push_back(m_VegElements[ElementsIndex]);
+                    break;
+                }
+            }
+        }
+        m_OriginSetRegionsRelatedData.push_back(std::make_pair(m_OriginSetRegions[i].first, tempVegElement));
+    }
+}
+
+#pragma endregion
+
+#pragma region MainlyUseFirstButInRenderingUseSecondfunction
+
 void CubicVegMesh::__SearchIntersectVoxelGroup(int vFirstRegionsIndex, int vSecondRegionsIndex)
 {
     std::vector<Common::SVegElement> IntersectVoxels;
@@ -481,9 +560,30 @@ void CubicVegMesh::__SearchIntersectVoxelGroup(int vFirstRegionsIndex, int vSeco
     if (IntersectVoxels.size() != 0)
     {
         m_DifferentRegionsIntersectVoxel.push_back(IntersectVoxels);
-    }
-    
+    }   
 }
+
+void CubicVegMesh::__OriginSearchIntersectVoxelGroup(int vFirstRegionsIndex, int vSecondRegionsIndex)
+{
+    std::vector<Common::SVegElement> IntersectVoxels;
+    for (auto FirstRegionsVoxel : m_OriginSetRegionsRelatedData[vFirstRegionsIndex].second)
+    {
+        for (auto SecondRegionsVoxel : m_OriginSetRegionsRelatedData[vSecondRegionsIndex].second)
+        {
+            if (FirstRegionsVoxel == SecondRegionsVoxel)
+            {
+                IntersectVoxels.push_back(FirstRegionsVoxel);
+
+            }
+        }
+    }
+    if (IntersectVoxels.size() != 0)
+    {
+        m_DifferentRegionsIntersectVoxel.push_back(IntersectVoxels);
+    }
+}
+
+#pragma endregion
 
 std::vector<int> CubicVegMesh::ReadFixedIndex(const std::string& vFilePath)
 {
@@ -588,20 +688,21 @@ void CubicVegMesh::EraseMaxValueVoxelWithAllChildGroup(int vIndexRegionNumber)
     if (vIndexRegionNumber < m_VoxelGroups.size())
     {
         __CalculateGroupVoxelValue();
-        int tempMax = -1;
-        int ChildIndex = -1;
+
+        std::vector<Common::SSubgGroupMaxValVoxel> GroupMaxValVoxeles;
         for (int ChildRegionsIndex = 0; ChildRegionsIndex < m_VoxelGroups[vIndexRegionNumber].size(); ChildRegionsIndex++)
         {
             __sortMaximumValueVoxels(m_VoxelGroups[vIndexRegionNumber][ChildRegionsIndex]);
 
-            if (m_VoxelGroups[vIndexRegionNumber][ChildRegionsIndex].size()!=0&&m_VoxelGroups[vIndexRegionNumber][ChildRegionsIndex][0].second > tempMax)
+            if (m_VoxelGroups[vIndexRegionNumber][ChildRegionsIndex].size() != 0)
             {
-                tempMax = m_VoxelGroups[vIndexRegionNumber][ChildRegionsIndex][0].second;
-                ChildIndex = ChildRegionsIndex;
+                GroupMaxValVoxeles.push_back(Common::SSubgGroupMaxValVoxel(ChildRegionsIndex, m_VoxelGroups[vIndexRegionNumber][ChildRegionsIndex][0].second));
             }
         }      
         //std::cout << "ChildIndex" << ChildIndex << std::endl;
-        __eraseMaximumValueVoxels(m_VoxelGroups[vIndexRegionNumber][ChildIndex]);
+        int EraseChildIndex = __SubgroupRandomSameValueVoxelIndex(GroupMaxValVoxeles);
+        //std::cout << "ChildIndex" << EraseChildIndex << std::endl;
+        __eraseMaximumValueVoxels(m_VoxelGroups[vIndexRegionNumber][EraseChildIndex]);
     }
     else
     {
@@ -642,6 +743,7 @@ void CubicVegMesh::__calculateChildGroupsValue(int vRegionsNumber, int vChildReg
 {
     for (auto& Voxel : m_VoxelGroups[vRegionsNumber][vChildRegionsIndex])
     {
+        Voxel.second = 0;
         for (auto &SeconVoxel : m_VoxelGroups[vRegionsNumber][vChildRegionsIndex])
         {
             for (int i = 0; i < Voxel.first.FaceRelatedIndex.size(); i++)
@@ -672,6 +774,7 @@ void CubicVegMesh::__calculateChildGroupsValue(int vRegionsNumber, int vChildReg
 {
     for (auto& Voxel : m_VoxelGroups[vRegionsNumber][vChildRegionsIndex])
     {
+        Voxel.second = 0;
         for (auto &SeconVoxel : m_VoxelGroups[vRegionsNumber][vChildRegionsIndex])
         {
             for (int i = 0; i < Voxel.first.FaceRelatedIndex.size(); i++)
@@ -702,11 +805,6 @@ void CubicVegMesh::__calculateChildGroupsValue(int vRegionsNumber, int vChildReg
 void CubicVegMesh::__sortMaximumValueVoxels(std::vector<std::pair<Common::SVegElement, int>> &vChildGroup)
 {
     std::sort(vChildGroup.begin(), vChildGroup.end(), __compVoxelValue);
-    /*if (vChildGroup.size() > 0)
-    {
-        std::vector<std::pair<Common::SVegElement, int>>::iterator it = vChildGroup.begin();
-        vChildGroup.erase(it);
-    }*/
 }
 
 void CubicVegMesh::__eraseMaximumValueVoxels(std::vector<std::pair<Common::SVegElement, int>> &vChildGroup)
@@ -907,6 +1005,31 @@ void CubicVegMesh::__calculateVoxelEdge()
     }
 }
 
+int CubicVegMesh::__SubgroupRandomSameValueVoxelIndex(std::vector<Common::SSubgGroupMaxValVoxel>& GroupMaxValVoxeles)
+{
+    std::sort(GroupMaxValVoxeles.begin(), GroupMaxValVoxeles.end(), __compSubgroupVoxelValue);
+    int tempMaxValue = GroupMaxValVoxeles[0].Value;
+    std::vector<int> MaxValueGroupIndex;
+    for (int i = 0; i < GroupMaxValVoxeles.size(); i++)
+    {
+        if (tempMaxValue == GroupMaxValVoxeles[i].Value)
+            MaxValueGroupIndex.push_back(GroupMaxValVoxeles[i].ChildIndex);
+    }
+    std::default_random_engine e;
+    LARGE_INTEGER seed;
+    QueryPerformanceFrequency(&seed);
+    QueryPerformanceCounter(&seed);
+    e.seed(seed.QuadPart);
+    std::uniform_int_distribution<unsigned> u(0, MaxValueGroupIndex.size() - 1);
+    int RandomNumber = u(e);
+    std::cout << "Same Value Number: " << MaxValueGroupIndex.size() << " RandomValueGroupIndex: " << MaxValueGroupIndex[RandomNumber]<<std::endl;
+    return MaxValueGroupIndex[RandomNumber];
+
+
+
+
+}
+
 std::vector<int>& CubicVegMesh::GetAfterEraseRegionVoxelNumber()
 {
     for (int RegionsIndex = 0; RegionsIndex < m_VoxelGroups.size(); RegionsIndex++)
@@ -924,6 +1047,11 @@ std::vector<int>& CubicVegMesh::GetAfterEraseRegionVoxelNumber()
 bool CubicVegMesh::__compVoxelValue(std::pair<Common::SVegElement, int> &vFirst, std::pair<Common::SVegElement, int>& vSecond)
 {
     return vFirst.second > vSecond.second;
+}
+
+bool CubicVegMesh::__compSubgroupVoxelValue(Common::SSubgGroupMaxValVoxel& vFirst, Common::SSubgGroupMaxValVoxel& vSecond)
+{
+    return vFirst.Value > vSecond.Value;
 }
 
 CMaterial* CubicVegMesh::__GetGroupSetRelatedMaterial(int vGroupIndex)
