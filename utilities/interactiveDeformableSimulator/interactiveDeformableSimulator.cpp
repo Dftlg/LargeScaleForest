@@ -663,6 +663,7 @@ void idleFunction(void)
 
   if ((!lockScene) && (!pauseSimulation) && (singleStepMode <= 1))
   {
+      /////////////////////////////////////////////
 #pragma region pullVertices 
 	  // determine force in case user is pulling on a vertex
 	  /*if (g_iLeftMouseButton)
@@ -685,7 +686,9 @@ void idleFunction(void)
 	   double forceY = -49;*/
 	   /*double forceX = (g_vMousePos[0] - dragStartX);
 		 double forceY = -(g_vMousePos[1] - dragStartY);*/
-	 
+
+
+
 	  double externalForce[3];
 
 	  //计算外力
@@ -741,6 +744,83 @@ void idleFunction(void)
 		
       /*}
     }*/
+      //////////////////////////////////////////////////
+      //if (g_iLeftMouseButton)
+      //{
+      //    if (pulledVertex[0] != -1)
+      //    {
+      //        //pulledVertex = 3282;
+      //       /* double forceX =99;
+      //        double forceY = -49;*/
+      //        double forceX = (g_vMousePos[0] - dragStartX);
+      //        double forceY = -(g_vMousePos[1] - dragStartY);
+      //        constantpulledVertex = pulledVertex;
+      //        double externalForce[3];
+
+      //        //计算外力
+      //        camera->CameraVector2WorldVector_OrientationOnly3D(
+      //            forceX, forceY, 0, externalForce);
+      //        /*camera->setWorldCoorinateSystemForce(500, 0, 0, externalForce);*/
+      //        std::copy(externalForce, externalForce + 3, vForce);
+
+      //        for (int j = 0; j < 3; j++)
+      //            externalForce[j] *= deformableObjectCompliance;
+
+      //        //printf("%d fx: %G fy: %G | %G %G %G\n", pulledVertex, forceX, forceY, externalForce[0], externalForce[1], externalForce[2]);
+
+      //        // register force on the pulled vertex
+      //        f_ext[3 * pulledVertex[0] + 0] += externalForce[0];
+      //        f_ext[3 * pulledVertex[0] + 1] += externalForce[1];
+      //        f_ext[3 * pulledVertex[0] + 2] += externalForce[2];
+
+      //        // distribute force over the neighboring vertices
+      //        //将力分配给周围节点
+      //        set<int> affectedVertices;
+      //        set<int> lastLayerVertices;
+
+      //        affectedVertices.insert(pulledVertex[0]);
+      //        lastLayerVertices.insert(pulledVertex[0]);
+
+      //        //力影响周围的点数量
+      //        for (int j = 1; j < forceNeighborhoodSize; j++)
+      //        {
+      //            // linear kernel
+      //              //对外围点的影响力，对外围每层受力每次递减百分之20
+      //            double forceMagnitude = 1.0 * (forceNeighborhoodSize - j) / forceNeighborhoodSize;
+
+      //            set<int> newAffectedVertices;
+      //            for (set<int> ::iterator iter = lastLayerVertices.begin(); iter != lastLayerVertices.end(); iter++)
+      //            {
+      //                // traverse all neighbors and check if they were already previously inserted
+      //                int vtx = *iter;
+      //                int deg = meshGraph->GetNumNeighbors(vtx);
+      //                for (int k = 0; k < deg; k++)
+      //                {
+      //                    int vtxNeighbor = meshGraph->GetNeighbor(vtx, k);
+
+      //                    if (affectedVertices.find(vtxNeighbor) == affectedVertices.end())
+      //                    {
+      //                        // discovered new vertex
+      //                        newAffectedVertices.insert(vtxNeighbor);
+      //                    }
+      //                }
+      //            }
+
+      //            lastLayerVertices.clear();
+      //            for (set<int> ::iterator iter = newAffectedVertices.begin(); iter != newAffectedVertices.end(); iter++)
+      //            {
+      //                // apply force
+      //                f_ext[3 * *iter + 0] += forceMagnitude * externalForce[0];
+      //                f_ext[3 * *iter + 1] += forceMagnitude * externalForce[1];
+      //                f_ext[3 * *iter + 2] += forceMagnitude * externalForce[2];
+
+      //                // generate new layers
+      //                lastLayerVertices.insert(*iter);
+      //                affectedVertices.insert(*iter);
+      //            }
+      //        }
+      //    }
+      //}
 
     // apply any scripted force loads
     if (timestepCounter < numForceLoads)
@@ -762,7 +842,7 @@ void idleFunction(void)
 		TempExtraForces.push_back(StemExtraForces[subTimestepCounter]);
 		if ((subTimestepCounter+1) % Common::ForcesSampling == 0)
 		{
-			//integratorBase->WriteSpecificKRFextVMattixToFile(outputFilename, subTimestepCounter, KVFVertices, TempExtraForces);
+			integratorBase->WriteSpecificKRFextVMattixToFile(outputFilename, subTimestepCounter, KVFVertices, TempExtraForces);
 			TempExtraForces.clear();
 		}
 		//计算由力产生的结点位移形变
@@ -873,7 +953,7 @@ void idleFunction(void)
 		TempExtraForces.clear();
 	}*/
 	//存储deltaU的形变数据
-	//deformationsave.SaveDeformationVertexFromBaseModel(deltaSecondaryu, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter-1);
+	deformationsave.SaveDeformationVertexFromBaseModel(deltaSecondaryu, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter-1);
 
     //存储U的形变数据
 	/*if (subTimestepCounter == 2000)
@@ -882,13 +962,13 @@ void idleFunction(void)
 	}*/
 	
 
-    if (subTimestepCounter % 5 == 0)
+    /*if (subTimestepCounter % 5 == 0)
     {
         std::string filePath = "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/MoveObj/";
         filePath += std::to_string(subTimestepCounter);
         filePath += ".obj";
         mesh->saveToAscii(filePath, 1);
-    }
+    }*/
     //mesh->saveToAscii("D:/GraduationProject/Vega/models/8.10/position/1.obj", 1);
 	//CSence sence(mesh, restPosition);
 
@@ -1273,7 +1353,7 @@ void mouseButtonActivityFunction(int button, int state, int x, int y)
           dragStartY = y;
           Vec3d pos(worldX, worldY, worldZ);
           pulledVertex[0] = deformableObjectRenderingMesh->GetClosestVertex(pos);
-          printf("Clicked on vertex: %d (0-indexed)\n", pulledVertex);
+          printf("Clicked on vertex: %d (0-indexed)\n", pulledVertex[0]);
         }
         else
         {
@@ -1638,12 +1718,12 @@ void initSimulation()
   f_ext = (double*) calloc (3*n, sizeof(double));
   f_extBase = (double*) calloc (3*n, sizeof(double));
 
-  for (int i = 0; i < n; i++)
-  {
-	  f_extBase[3 * i + 0] = allVerticesBaseForce;
-	  //f_extBase[3 * i + 1] = allVerticesBaseForce;
-	  //f_extBase[3 * i + 2] = allVerticesBaseForce;
-  }
+  //for (int i = 0; i < n; i++)
+  //{
+	 // f_extBase[3 * i + 0] = allVerticesBaseForce;
+	 // //f_extBase[3 * i + 1] = allVerticesBaseForce;
+	 // //f_extBase[3 * i + 2] = allVerticesBaseForce;
+  //}
 
   deltau = (double*)calloc(3 * n, sizeof(double));
   preu= (double*)calloc(3 * n, sizeof(double));
@@ -2445,7 +2525,7 @@ int main(int argc, char* argv[])
  /* configFilename = string("D:/GraduationProject/Vega/models/newgrass/voxelizegrass/voxelizegrass.config");*/
   //configFilename = string("../../models/yellow_tree/tree.config");
   //configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree.config");
-  configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree.config");
+  configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/18/tree.config");
   printf("Loading scene configuration from %s.\n", configFilename.c_str());
 
   initConfigurations(); // parse the config file同时输出到cmd

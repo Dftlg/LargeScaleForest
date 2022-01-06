@@ -56,6 +56,7 @@ public:
     void draw(const CShader& vShader) const {};
     void DrawVegFiexedCubic(const CShader& vShader) const;
     void DrawVegLine(const CShader& vShader) const;
+    void DrawVegSpecificFixedCubic(const CShader& vShader,int vVoxelGroupIndex) const;
 
 protected:
 
@@ -82,6 +83,7 @@ private:
     static bool __compVoxelValue(std::pair<Common::SVegElement, int>& vFirst, std::pair<Common::SVegElement, int>& vSecond);
     static bool __compSubgroupVoxelValue(Common::SSubgGroupMaxValVoxel& vFirst, Common::SSubgGroupMaxValVoxel& vSecond);
     void __CalculateGroupVoxelValue();
+    void __InitColor();
     //void __ResetRegionWithMaterialsDataSet();
     CMaterial* __GetGroupSetRelatedMaterial(int vGroupIndex);
 
@@ -130,6 +132,8 @@ private:
     std::vector<std::vector<int>> m_DifferentRegionsCubeIndiceStruct;
 
     std::vector<int> m_AfterEraseVoxelNumber;
+
+    std::vector<glm::vec4> m_RenderingColor;
 
     double m_MaterialLinearMaxPara;
     double m_MaterialLinearMinPara;

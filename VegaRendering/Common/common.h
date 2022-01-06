@@ -43,11 +43,11 @@ namespace Common
 
     /////each time change
 
-    const int AllTreesNumber = 2;
+    const int AllTreesNumber = 1;
 
     const int TreesTypeNumber = 1;
 
-    const int TreesNumbers[TreesTypeNumber] = {2};
+    const int TreesNumbers[TreesTypeNumber] = {1};
     //int SecondTypeTreesNumber = 5;
 
     //const int AllTreesNumber = 100;
@@ -105,7 +105,7 @@ namespace Common
 	static bool renderingGrass = false;
 	static bool renderingLightSource = false;
     static bool renderingSurfaceMesh = false;
-    static bool renderingForest = false;
+    static bool renderingForest = true;
 
     //experiment
     static bool renderingStemMesh = false;
@@ -117,7 +117,10 @@ namespace Common
 
     static bool renderingTerrainOrWhiltScence=false;
 
-    static bool renderingVegMesh = true;
+
+    //参考D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\models\yellow_tree\OtherVegType\100文件夹的Read.me
+
+    static bool renderingVegMesh = false;
 
     enum DrawType
     {

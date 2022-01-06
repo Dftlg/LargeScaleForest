@@ -3823,6 +3823,18 @@ void ObjMesh::exportGeometry(std::vector<Vec3d> & vertices, std::vector<Vec3i> &
   exportTriangles(triangles);
 }
 
+void ObjMesh::exportTriangles(std::vector<Vec3i> & triangles, int vGroupId) const
+{
+    SpecificGroupEachFace([&](const Face & face)
+    {
+        // triangulate the face
+        for (int k = 0; k < face.getNumTriangles(); k++)
+        {
+            triangles.emplace_back(face.getIndicesInTriangle(k));
+        }
+    }, vGroupId, true);
+}
+
 void ObjMesh::exportGeometry(int * numVertices, double ** vertices, int * numTriangles , int ** triangles, int * numGroups, int ** triangleGroups) const
 {
   // set vertices

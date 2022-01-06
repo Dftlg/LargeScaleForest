@@ -2,6 +2,8 @@
 //
 //calculate Labeled voxel
 
+//用于将veg文件中不同的set进行进一步依靠刚度值和模型质量拓扑结构提取重要骨架，参考论文3.4章
+
 #include "pch.h"
 #include <iostream>
 #include "../VegaRendering/Common/common.h"

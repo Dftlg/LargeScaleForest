@@ -1,0 +1,5 @@
+此处用的经过100体素化的体素
+
+D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\models\yellow_tree\OtherVegType\100\ObjMappingVoxel
+
+tree_last_test.obj为分为3部分的OBJ在渲染过程中不出错，二li_final_tree_last在渲染文件中出错，因此渲染使用tree_last_test.obj，而对于设置模型不同Group的刚度值需要获取体素索引，通过li_final_tree_last进行获取获取到ObjMappingGroup中

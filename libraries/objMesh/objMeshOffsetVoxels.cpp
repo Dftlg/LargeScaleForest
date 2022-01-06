@@ -46,7 +46,12 @@
 #include <fstream>
 #include <iomanip>
 #include <string.h>
+
+#pragma optimize("", off)
+
 using namespace std;
+
+
 
 ObjMeshOffsetVoxels::ObjMeshOffsetVoxels(const ObjMesh * objMesh_, const int resolution_[3], int depth_, Vec3d bmin_, Vec3d bmax_ )
 {
@@ -79,7 +84,10 @@ void ObjMeshOffsetVoxels::init(const int resolution_[3], int depth_, Vec3d bmin_
 
   //cout << "Checking if mesh is triangular... ";
   vector<Vec3i> triangles;
-  objMesh->exportTriangles(triangles);
+  //objMesh->exportTriangles(triangles);
+
+  //test
+  objMesh->exportTriangles(triangles,2);
 
   side = bmax - bmin;
   inc[0] = side[0] / resolution[0];
@@ -1444,3 +1452,5 @@ void ObjMeshOffsetVoxels::generateNormalCorrectionMatrix(const string filenameCo
   free(outputMatrix);
   free(voxelModalMatrix);
 }
+
+#pragma optimize("",on)

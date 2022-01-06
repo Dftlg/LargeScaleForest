@@ -84,6 +84,8 @@ CubicVegMesh::CubicVegMesh(const std::string& vModelPath, const std::string& vOr
         }      
     }
     m_NumIntersectRegions = m_DifferentRegionsIntersectVoxel.size();
+
+    __InitColor();
 }
 
 CubicVegMesh::CubicVegMesh(const CubicVegMesh & volumetricMesh)
@@ -202,25 +204,14 @@ void CubicVegMesh::SaveKeyStiffnessVoxel(const std::string & vDirectionPath)
 //}
 
 void CubicVegMesh::DrawVegFiexedCubic(const CShader& vShader) const
-{
-    std::vector<glm::vec4> renderingColor;
-    renderingColor.resize(m_NumIntersectRegions + m_NumRegions);
-    //different model should change
-    renderingColor[0] = glm::vec4(0.73, 0, 0, 1);
-    if (renderingColor.size() >= 3)
-    {
-        renderingColor[0] = glm::vec4(0.73, 0, 0, 1);
-        renderingColor[1] = glm::vec4(0.278, 0.73, 0, 1);
-        renderingColor[2] = glm::vec4(0, 0.474, 1, 1);
-    }
-   
+{ 
     for (int i = m_NumIntersectRegions + m_NumRegions; i >= 0; i--)
     {      
         if (i < m_NumRegions)
         {
             //continue;
             //vShader.setVec4("renderingColor", glm::vec4(0,0,0,1));
-            vShader.setVec4("renderingColor", renderingColor[i]);
+            vShader.setVec4("renderingColor", m_RenderingColor[i]);
         }
         else
         {
@@ -228,11 +219,26 @@ void CubicVegMesh::DrawVegFiexedCubic(const CShader& vShader) const
         }
         
         glBindVertexArray(m_FixedEleVAO[i]);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_FixedEleEBO[i]);
         glDrawElements(GL_TRIANGLES, m_DifferentRegionsCubeIndiceStruct[i].size(), GL_UNSIGNED_INT, 0);
         //glDrawElementsInstanced(GL_LINES, m_Indices.size(), GL_UNSIGNED_INT, 0, m_InstanceTreeNumber);
         glBindVertexArray(0);
     }
     
+}
+
+void CubicVegMesh::DrawVegSpecificFixedCubic(const CShader& vShader, int vVoxelGroupIndex) const
+{
+    if (vVoxelGroupIndex > m_DifferentRegionsCubeIndiceStruct.size())
+    {
+        vVoxelGroupIndex = 0;
+    }
+    vShader.setVec4("renderingColor", m_RenderingColor[vVoxelGroupIndex]);
+    glBindVertexArray(m_FixedEleVAO[vVoxelGroupIndex]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_FixedEleEBO[vVoxelGroupIndex]);
+    glDrawElements(GL_TRIANGLES, m_DifferentRegionsCubeIndiceStruct[vVoxelGroupIndex].size(), GL_UNSIGNED_INT, 0);
+    //glDrawElementsInstanced(GL_LINES, m_Indices.size(), GL_UNSIGNED_INT, 0, m_InstanceTreeNumber);
+    glBindVertexArray(0);
 }
 
 void CubicVegMesh::DrawVegLine(const CShader& vShader) const
@@ -1064,6 +1070,23 @@ CMaterial* CubicVegMesh::__GetGroupSetRelatedMaterial(int vGroupIndex)
 double CubicVegMesh::__MaterialKValue(double vMaterialK)
 {
     return m_MaterialLinearMaxAndMinDiffPara / m_MaxAndMinMaterialDiffPara * vMaterialK + (m_MaterialLinearMinPara* m_MaxStiffnessMaterialPara - m_MaterialLinearMaxPara * m_MinStiffnessMaterialPara) / m_MaxAndMinMaterialDiffPara;
+}
+
+void CubicVegMesh::__InitColor()
+{
+    m_RenderingColor.resize(10);
+    //different model should change
+    m_RenderingColor[0] = glm::vec4(0.73, 0, 0, 1);
+    m_RenderingColor[1] = glm::vec4(0.278, 0.73, 0, 1);
+    m_RenderingColor[2] = glm::vec4(0, 0.474, 1, 1);
+    m_RenderingColor[3] = glm::vec4(1, 0.6, 0.2, 1);
+    m_RenderingColor[4] = glm::vec4(0, 0, 0.6, 1);
+    m_RenderingColor[5] = glm::vec4(1, 0.2, 0.8, 1);
+    m_RenderingColor[6] = glm::vec4(0, 0.2, 0, 1);
+    m_RenderingColor[7] = glm::vec4(0, 0.5, 0.5, 1);
+    m_RenderingColor[8] = glm::vec4(0.6, 0.2, 0, 1);
+    m_RenderingColor[9] = glm::vec4(0.2, 0.8, 1, 1);
+    
 }
 
 #pragma optimize("", on)

@@ -176,6 +176,9 @@ public:
   inline void forEachFace(std::function<void(int gID, int fID, ObjMesh::Face &)> f, bool skipNonFace = false);
   inline void forEachFace(std::function<void(int gID, int fID, const ObjMesh::Face &)> f, bool skipNonFace = false) const;
 
+  inline void SpecificGroupEachFace(std::function<void(ObjMesh::Face &)> f, int vgroupId, bool skipNonFace=false);
+  inline void SpecificGroupEachFace(std::function<void(const ObjMesh::Face &)> f, int vgroupId, bool skipNonFace = false) const;
+
   inline const Material & getMaterial(unsigned int materialIndex) const { return materials[materialIndex]; }
   unsigned int getMaterialIndex(const std::string & name) const; // obtain a material index by its name
   // get material pointer. Warning: This pointer will be invalided if materials are modified by ObjMesh::addMaterial() due to vector reallocation
@@ -314,6 +317,7 @@ public:
   void exportTriangles(std::vector<Vec3i> & triangles) const; // push_back all triangulated faces into triangles
   // also push back <groupID, faceID> each triagnle belongs to
   void exportTriangles(std::vector<Vec3i> & triangles, std::vector<std::pair<int,int>> & orginalGroupAndFaceIDs) const;
+  void exportTriangles(std::vector<Vec3i> & triangles, int vGroupId) const;
 
   Vec3d computeFaceCentroid(const Face & face) const;
   double computeFaceSurfaceArea(const Face & face) const; // of a single face
@@ -699,6 +703,34 @@ inline void ObjMesh::forEachFace(std::function<void(int gID, int fID, const ObjM
         continue;
       }
       f(i, j, face);
+    }
+}
+
+inline void ObjMesh::SpecificGroupEachFace(std::function<void(ObjMesh::Face &)> f, int vgroupId, bool v)
+{
+    for (size_t j = 0; j < groups[vgroupId].getNumFaces(); j++)
+    {
+        Face & face = groups[vgroupId].getFace(j);
+        if (v && face.getNumVertices() < 3)
+        {
+            printf("Warning: encountered a face with fewer than 3 vertices.\n");
+            continue;
+        }
+        f(face);
+    }
+}
+
+inline void ObjMesh::SpecificGroupEachFace(std::function<void(const ObjMesh::Face &)> f, int vgroupId, bool v) const
+{
+    for (size_t j = 0; j < groups[vgroupId].getNumFaces(); j++)
+    {
+        const Face & face = groups[vgroupId].getFace(j);
+        if (v && face.getNumVertices() < 3)
+        {
+            printf("Warning: encountered a face with fewer than 3 vertices.\n");
+            continue;
+        }
+        f(face);
     }
 }
 #endif

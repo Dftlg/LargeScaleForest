@@ -124,6 +124,10 @@ std::vector<double>timeSum;
 
 int frameIndex = 0;
 
+//渲染 VegGroupVoxelColor
+int VoxelGroupIndex = 11;
+
+
 //前一个std::vector表示匹配树的个数，后一个std::vector表示每一帧中需要的数据
 //vMultipleExtraForces 表示每一帧风的方向，每次用5帧来进行搜索
 //vWindDirection 表示每帧一个风的方向
@@ -734,7 +738,8 @@ int main()
 	MultipleTypeTree.InitShadowMapPara(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, lightSpaceMatrix, lightPosition[0], lightPointColors[0]);
 	MultipleTypeTree.setTerrainPara(TerrainHeigth, TerrainX, TerrainZ, XDensityScale, ZDensityScale, TerrainHeightZDensity);
 
-	MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/deltaU", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt",1);
+	//MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/deltaU", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt",1);
+    MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/18/motiondata", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt", 1);
 	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[0], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/WindAndTreeConfig/Config.txt");
 	if (Common::UseGeomOrCompCalculateNormal == true)
 	{
@@ -748,7 +753,7 @@ int main()
 	//MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag","computerFaceNormal.geom");
 	MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
 	MultipleTypeTree.InitTreeModel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", 0);
-
+    //MultipleTypeTree.InitTreeModel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/li_final_tree_last.obj", 0);
 
 	/*MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/deltaU", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/tree.obj", "../../models/mini_mapleTree/ObjectVertexIndex.txt",1);
 	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[1], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/WindAndTreeConfig/Config.txt");
@@ -951,7 +956,9 @@ int main()
     CShader * CubicFiexedVegShader = nullptr;
     if (Common::renderingVegMesh == true)
     {
-        VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/tree100Rendering.veg","D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/treebase.txt",false,true);
+
+        //VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/EachPartSkelCubic_index/tree100Rendering.veg","D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/EachPartSkelCubic_index/treebase.txt",false,true);
+        VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/ObjMappingVoxel/tree100RenderingObjMapping.veg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/ObjMappingVoxel/treebase.txt", false, true);
         VegMesh->InitVegRenderingProcess();
         VegMesh->InitVegRenderingLabeledVoxel();
         CubicVegShader = new CShader("VegMesh.vert", "VegMesh.frag");
@@ -1236,8 +1243,12 @@ int main()
             CubicFiexedVegShader->use();
             CubicFiexedVegShader->setMat4("projection", projection);
             CubicFiexedVegShader->setMat4("view", view);
-            //CubicFiexedVegShader->setVec4("renderingColor", glm::vec4(1.0,0.0,0.0,0.8));
+            if(VoxelGroupIndex==11)
             VegMesh->DrawVegFiexedCubic(*CubicFiexedVegShader);
+            else
+            {
+                VegMesh->DrawVegSpecificFixedCubic(*CubicFiexedVegShader, VoxelGroupIndex);
+            }
         }
             
 		//tree
@@ -1486,6 +1497,27 @@ void processInput(GLFWwindow* vWindow)
 	{
 		shadowsKeyPressed = false;
 	}
+
+    if (glfwGetKey(vWindow, GLFW_KEY_1) == GLFW_PRESS)
+    {
+        VoxelGroupIndex = 0;
+    }
+    if (glfwGetKey(vWindow, GLFW_KEY_2) == GLFW_PRESS)
+    {
+        VoxelGroupIndex = 1;
+    }
+    if (glfwGetKey(vWindow, GLFW_KEY_3) == GLFW_PRESS)
+    {
+        VoxelGroupIndex = 2;
+    }
+    if (glfwGetKey(vWindow, GLFW_KEY_4) == GLFW_PRESS)
+    {
+        VoxelGroupIndex = 3;
+    }
+    if (glfwGetKey(vWindow, GLFW_KEY_0) == GLFW_PRESS)
+    {
+        VoxelGroupIndex = 11;
+    }
 }
 
 //*********************************************************************

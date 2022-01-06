@@ -320,6 +320,9 @@ void * MyFrame::VoxelizationWorker(ObjMesh * objMesh, int resolution, bool fillH
   double nu = 0.45;
   double density = 1000.0;
   delete(precomputationState.simulationMesh);
+
+  //此处创建的VoxelMeshi
+
   precomputationState.simulationMesh = new CubicMesh(numVertices, vertices, numElements, voxels, E, nu, density);
 
   printf("Generated the cubic simulation mesh. Vertices: %d | Voxels: %d\n", numVertices, numElements);

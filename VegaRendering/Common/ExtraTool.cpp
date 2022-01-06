@@ -1,6 +1,8 @@
 
 #include "ExtraTool.h"
 
+#pragma optimize("",off)
+
 int MaxElement(std::vector<int> &vDataSet)
 {
 	int max=*(std::max_element(vDataSet.begin(), vDataSet.end()));
@@ -366,3 +368,4 @@ void TransformCartesianCorrdinate2SphericalCorrdinate(glm::vec3 &vStartPoint, gl
     voPhi = 180 * PhiRadian / M_PI;
 }
 
+#pragma optimize("",on)

@@ -391,6 +391,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpatialVoxelExtraction", "S
 		{DBD25957-7E9F-40A3-AD16-17FC2DC796EF} = {DBD25957-7E9F-40A3-AD16-17FC2DC796EF}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VegFileDivideMaterialsRegions", "VegaRendering\VegFileDivideMaterialsRegions\VegFileDivideMaterialsRegions.vcxproj", "{7EC54417-BED1-4A94-B508-3EAE5A67920D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -847,6 +849,14 @@ Global
 		{8B755E78-6756-48CA-88CF-8258633EBE6B}.Release|x64.Build.0 = Release|x64
 		{8B755E78-6756-48CA-88CF-8258633EBE6B}.Release|x86.ActiveCfg = Release|Win32
 		{8B755E78-6756-48CA-88CF-8258633EBE6B}.Release|x86.Build.0 = Release|Win32
+		{7EC54417-BED1-4A94-B508-3EAE5A67920D}.Debug|x64.ActiveCfg = Debug|x64
+		{7EC54417-BED1-4A94-B508-3EAE5A67920D}.Debug|x64.Build.0 = Debug|x64
+		{7EC54417-BED1-4A94-B508-3EAE5A67920D}.Debug|x86.ActiveCfg = Debug|Win32
+		{7EC54417-BED1-4A94-B508-3EAE5A67920D}.Debug|x86.Build.0 = Debug|Win32
+		{7EC54417-BED1-4A94-B508-3EAE5A67920D}.Release|x64.ActiveCfg = Release|x64
+		{7EC54417-BED1-4A94-B508-3EAE5A67920D}.Release|x64.Build.0 = Release|x64
+		{7EC54417-BED1-4A94-B508-3EAE5A67920D}.Release|x86.ActiveCfg = Release|Win32
+		{7EC54417-BED1-4A94-B508-3EAE5A67920D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -924,6 +934,7 @@ Global
 		{0AF877A5-4A83-4B8D-AA5F-236E03969CC1} = {CA1278B1-FDCB-4C3B-A993-8FE7C38FB1AC}
 		{F20D778F-0D2C-4C56-8665-88FB7A5421DC} = {CA1278B1-FDCB-4C3B-A993-8FE7C38FB1AC}
 		{8B755E78-6756-48CA-88CF-8258633EBE6B} = {CA1278B1-FDCB-4C3B-A993-8FE7C38FB1AC}
+		{7EC54417-BED1-4A94-B508-3EAE5A67920D} = {CA1278B1-FDCB-4C3B-A993-8FE7C38FB1AC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {99173D97-76A2-4076-8802-0EB16E2D5191}
