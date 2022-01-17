@@ -84,10 +84,10 @@ void ObjMeshOffsetVoxels::init(const int resolution_[3], int depth_, Vec3d bmin_
 
   //cout << "Checking if mesh is triangular... ";
   vector<Vec3i> triangles;
-  //objMesh->exportTriangles(triangles);
+  objMesh->exportTriangles(triangles);
 
   //test
-  objMesh->exportTriangles(triangles,2);
+  //objMesh->exportTriangles(triangles,3);
 
   side = bmax - bmin;
   inc[0] = side[0] / resolution[0];

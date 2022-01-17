@@ -393,6 +393,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpatialVoxelExtraction", "S
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VegFileDivideMaterialsRegions", "VegaRendering\VegFileDivideMaterialsRegions\VegFileDivideMaterialsRegions.vcxproj", "{7EC54417-BED1-4A94-B508-3EAE5A67920D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AuxiliaryProjectFeatures", "VegaRendering\AuxiliaryProjectFeatures\AuxiliaryProjectFeatures.vcxproj", "{928AE37F-F15D-446D-BBC1-5E19A3926B61}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ActualWindFieldComposition", "VegaRendering\ActualWindFieldComposition\ActualWindFieldComposition.vcxproj", "{5CD03FCC-2602-4D05-8D5C-A14942707287}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -857,6 +861,22 @@ Global
 		{7EC54417-BED1-4A94-B508-3EAE5A67920D}.Release|x64.Build.0 = Release|x64
 		{7EC54417-BED1-4A94-B508-3EAE5A67920D}.Release|x86.ActiveCfg = Release|Win32
 		{7EC54417-BED1-4A94-B508-3EAE5A67920D}.Release|x86.Build.0 = Release|Win32
+		{928AE37F-F15D-446D-BBC1-5E19A3926B61}.Debug|x64.ActiveCfg = Debug|x64
+		{928AE37F-F15D-446D-BBC1-5E19A3926B61}.Debug|x64.Build.0 = Debug|x64
+		{928AE37F-F15D-446D-BBC1-5E19A3926B61}.Debug|x86.ActiveCfg = Debug|Win32
+		{928AE37F-F15D-446D-BBC1-5E19A3926B61}.Debug|x86.Build.0 = Debug|Win32
+		{928AE37F-F15D-446D-BBC1-5E19A3926B61}.Release|x64.ActiveCfg = Release|x64
+		{928AE37F-F15D-446D-BBC1-5E19A3926B61}.Release|x64.Build.0 = Release|x64
+		{928AE37F-F15D-446D-BBC1-5E19A3926B61}.Release|x86.ActiveCfg = Release|Win32
+		{928AE37F-F15D-446D-BBC1-5E19A3926B61}.Release|x86.Build.0 = Release|Win32
+		{5CD03FCC-2602-4D05-8D5C-A14942707287}.Debug|x64.ActiveCfg = Debug|x64
+		{5CD03FCC-2602-4D05-8D5C-A14942707287}.Debug|x64.Build.0 = Debug|x64
+		{5CD03FCC-2602-4D05-8D5C-A14942707287}.Debug|x86.ActiveCfg = Debug|Win32
+		{5CD03FCC-2602-4D05-8D5C-A14942707287}.Debug|x86.Build.0 = Debug|Win32
+		{5CD03FCC-2602-4D05-8D5C-A14942707287}.Release|x64.ActiveCfg = Release|x64
+		{5CD03FCC-2602-4D05-8D5C-A14942707287}.Release|x64.Build.0 = Release|x64
+		{5CD03FCC-2602-4D05-8D5C-A14942707287}.Release|x86.ActiveCfg = Release|Win32
+		{5CD03FCC-2602-4D05-8D5C-A14942707287}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -935,6 +955,8 @@ Global
 		{F20D778F-0D2C-4C56-8665-88FB7A5421DC} = {CA1278B1-FDCB-4C3B-A993-8FE7C38FB1AC}
 		{8B755E78-6756-48CA-88CF-8258633EBE6B} = {CA1278B1-FDCB-4C3B-A993-8FE7C38FB1AC}
 		{7EC54417-BED1-4A94-B508-3EAE5A67920D} = {CA1278B1-FDCB-4C3B-A993-8FE7C38FB1AC}
+		{928AE37F-F15D-446D-BBC1-5E19A3926B61} = {80A490F9-B062-4D56-BE90-1C62B0DF0424}
+		{5CD03FCC-2602-4D05-8D5C-A14942707287} = {CA1278B1-FDCB-4C3B-A993-8FE7C38FB1AC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {99173D97-76A2-4076-8802-0EB16E2D5191}

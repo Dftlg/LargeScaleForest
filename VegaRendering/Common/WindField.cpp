@@ -1,5 +1,10 @@
 #include"WindFiled.h"
 
+//旧版风场时针对每棵树木施加一个定向的外力，但只是针对模型的几个点
+//为了防止大改，现在考虑对于查找过程中的风场，因为是依靠外力参数来搜索，实际上不了解具体风场的关系，只知道每个文件kvf中f是一个波动函数，因此在采样过程中的风场用
+//用论文中风场代替，但存储到kvf中时依然使用较为简单f波动函数去存储，搜索也用较为简单的外力进行搜索。而且因为考虑到了风吹树木的方向这个也进行了存储所有不用方向问题
+
+
 CWindField::CWindField(const int vSize, const std::vector<SWaveFunctionPara> vSwavePara, const int vWavelength, Common::SForceDirection vWindDirection, Common::SForceDirection vTreeRotationDirection)
 {
 	std::vector<int>tempForces(vSize,0);

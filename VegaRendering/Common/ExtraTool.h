@@ -12,6 +12,7 @@
 #include <boost/algorithm/string/classification.hpp>
 #include<sstream>
 #include<algorithm>
+#include "common.h"
 #include <glm/glm.hpp>
 
 #define M_PI 3.141592653589793238462643
@@ -45,3 +46,9 @@ void TransformCartesianCorrdinate2SphericalCorrdinate(glm::vec3 &vStartPoint, gl
 glm::vec3 GenerateRamdomScale();
 
 double OneNumberRangeError(float vNumber, int vControlFloatPosition=0, int vRange=1);
+
+double Point2LineDistance(Common::SXYZLine& vLine, glm::vec3 &Point);
+
+double GenerateSamlplingForceWithTime(double time, int vAmplitude, float vFrequency, double vPhase, int vYpluse);
+
+void SetWorldConSyForce(float vforceDegree, double vforceDirectionTheta, double vforceDirectionPhi, double voforce[3]);

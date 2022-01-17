@@ -1,6 +1,8 @@
 #include "VegaFemFactory.h"
 #include <time.h>
 
+#pragma optimize("",off)
+
 CVegaFemFactory::CVegaFemFactory(const std::string & vDirectoryName, const std::string & vMutilVerticesBaseFile,const std::string &vCorrectDeformationUVertexIndex)
 {
 	//m_FilesData中每个对象的文件名和句对路径加上
@@ -1180,3 +1182,5 @@ void CVegaFemFactory::searchMatchedOneTreeFrameSequences(std::vector<int> & voMa
 	}
 	
 }
+
+#pragma optimize("",on)

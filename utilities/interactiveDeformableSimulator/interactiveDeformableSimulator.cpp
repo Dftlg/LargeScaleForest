@@ -137,6 +137,8 @@ using namespace std;
 
 #include "GL/glui.h"
 
+#include "WindFieldInSampling.h"
+
 
 
 // graphics 
@@ -259,7 +261,7 @@ SPullVertexInfo pullVertexInfo;
 int* pulledVertex = (int*)calloc(forceNum, sizeof(int));
 double vForce[3];
 int* constantpulledVertex = (int*)calloc(forceNum, sizeof(int));
-int forceNeighborhoodSize = 5;
+int forceNeighborhoodSize = 1;
 int dragStartX, dragStartY;
 int explosionFlag = 0;
 PerformanceCounter titleBarCounter;
@@ -335,6 +337,10 @@ double * velInitial = nullptr;
 double * deltau = nullptr;
 double * preu = nullptr;
 double * deltaSecondaryu = nullptr;
+
+CWindFieldSampling * WindFieldSampling;
+ObjMesh * newObjMesh;
+double windtime;
 
 
 
@@ -663,88 +669,88 @@ void idleFunction(void)
 
   if ((!lockScene) && (!pauseSimulation) && (singleStepMode <= 1))
   {
-      /////////////////////////////////////////////
+      /////////////////////////////////////////////此处使用固定文件输入
 #pragma region pullVertices 
-	  // determine force in case user is pulling on a vertex
-	  /*if (g_iLeftMouseButton)
-	  {
-		if (pulledVertex != -1)
-		{*/
-		//stem	
-	 /* pulledVertex[0] = 6172;
-
-
-	  pulledVertex[1] = 6552;
-	   pulledVertex[2] = 4214;*/
-	  /*pulledVertex[4] = 12203;
-	  pulledVertex[5] = 2768;
-	  pulledVertex[6] = 12015;
-	  pulledVertex[7] = 4625;
-	  pulledVertex[8] = 9529;*/
-
-	  /* double forceX =99;
-	   double forceY = -49;*/
-	   /*double forceX = (g_vMousePos[0] - dragStartX);
-		 double forceY = -(g_vMousePos[1] - dragStartY);*/
-
-
-
-	  double externalForce[3];
-
-	  //计算外力
-	 /* camera->CameraVector2WorldVector_OrientationOnly3D(
-		  forceX, forceY, 0, externalForce);*/
-	 // camera->setWorldCoorinateSystemForce(StemExtraForces[subTimestepCounter], 0, 0, externalForce);
-#pragma endregion
-	  
-
-	  //stem
-	  for (int i = 0; i < pullVertexInfo.StemPullVertexNum; i++)
-	  {
-		  camera->setWorldCoorinateSystemForce(pullVertexInfo.StemExtraForces[subTimestepCounter], Theta, Phi, externalForce);
-		  std::copy(externalForce, externalForce + 3, vForce);
-		  for (int j = 0; j < 3; j++)
-		  {
-			  externalForce[j] *= deformableObjectCompliance * pullVertexInfo.Scale[i];
-			  f_ext[3 * pullVertexInfo.PullVertexIndex[i] + j] += externalForce[j];
-		  }
-		  //distribute force over the neighboring vertices
-		  distributeForce(pullVertexInfo.PullVertexIndex[i], f_ext, externalForce);
-	  }
-
-	  //leaf
-
-	  for (int i = pullVertexInfo.StemPullVertexNum; i < pullVertexInfo.PullVertexIndex.size(); i++)
-	  {
-		  camera->setWorldCoorinateSystemForce(pullVertexInfo.LeafExtraForces[i-pullVertexInfo.StemPullVertexNum][subTimestepCounter], Theta+ pullVertexInfo.DeviationDirection[i].first, Phi+ pullVertexInfo.DeviationDirection[i].second, externalForce);
-		  //std::copy(externalForce, externalForce + 3, vForce);
-		  for (int j = 0; j < 3; j++)
-		  {
-			  externalForce[j] *= deformableObjectCompliance * pullVertexInfo.Scale[i];
-			  f_ext[3 * pullVertexInfo.PullVertexIndex[i] + j] += externalForce[j];
-		  }
-		  //distribute force over the neighboring vertices
-		  distributeForce(pullVertexInfo.PullVertexIndex[i], f_ext, externalForce);
-	  }
-	 
-
-	  //printf("%d fx: %G fy: %G | %G %G %G\n", pulledVertex, forceX, forceY, externalForce[0], externalForce[1], externalForce[2]);
-
-	  // register force on the pulled vertex
-	  //for (int i = 0; i < pullVertexInfo.PullVertexNum; i++)
+//	  // determine force in case user is pulling on a vertex
+//	  /*if (g_iLeftMouseButton)
+//	  {
+//		if (pulledVertex != -1)
+//		{*/
+//		//stem	
+//	 /* pulledVertex[0] = 6172;
+//
+//
+//	  pulledVertex[1] = 6552;
+//	   pulledVertex[2] = 4214;*/
+//	  /*pulledVertex[4] = 12203;
+//	  pulledVertex[5] = 2768;
+//	  pulledVertex[6] = 12015;
+//	  pulledVertex[7] = 4625;
+//	  pulledVertex[8] = 9529;*/
+//
+//	  /* double forceX =99;
+//	   double forceY = -49;*/
+//	   /*double forceX = (g_vMousePos[0] - dragStartX);
+//		 double forceY = -(g_vMousePos[1] - dragStartY);*/
+//
+//
+//
+//	  double externalForce[3];
+//
+//	  //计算外力
+//	 /* camera->CameraVector2WorldVector_OrientationOnly3D(
+//		  forceX, forceY, 0, externalForce);*/
+//	 // camera->setWorldCoorinateSystemForce(StemExtraForces[subTimestepCounter], 0, 0, externalForce);
+//#pragma endregion
+//	  
+//
+//	  //stem
+	  //for (int i = 0; i < pullVertexInfo.StemPullVertexNum; i++)
 	  //{
+		 // camera->setWorldCoorinateSystemForce(pullVertexInfo.StemExtraForces[subTimestepCounter], Theta, Phi, externalForce);
+		 // std::copy(externalForce, externalForce + 3, vForce);
 		 // for (int j = 0; j < 3; j++)
 		 // {
-			//  externalForce[j] *= deformableObjectCompliance * scale[i];
-			//  f_ext[3 * pulledVertex[i] + j] += externalForce[j];
+			//  externalForce[j] *= deformableObjectCompliance * pullVertexInfo.Scale[i];
+			//  f_ext[3 * pullVertexInfo.PullVertexIndex[i] + j] += externalForce[j];
 		 // }
 		 // //distribute force over the neighboring vertices
-		 // distributeForce(pulledVertex[i], f_ext, externalForce);
+		 // distributeForce(pullVertexInfo.PullVertexIndex[i], f_ext, externalForce);
 	  //}
-		
-      /*}
-    }*/
-      //////////////////////////////////////////////////
+//
+//	  //leaf
+//
+	  //for (int i = pullVertexInfo.StemPullVertexNum; i < pullVertexInfo.PullVertexIndex.size(); i++)
+	  //{
+		 // camera->setWorldCoorinateSystemForce(pullVertexInfo.LeafExtraForces[i-pullVertexInfo.StemPullVertexNum][subTimestepCounter], Theta+ pullVertexInfo.DeviationDirection[i].first, Phi+ pullVertexInfo.DeviationDirection[i].second, externalForce);
+		 // //std::copy(externalForce, externalForce + 3, vForce);
+		 // for (int j = 0; j < 3; j++)
+		 // {
+			//  externalForce[j] *= deformableObjectCompliance * pullVertexInfo.Scale[i];
+			//  f_ext[3 * pullVertexInfo.PullVertexIndex[i] + j] += externalForce[j];
+		 // }
+		 // //distribute force over the neighboring vertices
+		 // distributeForce(pullVertexInfo.PullVertexIndex[i], f_ext, externalForce);
+	  //}
+//	 
+//
+//	  //printf("%d fx: %G fy: %G | %G %G %G\n", pulledVertex, forceX, forceY, externalForce[0], externalForce[1], externalForce[2]);
+//
+//	  // register force on the pulled vertex
+//	  //for (int i = 0; i < pullVertexInfo.PullVertexNum; i++)
+//	  //{
+//		 // for (int j = 0; j < 3; j++)
+//		 // {
+//			//  externalForce[j] *= deformableObjectCompliance * scale[i];
+//			//  f_ext[3 * pulledVertex[i] + j] += externalForce[j];
+//		 // }
+//		 // //distribute force over the neighboring vertices
+//		 // distributeForce(pulledVertex[i], f_ext, externalForce);
+//	  //}
+//		
+//      /*}
+//    }*/
+      //////////////////////////////////////////////////此处可任意拉扯
       //if (g_iLeftMouseButton)
       //{
       //    if (pulledVertex[0] != -1)
@@ -760,7 +766,7 @@ void idleFunction(void)
       //        //计算外力
       //        camera->CameraVector2WorldVector_OrientationOnly3D(
       //            forceX, forceY, 0, externalForce);
-      //        /*camera->setWorldCoorinateSystemForce(500, 0, 0, externalForce);*/
+      //        //camera->setWorldCoorinateSystemForce(500, 0, 90, externalForce);
       //        std::copy(externalForce, externalForce + 3, vForce);
 
       //        for (int j = 0; j < 3; j++)
@@ -821,6 +827,8 @@ void idleFunction(void)
       //        }
       //    }
       //}
+    //////////////////////////
+      WindFieldSampling->GenerateWindFieldExternalForce(secondaryDeformableObjectRenderingMesh, f_ext);
 
     // apply any scripted force loads
     if (timestepCounter < numForceLoads)
@@ -842,7 +850,8 @@ void idleFunction(void)
 		TempExtraForces.push_back(StemExtraForces[subTimestepCounter]);
 		if ((subTimestepCounter+1) % Common::ForcesSampling == 0)
 		{
-			integratorBase->WriteSpecificKRFextVMattixToFile(outputFilename, subTimestepCounter, KVFVertices, TempExtraForces);
+            //!!!!重要存储KVF文件位置
+			//integratorBase->WriteSpecificKRFextVMattixToFile(outputFilename, subTimestepCounter, KVFVertices, TempExtraForces);
 			TempExtraForces.clear();
 		}
 		//计算由力产生的结点位移形变
@@ -883,10 +892,10 @@ void idleFunction(void)
 
 	//std::cout << subTimestepCounter << std::endl;
 
-	if (subTimestepCounter > 180)
-	{
-		exit(1);
-	}
+	//if (subTimestepCounter > 180)
+	//{
+	//	exit(1);
+	//}
 	//用于判断文件力的数量
     //timestepCounter++;
 
@@ -952,8 +961,8 @@ void idleFunction(void)
 		deformationsave.SaveDeformationVertexFromBaseModel(uSecondary, secondaryDeformableObjectRenderingMesh->GetNumVertices(), uDeformationoutputFileName, subTimestepCounter);
 		TempExtraForces.clear();
 	}*/
-	//存储deltaU的形变数据
-	deformationsave.SaveDeformationVertexFromBaseModel(deltaSecondaryu, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter-1);
+	//存储deltaU的形变数据!!!重要需要更改位置
+	//deformationsave.SaveDeformationVertexFromBaseModel(deltaSecondaryu, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter-1);
 
     //存储U的形变数据
 	/*if (subTimestepCounter == 2000)
@@ -1852,8 +1861,22 @@ void initSimulation()
   {
 	  constantpulledVertex[i] = pullVertexInfo.PullVertexIndex[i];
   }
-  
 
+  ////////////////////////////////////
+  //添加一个定向风场针对所有体素点进行风吹运动
+  //!!!!!!记得该这个体素分割 
+  int resolutionArray[3] = { 70,70,70 };
+  int depth = 0;
+  double expansin = 1.2;
+  double TimeStep = (double)1 / (double)120;
+  WindFieldSampling = new CWindFieldSampling(secondaryDeformableObjectRenderingMesh->GetMesh(), resolutionArray, depth, expansin, TimeStep);
+  WindFieldSampling->GenerateWindFieldMeshAndWindDirectionLine(outputFilename, ExternFileDirectory);
+
+
+
+
+
+  ///////////////
   // load initial condition
   if (strcmp(initialPositionFilename, "__none") != 0)
   {
@@ -2525,7 +2548,7 @@ int main(int argc, char* argv[])
  /* configFilename = string("D:/GraduationProject/Vega/models/newgrass/voxelizegrass/voxelizegrass.config");*/
   //configFilename = string("../../models/yellow_tree/tree.config");
   //configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree.config");
-  configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/150/tree.config");
+  configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/tree.config");
   printf("Loading scene configuration from %s.\n", configFilename.c_str());
 
   initConfigurations(); // parse the config file同时输出到cmd

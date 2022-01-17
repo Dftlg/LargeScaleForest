@@ -121,6 +121,9 @@ std::vector<std::pair<double, double>> StableTreePositionGenerate(int vTreesNumb
 }
 
 //采样频率，振幅，频率，相位，偏距
+//为了不进行大的改动，对采样和搜索两个方法，都假设默认使用GenerateSamplingForece但实际施加的风场力使用新版距离风场作为外力输入。
+//（也就是用这个GenerateSamplingForce生成的力作为一种key值，但实际施加的力为距离风场）
+
 std::vector<int> GenerateSamplingForce(int vSize, int vAmplitude, float vFrequency, double vPhase,int vYpluse,int wavelength)
 {
 	double angle = 0.0;
@@ -132,6 +135,13 @@ std::vector<int> GenerateSamplingForce(int vSize, int vAmplitude, float vFrequen
 	}
 	return tempForces;
 }
+
+double GenerateSamlplingForceWithTime(double time,int vAmplitude, float vFrequency, double vPhase, int vYpluse)
+{
+    return vAmplitude * cos(2 * M_PI*vFrequency*time + vPhase) + vYpluse;
+}
+
+
 
 std::vector<int> LineSamplineForce(std::pair<int, int>& vfirstPoint, std::pair<int, int>& vSecondPoint)
 {
@@ -366,6 +376,21 @@ void TransformCartesianCorrdinate2SphericalCorrdinate(glm::vec3 &vStartPoint, gl
 
     voTheta = 180 * ThetaRadian / M_PI;
     voPhi = 180 * PhiRadian / M_PI;
+}
+
+double Point2LineDistance(Common::SXYZLine& vLine, glm::vec3 &Point)
+{
+    double distance = abs(vLine.A*Point.x + vLine.B*Point.y + vLine.C) / sqrt(pow(vLine.A, 2) + pow(vLine.B, 2));
+    return distance;
+}
+
+void SetWorldConSyForce(float vforceDegree, double vforceDirectionTheta, double vforceDirectionPhi, double voforce[3])
+{
+    double Thetaradian = vforceDirectionTheta * M_PI / 180;
+    double Phiradian = vforceDirectionPhi * M_PI / 180;
+    voforce[0] = cos(Thetaradian)*cos(Phiradian)*vforceDegree;
+    voforce[1] = sin(Thetaradian) * vforceDegree;
+    voforce[2] = cos(Thetaradian)*sin(Phiradian)*vforceDegree;
 }
 
 #pragma optimize("",on)

@@ -8,22 +8,17 @@
 #include "triple.h"
 #include "boundingBox.h"
 
-class CObjMappingVoxel
+//主要计算定向风源风源模型参看i3d 2017 Responsive Real-Time  Grass Rendering for General 3D Scenes
+
+class CModelAndWindFieldRelationShip
 {
 public:
-    CObjMappingVoxel() = default;
-    CObjMappingVoxel(const ObjMesh * objMesh, const int resolution[3], int depth = 0, double expansionFactor = 1.2);
+    CModelAndWindFieldRelationShip() = default;
+    CModelAndWindFieldRelationShip(const ObjMesh * objMesh, const int resolution[3], int depth = 0, double expansionFactor = 1.2);
     // boxbmin, boxbmax, explicitly provide the bounding box
-    CObjMappingVoxel(const ObjMesh * objMesh, const int resolution[3], int depth, Vec3d boxbmin, Vec3d boxbmax);
-
-    void CalculateEachGroupsVoxels();
+    CModelAndWindFieldRelationShip(const ObjMesh * objMesh, const int resolution[3], int depth, Vec3d boxbmin, Vec3d boxbmax);
 
     void SaveCorrespondingVoxelOfTreeGroup(const std::string & vDirectionPath);
-
-    //为了使得体素更加清晰的表明，将两个组内的重叠部分体素删除，将重叠部分的体素保留在vReserveGroupsIndex组内，二vRemoveGroupsIndex组体素删除
-    //参考D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\models\yellow_tree\OtherVegType\100 的Readme
-
-    void RemoveOverlappingVoxelsInTwoGroups(int vRemoveGroupsIndex, int vReserveGroupsIndex);
 
     typedef triple<int, int, int> voxel;
     typedef triple<int, int, int> gridPoint;
@@ -32,7 +27,7 @@ private:
     void __searchNeighborVoxel(voxel & vcurrentVoxel, std::set<voxel> & vCheckedVoxels, std::vector<voxel>& vScheduledVoxels, int x, int y, int z);
     void __calculateGroupVoxelsIndex();
 
-    inline bool CompareVoxel(voxel& first,voxel& second){ return ((first.first == second.first) && (first.second == second.second) && (first.third == second.third)); }
+    inline bool CompareVoxel(voxel& first, voxel& second) { return ((first.first == second.first) && (first.second == second.second) && (first.third == second.third)); }
 
 private:
 
@@ -52,5 +47,6 @@ private:
     Vec3d m_BoundBoxMin, m_BoundBoxMax, m_Side, m_inc;
 
 };
+
 
 

@@ -651,6 +651,7 @@ void CSence::initSSBODeformationDeltaU(CVegaFemFactory & vFem, int vFileNumber)
 
 	std::cout << m_FrameNums << " " << m_VertexNums << std::endl;
 	m_DeltaDeformationU = new glm::vec4[m_FrameNums*m_VertexNums*vFileNumber];
+    //m_DeltaDeformationU = new glm::vec4[0];
 	int count = 0;
 	for (int fileIndex = 0; fileIndex < vFileNumber; fileIndex++)
 		for (int frameIndex = 0; frameIndex < vFem.getFileFrames(fileIndex)->Frames.size(); frameIndex++)

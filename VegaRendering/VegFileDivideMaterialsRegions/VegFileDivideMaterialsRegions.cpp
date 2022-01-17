@@ -11,7 +11,7 @@
 int main()
 {
     //将模型x,y,z轴分为100个体素
-    int VoxelInputData = 100;
+    int VoxelInputData = 70;
     ObjMesh * newObjMesh;
     newObjMesh = new ObjMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/li_final_tree_last.obj");
     double expansionFactor = 1.2;
@@ -22,7 +22,8 @@ int main()
     objMeshVoxels->RemoveOverlappingVoxelsInTwoGroups(1, 3);
     objMeshVoxels->RemoveOverlappingVoxelsInTwoGroups(2, 0);
     //objMeshVoxels->RemoveOverlappingVoxelsInTwoGroups(0, 1);
-    objMeshVoxels->SaveCorrespondingVoxelOfTreeGroup("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/ObjMappingVoxel");
+    objMeshVoxels->SaveCorrespondingVoxelOfTreeGroup("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/ObjMappingVoxel");
+
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

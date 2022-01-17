@@ -56,8 +56,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(SolutionDir)libraries\glui\glui-2.35\src\msvc\lib\Release;$(LibraryPath)</LibraryPath>
-    <IncludePath>D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\utilities\interactiveDeformableSimulator;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)libraries\glui\glui-2.35\src\msvc\lib\Release;D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\x64\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\utilities\interactiveDeformableSimulator;D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\VegaRendering\ActualWindFieldComposition;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -83,7 +83,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>GLUI_NO_LIB_PRAGMA;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\libraries\basicAlgorithms;$(SolutionDir)\libraries\camera;$(SolutionDir)\libraries\configFile;$(SolutionDir)\libraries\constrainedDOFs;$(SolutionDir)\libraries\corotationalLinearFEM;$(SolutionDir)\libraries\forceModel;$(SolutionDir)\libraries\getopts;$(SolutionDir)\libraries\graph;$(SolutionDir)\libraries\imageIO;$(SolutionDir)\libraries\integrator;$(SolutionDir)\libraries\integratorSparse;$(SolutionDir)\libraries\isotropicHyperelasticFEM;$(SolutionDir)\libraries\lighting;$(SolutionDir)\libraries\listIO;$(SolutionDir)\libraries\macros;$(SolutionDir)\libraries\massSpringSystem;$(SolutionDir)\libraries\matrix;$(SolutionDir)\libraries\matrixIO;$(SolutionDir)\libraries\minivector;$(SolutionDir)\libraries\objMesh;$(SolutionDir)\libraries\performanceCounter;$(SolutionDir)\libraries\polarDecomposition;$(SolutionDir)\libraries\sceneObject;$(SolutionDir)\libraries\sparseMatrix;$(SolutionDir)\libraries\sparseSolver;$(SolutionDir)\libraries\stencilForceModel;$(SolutionDir)\libraries\stvk;$(SolutionDir)\libraries\volumetricMesh;$(SolutionDir)\libraries\include%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\libraries\basicAlgorithms;$(SolutionDir)\libraries\camera;$(SolutionDir)\libraries\configFile;$(SolutionDir)\libraries\constrainedDOFs;$(SolutionDir)\libraries\corotationalLinearFEM;$(SolutionDir)\libraries\forceModel;$(SolutionDir)\libraries\getopts;$(SolutionDir)\libraries\graph;$(SolutionDir)\libraries\imageIO;$(SolutionDir)\libraries\integrator;$(SolutionDir)\libraries\integratorSparse;$(SolutionDir)\libraries\isotropicHyperelasticFEM;$(SolutionDir)\libraries\lighting;$(SolutionDir)\libraries\listIO;$(SolutionDir)\libraries\macros;$(SolutionDir)\libraries\massSpringSystem;$(SolutionDir)\libraries\matrix;$(SolutionDir)\libraries\matrixIO;$(SolutionDir)\libraries\minivector;$(SolutionDir)\libraries\objMesh;$(SolutionDir)\libraries\performanceCounter;$(SolutionDir)\libraries\polarDecomposition;$(SolutionDir)\libraries\sceneObject;$(SolutionDir)\libraries\sparseMatrix;$(SolutionDir)\libraries\sparseSolver;$(SolutionDir)\libraries\stencilForceModel;$(SolutionDir)\libraries\stvk;$(SolutionDir)\libraries\volumetricMesh;D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\VegaRendering\ActualWindFieldComposition;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -91,7 +91,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>basicAlgorithms.lib;camera.lib;configFile.lib;constrainedDOFs.lib;corotationalLinearFEM.lib;forceModel.lib;getopts.lib;graph.lib;imageIO.lib;integrator.lib;integratorSparse.lib;isotropicHyperelasticFEM.lib;lighting.lib;listIO.lib;massSpringSystem.lib;matrixIO.lib;mesh.lib;minivector.lib;objMesh.lib;openGLHelper.lib;performanceCounter.lib;polarDecomposition.lib;sceneObject.lib;sparseMatrix.lib;sparseSolver.lib;stencilForceModel.lib;stvk.lib;volumetricMesh.lib;GLUI.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>basicAlgorithms.lib;camera.lib;configFile.lib;constrainedDOFs.lib;corotationalLinearFEM.lib;forceModel.lib;getopts.lib;graph.lib;imageIO.lib;integrator.lib;integratorSparse.lib;isotropicHyperelasticFEM.lib;lighting.lib;listIO.lib;massSpringSystem.lib;matrixIO.lib;mesh.lib;minivector.lib;objMesh.lib;openGLHelper.lib;performanceCounter.lib;polarDecomposition.lib;sceneObject.lib;sparseMatrix.lib;sparseSolver.lib;stencilForceModel.lib;stvk.lib;volumetricMesh.lib;GLUI.lib;ActualWindFieldComposition.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -105,6 +105,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\VegaRendering\ActualWindFieldComposition\ActualWindFieldComposition.vcxproj">
+      <Project>{5cd03fcc-2602-4d05-8d5c-a14942707287}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\VegaRendering\Common\Common.vcxproj">
       <Project>{ffe4174e-9a25-4028-b22f-8d29a453ee6f}</Project>
     </ProjectReference>

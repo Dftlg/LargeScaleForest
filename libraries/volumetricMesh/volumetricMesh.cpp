@@ -2500,7 +2500,7 @@ int VolumetricMesh::saveInterpolationWeightsBinary(FILE * fout, int numTargetLoc
   return 0;
 }
 
-//Ìå»ıÍø¸ñÎ»ÒÆ£¬Ä¿±êÈı½ÇÍø¸ñÎ»ÒÆ£¬
+//ä½“ç§¯ç½‘æ ¼ä½ç§»ï¼Œç›®æ ‡ä¸‰è§’ç½‘æ ¼ä½ç§»ï¼Œ
 void VolumetricMesh::interpolate(const double * u, double * uTarget, int numTargetLocations, int numElementVertices_, const int * vertices_, const double * weights)
 {
   for(int i=0; i< numTargetLocations; i++)
@@ -3193,7 +3193,7 @@ void VolumetricMesh::SaveObjectVertexsintElement(std::vector<int> vElementIndex,
 	//std::vector<int> N2 = { 1,7 };
 	//std::vector<int> N3 = { 2,4 };
 	//std::vector<int> N4 = { 3,5 };
-	//Ã¿¸öÌåËØÏà¹ØµÄ¶¥µãÊı¾İ
+	//æ¯ä¸ªä½“ç´ ç›¸å…³çš„é¡¶ç‚¹æ•°æ®
 	std::vector<std::vector<int>> VegMeshVectexs;
 
 	/*std::vector<int> test = { 764,893, 897 , 768 , 765 , 894 , 898, 769 };
@@ -3249,17 +3249,17 @@ void VolumetricMesh::SaveObjectVertexsintElement(std::vector<int> vElementIndex,
 	//		}
 	//		counter = 0;
 	//	}
-	//	//È¡Ñù
+	//	//å–æ ·
 	//	ObjectVectexs.push_back(tempVertexs);
 	//}
 
 	std::vector<std::vector<int>> ObjectVectexs;
 	bool BreakLoop=false;
-	/*NumberCounterÓÃÀ´ÅĞ¶ÏÈç¹ûÒ»¸öÌåËØÄÚµÄobjµã´æ´¢ÒÑ¾­¹ıÒ»¶¨Öµ£¬ÄÇÃ´¾Í²»ÔÙ²éÕÒ¸ÃÌåËØ
-	´æ´¢µÄ¶¥µãË÷Òı´Ó0¿ªÊ¼*/
+
 	for (auto k = 0; k < VegMeshVectexs.size(); k++)
 	{
 		//int NumberCounter = 0;
+
 		std::vector<int> tempVertexs;
 		for (auto i = 0; i < numTargetLocations; i++)
 		{
@@ -3273,11 +3273,12 @@ void VolumetricMesh::SaveObjectVertexsintElement(std::vector<int> vElementIndex,
 				}			
 			}
 			if (BreakLoop == true) continue;
-			/*if (NumberCounter > 20)break;
-			NumberCounter++;*/
+
 			tempVertexs.push_back(i);
 		}
-		//È¡Ñù
+
+		//getsample
+
 		ObjectVectexs.push_back(tempVertexs);
 	}
 	std::ofstream connectionFile;

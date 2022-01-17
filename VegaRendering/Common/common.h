@@ -128,6 +128,25 @@ namespace Common
         LINES
     };
 
+    //Ax+By+C=0
+
+    struct SXYZLine
+    {
+        double A;
+        double B;
+        double C;
+        SXYZLine() = default;
+
+        //https://blog.csdn.net/yq_forever/article/details/109138235
+        SXYZLine(const glm::vec3 & vBasePosition, const int& vAngle)
+        {
+            A = -tan(vAngle);
+            double b = vBasePosition.y - tan(vAngle)*vBasePosition.x;
+            C = -b;
+            B = 1;
+        }
+    };
+
 	struct SVertex
 	{
 		glm::vec3 Position;
