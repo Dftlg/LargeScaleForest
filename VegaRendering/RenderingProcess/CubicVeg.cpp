@@ -57,6 +57,9 @@
 
 CubicVegMesh::CubicVegMesh(const std::string& vModelPath, const std::string& vOriginVegSetPath, bool vCalculateVoxelRelated, bool vUseOriginVegCalculateIntersectVoxel)
 {
+    m_FileDirectory = vModelPath.substr(0, vModelPath.find_last_of("/"));
+    m_FileDirectory += "/";
+
     __loadVegMesh(vModelPath,vCalculateVoxelRelated);
 
     if (vUseOriginVegCalculateIntersectVoxel == true)
@@ -204,7 +207,9 @@ void CubicVegMesh::SaveKeyStiffnessVoxel(const std::string & vDirectionPath)
 //}
 
 void CubicVegMesh::DrawVegFiexedCubic(const CShader& vShader) const
-{ 
+{
+    if (m_NumRegions == 0)
+        std::cout << "read Rendering Veg File Error" << std::endl;
     for (int i = m_NumIntersectRegions + m_NumRegions; i >= 0; i--)
     {      
         if (i < m_NumRegions)
@@ -594,7 +599,8 @@ void CubicVegMesh::__OriginSearchIntersectVoxelGroup(int vFirstRegionsIndex, int
 std::vector<int> CubicVegMesh::ReadFixedIndex(const std::string& vFilePath)
 {
     std::vector<int> FixedIndex;
-    std::ifstream VegFile(vFilePath);
+    std::string tempFilePath = m_FileDirectory + vFilePath;
+    std::ifstream VegFile(tempFilePath);
     std::string lineString;
     while (getline(VegFile, lineString))
     {
@@ -706,7 +712,9 @@ void CubicVegMesh::EraseMaxValueVoxelWithAllChildGroup(int vIndexRegionNumber)
             }
         }      
         //std::cout << "ChildIndex" << ChildIndex << std::endl;
+
         int EraseChildIndex = __SubgroupRandomSameValueVoxelIndex(GroupMaxValVoxeles);
+
         //std::cout << "ChildIndex" << EraseChildIndex << std::endl;
         __eraseMaximumValueVoxels(m_VoxelGroups[vIndexRegionNumber][EraseChildIndex]);
     }
@@ -716,7 +724,20 @@ void CubicVegMesh::EraseMaxValueVoxelWithAllChildGroup(int vIndexRegionNumber)
     }  
 }
 
+void CubicVegMesh::EraseRandomVoxel()
+{
+    int RandomRegionGroup = GetRandomNumber(0,m_VoxelGroups.size()-1);
+    int RandomSubRegionsGroup = GetRandomNumber(0, m_VoxelGroups[RandomRegionGroup].size() - 1);
+
+    bool tempJudge = __eraseMaximumValueVoxels(m_VoxelGroups[RandomRegionGroup][RandomSubRegionsGroup]);
+    if (tempJudge == false)
+    {
+        EraseRandomVoxel();
+    }
+}
+
 //重写几种类别的输入材质,如果再这个函数转换类型，会产生多次dynamic转换
+
 #pragma region __calculateChildGroupsValue
 void CubicVegMesh::__calculateChildGroupsValue(int vRegionsNumber, int vChildRegionsIndex)
 {
@@ -813,13 +834,15 @@ void CubicVegMesh::__sortMaximumValueVoxels(std::vector<std::pair<Common::SVegEl
     std::sort(vChildGroup.begin(), vChildGroup.end(), __compVoxelValue);
 }
 
-void CubicVegMesh::__eraseMaximumValueVoxels(std::vector<std::pair<Common::SVegElement, int>> &vChildGroup)
+bool CubicVegMesh::__eraseMaximumValueVoxels(std::vector<std::pair<Common::SVegElement, int>> &vChildGroup)
 {    
     if (vChildGroup.size() > 0)
     {
         std::vector<std::pair<Common::SVegElement, int>>::iterator it = vChildGroup.begin();
         vChildGroup.erase(it);
+        return true;
     }
+    return false;
 }
 
 bool CubicVegMesh::__findVoxelVerticesinGroup(std::set<int> & GroupVerticesIndex, int RegionsIndex, int ElementIndex)

@@ -30,6 +30,20 @@
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
 
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
+
+#ifdef _DEBUG
+#define new   new(_NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+
+inline void EnableMemLeakCheck()
+{
+    _CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG) | _CRTDBG_LEAK_CHECK_DF);
+}
+
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
@@ -63,6 +77,7 @@ const unsigned int SCR_HEIGHT = 1080;
 bool shadows = true;
 bool shadowsKeyPressed = false;
 bool automoveCamera = false;
+bool MouseShow = false;
 
 bool startsaveCameraPara = false;
 // camera 0 0.6 1
@@ -85,7 +100,8 @@ bool startsaveCameraPara = false;
 	
 
 //
-CCamera Camera(glm::vec3(-0.272438, 2.64901 ,4.87207));
+//CCamera Camera(glm::vec3(-0.272438, 2.64901 ,4.87207));
+CCamera Camera(glm::vec3(0.026077, 0.669017, 1.610339));
 float LastX = SCR_WIDTH / 2.0f;
 float LastY = SCR_HEIGHT / 2.0f;
 bool FirstMouse = true;
@@ -206,7 +222,7 @@ int main()
 
 	//positionfile
 	//Camera.Positionfile("G:\\GraduationProject\\Camera\\position1.txt");
-
+    //EnableMemLeakCheck();
 #pragma region initialize and configure glfw
 	//glfwSetErrorCallback(glfw_error_callback);
 	glfwInit();
@@ -739,7 +755,7 @@ int main()
 	MultipleTypeTree.setTerrainPara(TerrainHeigth, TerrainX, TerrainZ, XDensityScale, ZDensityScale, TerrainHeightZDensity);
 
 	//MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/deltaU", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt",1);
-    MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/18/motiondata", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt", 20);
+    MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/motiondata", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt", 9);
 	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[0], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/WindAndTreeConfig/Config.txt");
 	if (Common::UseGeomOrCompCalculateNormal == true)
 	{
@@ -957,8 +973,9 @@ int main()
     if (Common::renderingVegMesh == true)
     {
 
-        //VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/EachPartSkelCubic_index/tree100Rendering.veg","D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/EachPartSkelCubic_index/treebase.txt",false,true);
-        VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/ObjMappingVoxel/tree100RenderingObjMapping.veg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/ObjMappingVoxel/treebase.txt", false, true);
+        //VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/100/EachPartSkelCubic_index/tree100Rendering.veg","D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/EachPartSkelCubic_index/treebase.txt",false,true);
+        //VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/100/ObjMappingVoxel/tree100RenderingObjMapping.veg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/ObjMappingVoxel/treebase.txt", false, true);
+        VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber110/tree70.veg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber110/EachPartSkelCubic_index/treebase.txt", false, true);
         VegMesh->InitVegRenderingProcess();
         VegMesh->InitVegRenderingLabeledVoxel();
         CubicVegShader = new CShader("VegMesh.vert", "VegMesh.frag");
@@ -1000,11 +1017,13 @@ int main()
 	std::vector<Common::SConnectedFemFiles> vAllReallyLoadConnectedFem = (MultipleTypeTree.getSpecificFemFactory(0))->getAllReallyLoadConnectedFem();
 
 	//std::ofstream outputFilePath;
-	//outputFilePath.open("G:/GraduationProject/yellow_tree/Error/sample_voxel/240_1000Inpo.txt", std::ios::in | std::ios::app);
+	//outputFilePath.open("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber71/RandomSelectEachPartSkelCubic_index_hausdorffobj/19.txt", std::ios::in | std::ios::app);
 	//std::ofstream outputFilePath1;
-	//outputFilePath1.open("G:/GraduationProject/yellow_tree/Error/sample_voxel/240_2000Inpo.txt", std::ios::in | std::ios::app);
-	/*int numFramePoints = vAllReallyLoadConnectedFem[0].FemDataset[0]->Frames[0].BaseFileDeformations.size();
-	std::vector<glm::vec3>sumDeltaU(numFramePoints);*/
+	//outputFilePath1.open("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber71/RandomSelectEachPartSkelCubic_index_hausdorffobj/99.txt", std::ios::in | std::ios::app);
+ //   std::ofstream outputFilePath2;
+ //   outputFilePath2.open("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber71/RandomSelectEachPartSkelCubic_index_hausdorffobj/179.txt", std::ios::in | std::ios::app);
+	//int numFramePoints = vAllReallyLoadConnectedFem[0].FemDataset[0]->Frames[0].BaseFileDeformations.size();
+	//std::vector<glm::vec3>sumDeltaU(numFramePoints);
 
 	while (!glfwWindowShouldClose(Window))
 	{
@@ -1013,7 +1032,7 @@ int main()
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-
+        
 		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 		//if (show_demo_window)
 			//ImGui::ShowDemoWindow(&show_demo_window);
@@ -1022,9 +1041,11 @@ int main()
 		{
 			static float f = 0.0f;
 			static int counter = 0;
-
+            
 			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
+            float ImguiWeight = 350;
+            float ImguiHight = 250;
+            ImGui::SetWindowSize(ImVec2(ImguiWeight, ImguiHight));
 			ImGui::Text("FrameIndex:%d",frameIndex);               // Display some text (you can use a format strings too)
 			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
 			ImGui::Checkbox("Another Window", &show_another_window);
@@ -1036,7 +1057,8 @@ int main()
 				counter++;
 			ImGui::SameLine();
 			ImGui::Text("counter = %d", counter);
-
+            ImGui::Text("CameraPosition: (%f, %f, %f)", Camera.getPositionX(), Camera.getPositionY(), Camera.getPositionZ());
+            ImGui::Text("CamerarFront: (%f, %f, %f)",Camera.getFrontX(), Camera.getFrontY(), Camera.getFrontZ()); 
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::End();
 		}
@@ -1096,15 +1118,39 @@ int main()
 			bool Success = SearchQueue[i].TryDequeue(tempTreeFileAndFrameIndex);
 
 			//std::cout << "[";
-			//for (int k = 0; k < EachFormNumberArray[i].size(); k++)
-			//{
-			//	std::cout << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first << "--" << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second << "||";
+   //         for (int k = 0; k < EachFormNumberArray[i].size(); k++)
+   //         {
+   //             std::cout << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first << "--" << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second << "||";
 
 
-			//	//std::string headInfo = "Position" + std::to_string(frameIndex);
-			//	//outputFilePath << headInfo << "\n";
-			//	//outputFilePath << numFramePoints << "\n";
-			//}
+   //             //std::string headInfo = "Position" + std::to_string(frameIndex);
+   //             //outputFilePath << headInfo << "\n";
+   //             //outputFilePath << numFramePoints << "\n";
+   //             /*for (int j = 0; j < numFramePoints; j++)
+   //             {
+   //                 sumDeltaU[j].x += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].x;
+   //                 sumDeltaU[j].y += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].y;
+   //                 sumDeltaU[j].z += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].z;
+   //                 if (frameIndex == 19)
+   //                 {
+   //                     outputFilePath << sumDeltaU[j].x << " ";
+   //                     outputFilePath << sumDeltaU[j].y << " ";
+   //                     outputFilePath << sumDeltaU[j].z << "\n";
+   //                 }
+   //                 else if (frameIndex == 99)
+   //                 {
+   //                     outputFilePath1 << sumDeltaU[j].x << " ";
+   //                     outputFilePath1 << sumDeltaU[j].y << " ";
+   //                     outputFilePath1 << sumDeltaU[j].z << "\n";
+   //                 }
+   //                 else if (frameIndex == 179)
+   //                 {
+   //                     outputFilePath2 << sumDeltaU[j].x << " ";
+   //                     outputFilePath2 << sumDeltaU[j].y << " ";
+   //                     outputFilePath2 << sumDeltaU[j].z << "\n";
+   //                 }
+   //             }*/
+   //         }
    //         std::cout << "]";
 
 
@@ -1243,13 +1289,13 @@ int main()
             }
         }
 
-		/*if (i < 999)
-		{
-			std::string pathString = "video5/" + std::to_string(i) + ".jpg";
-			captureScreen2Img(pathString, 100);
-		}
-		Camera.outFront();*/
-		i++;
+		//if (i < 999)
+		//{
+		//	std::string pathString = "video5/" + std::to_string(i) + ".jpg";
+		//	captureScreen2Img(pathString, 100);
+		//}
+		//Camera.outFront();
+		//i++;
 		//skybox	
 
 		//std::cout << i << std::endl;
@@ -1268,6 +1314,10 @@ int main()
 
 	}
 
+
+   /* outputFilePath.close();
+    outputFilePath1.close();
+    outputFilePath2.close();*/
 	/*int sum = 0;
 	for (int i = 0; i < tempFrame.size(); i++)
 	{
@@ -1290,6 +1340,7 @@ int main()
 
 	
 	glfwTerminate();
+    //_CrtDumpMemoryLeaks();
 	return 0;
 }
 
@@ -1466,7 +1517,20 @@ void processInput(GLFWwindow* vWindow)
 	{
 		Camera.processMouseMovement(float vXOffset, float vYOffset, GLboolean vConstrainPitch)
 	}*/
-
+    if (glfwGetKey(vWindow, GLFW_KEY_K) == GLFW_PRESS)
+    {
+        if (MouseShow == true)
+        {
+            glfwSetInputMode(vWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            MouseShow = false;
+        }
+        else
+        {
+            glfwSetInputMode(vWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);       
+            MouseShow = true;
+        }
+            
+    }
 
 
 	if (glfwGetKey(vWindow, GLFW_KEY_SPACE) == GLFW_PRESS && !shadowsKeyPressed)

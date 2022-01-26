@@ -892,10 +892,10 @@ void idleFunction(void)
 
 	//std::cout << subTimestepCounter << std::endl;
 
-	//if (subTimestepCounter > 180)
-	//{
-	//	exit(1);
-	//}
+	if (subTimestepCounter > 180)
+	{
+		exit(1);
+	}
 	//用于判断文件力的数量
     //timestepCounter++;
 
@@ -965,10 +965,20 @@ void idleFunction(void)
 	//deformationsave.SaveDeformationVertexFromBaseModel(deltaSecondaryu, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter-1);
 
     //存储U的形变数据
-	/*if (subTimestepCounter == 2000)
+	if (subTimestepCounter == 20)
 	{
 		deformationsave.SaveDeformationVertexFromBaseModel(uSecondary, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter - 1);
-	}*/
+	}
+
+    if (subTimestepCounter == 100)
+    {
+        deformationsave.SaveDeformationVertexFromBaseModel(uSecondary, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter - 1);
+    }
+
+    if (subTimestepCounter == 180)
+    {
+        deformationsave.SaveDeformationVertexFromBaseModel(uSecondary, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter - 1);
+    }
 	
 
     /*if (subTimestepCounter % 5 == 0)

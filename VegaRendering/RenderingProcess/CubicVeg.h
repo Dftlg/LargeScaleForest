@@ -8,6 +8,7 @@
 #include "Mesh.h"
 #include "../Common/common.h"
 #include "../Common/Material.h"
+#include "../Common/ExtraTool.h"
 //#include "TreeInstanceMesh.h"
 #include <assimp/cimport.h>
 #include <assimp/Importer.hpp>
@@ -50,6 +51,11 @@ public:
     void ConstructVoxelGroup();
     std::vector<int>& GetAfterEraseRegionVoxelNumber();
     void EraseMaxValueVoxelWithAllChildGroup(int vIndexRegionNumber);
+
+    //剔除模型的随机体素
+
+    void EraseRandomVoxel();
+
     void SaveKeyStiffnessVoxel(const std::string & vDirectionPath);
     void ReadBaseVegRegionVoxel(const std::string &vPath);
     std::vector<int> ReadFixedIndex(const std::string& vFilePath);
@@ -74,7 +80,7 @@ private:
     bool __findVoxelVerticesinGroup(std::set<int> & vGroupVerticesIndex,int RegionsIndex,int ElementIndex);
     void __calculateVoxelEdge();
     void __sortMaximumValueVoxels(std::vector<std::pair<Common::SVegElement, int>> & vChildGroup);
-    void __eraseMaximumValueVoxels(std::vector<std::pair<Common::SVegElement, int>> & vChildGroup);
+    bool __eraseMaximumValueVoxels(std::vector<std::pair<Common::SVegElement, int>> & vChildGroup);
     int __SubgroupRandomSameValueVoxelIndex(std::vector<Common::SSubgGroupMaxValVoxel>& GroupMaxValVoxeles);
     void __calculateChildGroupsValue(int vRegionsNumber,int vChildRegionsIndex);
     void __calculateChildGroupsValue(int vRegionsNumber, int vChildRegionsIndex, CENUMaterial vMaterial);
@@ -88,6 +94,8 @@ private:
     CMaterial* __GetGroupSetRelatedMaterial(int vGroupIndex);
 
     double __MaterialKValue(double vMaterialK);
+
+    std::string m_FileDirectory;
 
     std::vector<unsigned int> m_FixedEleVAO;
     std::vector<unsigned int> m_FixedEleVBO;

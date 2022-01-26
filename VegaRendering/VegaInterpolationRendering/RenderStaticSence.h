@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include "../RenderingProcess/Camera.h"
+#include "../Common/common.h"
 #include "Shader.h"
 #include "Sence.h"
 #include "Mesh.h"
@@ -17,7 +18,7 @@ class CRenderStaticSence
 	public:
 		CRenderStaticSence() = default;
 		CRenderStaticSence(float vNearPlane, float vFarPlane, int vSHADOW_WIDTH, int vSHADOW_HEIGHT, glm::mat4& vshadowTransforms, glm::vec3 & vlightVertices, glm::vec3 & vlightColors);
-		
+        ~CRenderStaticSence();
 		void loadStaticModel(std::string vmodelname,std::string vmodelFileName);
 		void loadDepthShader(const char* vVertexPath, const char* vFragmentPath, const char* vGeometryPath = nullptr);
 		void loadSenceShader(const char* vVertexPath, const char* vFragmentPath, const char* vGeometryPath = nullptr);

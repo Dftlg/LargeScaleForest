@@ -52,3 +52,5 @@ double Point2LineDistance(Common::SXYZLine& vLine, glm::vec3 &Point);
 double GenerateSamlplingForceWithTime(double time, int vAmplitude, float vFrequency, double vPhase, int vYpluse);
 
 void SetWorldConSyForce(float vforceDegree, double vforceDirectionTheta, double vforceDirectionPhi, double voforce[3]);
+
+int GetRandomNumber(int vMinRange, int vMaxRange);

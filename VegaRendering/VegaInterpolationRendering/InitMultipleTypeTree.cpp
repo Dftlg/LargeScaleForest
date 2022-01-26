@@ -18,6 +18,16 @@ CInitMultipleTypeTree::CInitMultipleTypeTree(int vTreeTypeNumber, int vAllTreeNu
     }
 }
 
+CInitMultipleTypeTree::~CInitMultipleTypeTree()
+{
+    DELETEAllocPointer(m_MultipleTypeFem);
+    DELETEAllocPointer(m_MultipleSceneShadowShader);
+    DELETEAllocPointer(m_MultipleSceneDepthShader);
+    delete m_ASpecificWindSource;
+    for (auto p : m_MultipleTreeModel)
+        p->ClearAllPointer();
+}
+
 void CInitMultipleTypeTree::__GenerateTreesPosition()
 {
 	//__GenerateStableTreesPosition();
@@ -115,6 +125,8 @@ void CInitMultipleTypeTree::InitTreeModel(const std::string& vModelPath,int vTre
     ourModel->initSSBOTreeFileAndFrameIndex(m_MultipleEachTreeProductNumber[vTreeTypeIndex]);
     ourModel->setSSBO4GenBufferUDeformationAndIndex(*(m_MultipleSceneShadowShader[vTreeTypeIndex]), vTreeTypeIndex);
 
+    ourModel->ClearDeformationDeltaU();
+    
 	
     //ourModel->setSSBO4UDeformationAndIndex(*(m_MultipleSceneShadowShader[vTreeTypeIndex]));
     //ourModel->setSSBOUdeformationAndIndx4ShadowMapShader(*(m_MultipleSceneDepthShader[vTreeTypeIndex]));

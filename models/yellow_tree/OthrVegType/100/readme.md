@@ -14,7 +14,7 @@ ObjeMappingVoxel.cpp
 
 RemoveOverlappingVoxelsInTwoGroups function
 
-![image-20220104162140318](D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\models\yellow_tree\OtherVegType\100\readmeImage/1.png)
+![image-20220104162140318](D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\models\yellow_tree\OthrVegType\100\readmeImage/1.png)
 
 一棵树木可以分为4个部分(针对不同树木不同)
 
@@ -22,13 +22,13 @@ RemoveOverlappingVoxelsInTwoGroups function
 
 可用VegaInterpolationRendering渲染出来
 
-![image-20220104162140318](D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\models\yellow_tree\OtherVegType\100\readmeImage/2.png)
+![image-20220104162140318](D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\models\yellow_tree\OthrVegType\100\readmeImage/2.png)
 
 此时对于不同部分有大量的重叠，尤其是细枝与叶片
 
-![image-20220104162140318](D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\models\yellow_tree\OtherVegType\100\readmeImage/6.png)
+![image-20220104162140318](D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\models\yellow_tree\OthrVegType\100\readmeImage/6.png)
 
-![image-20220104162140318](D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\models\yellow_tree\OtherVegType\100\readmeImage/4.png)
+![image-20220104162140318](D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\models\yellow_tree\OthrVegType\100\readmeImage/4.png)
 
 为此我们将细枝与叶片相交的部分都算作叶片
 

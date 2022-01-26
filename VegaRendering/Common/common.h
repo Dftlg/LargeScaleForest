@@ -12,6 +12,9 @@
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 
+#define DELETEAllocPointer(X) for ( auto p : X ) delete p
+#define DELETEPointer(X) if(X!=nullptr) delete X
+
 namespace Common
 {
 	enum EFileFramesType
@@ -455,6 +458,5 @@ namespace Common
             Value = vValue;
         }
     };
-
 
 }

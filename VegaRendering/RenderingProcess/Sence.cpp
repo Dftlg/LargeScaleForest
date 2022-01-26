@@ -5,6 +5,16 @@ CSence::CSence(const CMesh& vMesh)
 	m_Meshes.push_back(vMesh);
 }
 
+//CSence::~CSence()
+//{
+//    //delete m_Mesh;
+//    //delete m_DeformationU;
+//    //delete m_Normal;
+//    //delete m_TreeFileAndFrameIndex;
+//    //delete m_InstanceDumMat;
+//   // delete m_InstanceNoramMatrix;
+//}
+
 //****************************************************************************************************
 //FUNCTION:
 void CSence::draw(const CShader& vShader,Common::DrawType vDrawType)
@@ -1058,4 +1068,19 @@ void CSence::getModelHeight()
 	//	tempVertice.Position.x
 
 	//}
+}
+
+void CSence::ClearDeformationDeltaU()
+{
+    delete[] m_DeltaDeformationU;
+}
+
+void CSence::ClearAllPointer()
+{
+    DELETEPointer(m_Mesh);
+    DELETEPointer(m_DeformationU);
+    DELETEPointer(m_Normal);
+    DELETEPointer(m_TreeFileAndFrameIndex);
+    DELETEPointer(m_InstanceDumMat);
+    DELETEPointer(m_InstanceNoramMatrix);
 }

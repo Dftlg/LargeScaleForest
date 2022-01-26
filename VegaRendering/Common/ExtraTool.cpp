@@ -1,4 +1,3 @@
-
 #include "ExtraTool.h"
 
 #pragma optimize("",off)
@@ -391,6 +390,18 @@ void SetWorldConSyForce(float vforceDegree, double vforceDirectionTheta, double 
     voforce[0] = cos(Thetaradian)*cos(Phiradian)*vforceDegree;
     voforce[1] = sin(Thetaradian) * vforceDegree;
     voforce[2] = cos(Thetaradian)*sin(Phiradian)*vforceDegree;
+}
+
+int GetRandomNumber(int vMinRange, int vMaxRange)
+{
+    std::default_random_engine e;
+    LARGE_INTEGER seed;
+    QueryPerformanceFrequency(&seed);
+    QueryPerformanceCounter(&seed);
+    e.seed(seed.QuadPart);
+    std::uniform_int_distribution<unsigned> u(vMinRange, vMaxRange);
+    int Random = u(e);
+    return Random;
 }
 
 #pragma optimize("",on)

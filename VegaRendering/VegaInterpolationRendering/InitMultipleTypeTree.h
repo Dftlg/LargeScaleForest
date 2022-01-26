@@ -13,6 +13,7 @@
 #include "Mesh.h"
 #include "VegaFemFactory.h"
 #include "../Common/WindFiled.h"
+#include "../Common/common.h"
 #include "LoadWindAndTreeConfig.h"
 #include "../RenderingProcess/ComputerShader.h"
 
@@ -48,7 +49,7 @@ public:
     void InitScenceShaderData(int vTreeTypeIndex,float vScale);
 	void InitScenceNormalMatrixData(int vTreeTypeIndex);
 
-    ~CInitMultipleTypeTree()=default;
+    ~CInitMultipleTypeTree();
 
     std::vector<CVegaFemFactory*> * getFemFactory() { return &m_MultipleTypeFem; };
     std::vector<CSence*> * getTreeModel() { return &m_MultipleTreeModel; };

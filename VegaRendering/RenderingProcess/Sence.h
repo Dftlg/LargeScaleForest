@@ -30,9 +30,12 @@ public:
 	CSence(const std::string& vModelPath, bool vGamma = false, bool vloadNormalizeModelAndFaceNormal = false) :gammaCorrection(vGamma) { __loadModel(vModelPath, vloadNormalizeModelAndFaceNormal); };
 	CSence(const ObjMesh * vobjMesh, double * vRestVertexs) : m_Mesh(vobjMesh), m_RestVertexs(vRestVertexs) { __changeObjMeshStruct2Charptr(1); __loadModelFromMemory(); };
 	CSence(const CMesh& vMesh);
-	~CSence() = default;
+	~CSence()=default;
 
 	void Clear() { glDeleteBuffers(1, &m_DeltaUSSBO);   glDeleteBuffers(1, &m_UdeformationSSBO);};
+    void ClearDeformationDeltaU();
+    void ClearAllPointer();
+
 	std::vector<std::vector<glm::vec3>>& getGroupDeformationData() { return m_EachFrameOfGroupData; };
 	void SetParaMesh();
 	void setGroupsIndex(CVegaFemFactory& vfemFactoryObject);
@@ -137,7 +140,7 @@ private:
 	std::vector<int> m_AllVertexRelatedFaceIndex;
 
 
-	CVegaFemFactory* m_VegaFactory;
+	//CVegaFemFactory* m_VegaFactory;
 	glm::vec4 * m_DeltaDeformationU;
 
 	glm::vec4 * m_DeformationU;

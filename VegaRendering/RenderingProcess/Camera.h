@@ -28,7 +28,15 @@ public:
 
 	float getZoom() const { return m_Zoom; }
 	const glm::vec3& getPosition() const { return m_Position; }
+    const float getPositionX() const { return m_Position.x; }
+    const float getPositionY() const { return m_Position.y; }
+    const float getPositionZ() const { return m_Position.z; }
+
 	const glm::vec3& getFront() const { return m_Front; }
+    const float getFrontX() const { return m_Front.x; }
+    const float getFrontY() const { return m_Front.y; }
+    const float getFrontZ() const { return m_Front.z; }
+
 	void outFront() { std::cout << m_Front.x << " " << m_Front.y << " " << m_Front.z << std::endl; }
 	glm::mat4 getViewMatrix() const { return glm::lookAt(m_Position, m_Position + m_Front, m_Up); }
 

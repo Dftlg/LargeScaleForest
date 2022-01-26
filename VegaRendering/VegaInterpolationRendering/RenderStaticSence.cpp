@@ -12,6 +12,14 @@ CRenderStaticSence::CRenderStaticSence(float vNearPlane, float vFarPlane, int vS
 	m_lightColors = vlightColors;
 }
 
+CRenderStaticSence::~CRenderStaticSence()
+{
+    DELETEAllocPointer(m_Models);
+    DELETEAllocPointer(m_DepthShaders);
+    DELETEAllocPointer(m_ModelShaders);
+    DELETEAllocPointer(m_InstanceObjectDumMat);
+}
+
 void CRenderStaticSence::loadStaticModel(std::string vmodelname, std::string vmodelFileName)
 {
 	m_ModelNames.push_back(vmodelname);

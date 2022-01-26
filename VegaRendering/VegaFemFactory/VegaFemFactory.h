@@ -37,9 +37,9 @@ public:
 	void readDeformationDataInOneThread(Common::SFileData& vFileData, int vTid, const std::string& vFilePath, long long vBlockSize);
 	void addSeekgOfEachFramesBlock(const std::string& vFilePath);
 	std::vector<Common::SFileDataGroup> getConnectedFemMutileDeformation(int vConnectionIndex, int vTimestep);
-	//¸ù¾İÎÄ¼şµÄ¾ø¶ÔÂ·¾¶È¡ÎÄ¼şÃû×Ö,Èç£ºpositionthe0phi0force500,500,500
+	//æ ¹æ®æ–‡ä»¶çš„ç»å¯¹è·¯å¾„å–æ–‡ä»¶åå­—,å¦‚ï¼špositionthe0phi0force500,500,500
 	std::string getFileName(const std::string & vFileDirectory);
-	//·µ»ØÒ»¸öĞÎ±äÎÄ¼ş
+	//è¿”å›ä¸€ä¸ªå½¢å˜æ–‡ä»¶
 	//Common::SFileFrames getFileFrames(int vIndex) { return m_FilesData[vIndex]; }
 	Common::SpKVFData getFirstKVFDataFromFirstFileFrame() { return m_FilesData[0].KVFFrameDatas[0]; }
 
@@ -140,28 +140,28 @@ public:
 private:
 
 	void __getFileSeekDirOfEachBlock(const std::string& vFilePath, std::vector<long long>& vBlock);
-	//Â·¾¶ÏÂÃæµÄÃ¿¸öÎÄ¼şµÄ¾ø¶ÔÂ·¾¶¼¯ºÏ£¬Èç£ºD:\GraduationProject\Vega\models\8.10\test\positionthe0phi0force500,500,500.txt
+	//è·¯å¾„ä¸‹é¢çš„æ¯ä¸ªæ–‡ä»¶çš„ç»å¯¹è·¯å¾„é›†åˆï¼Œå¦‚ï¼šD:\GraduationProject\Vega\models\8.10\test\positionthe0phi0force500,500,500.txt
 	std::vector<std::string> m_FilePathList;
-	//ĞÎ±äÎÄ¼şµÄ¼¯ºÏ
+	//å½¢å˜æ–‡ä»¶çš„é›†åˆ
 	std::vector<Common::SFileFrames> m_FilesData;
 	std::vector<Common::SConnectedFemFiles> m_AllReallyLoadConnectedFem;
-	//¿ÉÒÔ¿´×÷ÊÇÒ»¸öobjµÄmodel¶ÔÏó£¬ÓĞmesh¼¯ºÏ£¬ÒÔ¼°group×é¼¯ºÏ
+	//å¯ä»¥çœ‹ä½œæ˜¯ä¸€ä¸ªobjçš„modelå¯¹è±¡ï¼Œæœ‰meshé›†åˆï¼Œä»¥åŠgroupç»„é›†åˆ
 	CModelDeformationTransform* m_ModelTransformStruct;
 
-	//ĞèÒªÆ¥ÅäµÄÄ³Ğ©ÌåËØÏÂµÄObject¶¥µã
+	//éœ€è¦åŒ¹é…çš„æŸäº›ä½“ç´ ä¸‹çš„Objecté¡¶ç‚¹
 	std::vector<std::vector<int>> m_CorrectDeformationIndex;
 
-	//µÚÒ»¸öÊÇÎÄ¼şµÄSpKVFµÄ¶ÎË÷ÒıºÅ4£¬9£¬14£¬19£¬µÚ¶ş¸öÖµÊÇµ±Ç°Ë÷ÒıÏÂÁ¦µÄĞòÁĞ
+	//ç¬¬ä¸€ä¸ªæ˜¯æ–‡ä»¶çš„SpKVFçš„æ®µç´¢å¼•å·4ï¼Œ9ï¼Œ14ï¼Œ19ï¼Œç¬¬äºŒä¸ªå€¼æ˜¯å½“å‰ç´¢å¼•ä¸‹åŠ›çš„åºåˆ—
 	std::vector<std::pair<int, std::vector<int>>> m_ForceSequence;
-	//spKVFÎÄ¼şµÄÊÜÁ¦·½Ïò
+	//spKVFæ–‡ä»¶çš„å—åŠ›æ–¹å‘
 	std::vector<std::pair<int, std::vector<Common::SForceDirection>>> m_WindDirectionSequence;
-	//SpKVFµÄ¶ÎË÷ÒıºÅ£¬µ±Ç°Ë÷ÒıÏÂK¾ØÕó
+	//SpKVFçš„æ®µç´¢å¼•å·ï¼Œå½“å‰ç´¢å¼•ä¸‹KçŸ©é˜µ
 	std::vector<std::pair<int, std::vector<std::vector<double>>* >> m_KMartixSequence;
-	//SpKVFµÄ¶ÎË÷ÒıºÅ£¬µ±Ç°Ë÷ÒıÏÂv¾ØÕó
+	//SpKVFçš„æ®µç´¢å¼•å·ï¼Œå½“å‰ç´¢å¼•ä¸‹vçŸ©é˜µ
 	std::vector<std::pair<int, std::vector<glm::vec3>* >> m_VelocitySequence;
-	//SpKVFµÄ¶ÎË÷ÒıºÅ£¬µ±Ç°Ë÷ÒıÏÂfÄÚ¾ØÕó
+	//SpKVFçš„æ®µç´¢å¼•å·ï¼Œå½“å‰ç´¢å¼•ä¸‹få†…çŸ©é˜µ
 	std::vector<std::pair<int, std::vector<glm::vec3>* >> m_InternalForcesSequence;
-	//ËùÓĞÎÄ¼şµÄSpKVFÊı¾İË÷Òı
+	//æ‰€æœ‰æ–‡ä»¶çš„SpKVFæ•°æ®ç´¢å¼•
 	std::vector<int> m_reorderSpKVFSegmentIndexSequence;
 	std::vector<std::vector<int>> m_sortSpKVFSegmentIndexSequenceByAngle;
 	
