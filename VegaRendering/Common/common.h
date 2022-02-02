@@ -46,11 +46,12 @@ namespace Common
 
     /////each time change
 
-    const int AllTreesNumber = 1;
+    const int AllTreesNumber = 2;
 
-    const int TreesTypeNumber = 1;
+    const int TreesTypeNumber =1;
 
-    const int TreesNumbers[TreesTypeNumber] = {1};
+	const int TreesNumbers[TreesTypeNumber] = { 2 };
+
     //int SecondTypeTreesNumber = 5;
 
     //const int AllTreesNumber = 100;
@@ -58,19 +59,27 @@ namespace Common
     //const int TreesTypeNumber = 2;
 
     //const int TreesNumbers[TreesTypeNumber] = {60,40 };
-    ////int SecondTypeTreesNumber = 5;
+   
     /*const float ScaleTree[TreesTypeNumber] = { 0.7,1.5,1.0 };*/
    // const float ScaleTree[TreesTypeNumber] = { 0.3,2,1.0 };
 
 	//const float ScaleTree[TreesTypeNumber] = { 0.35,0.6,0.5};
+
+	//experiment 4
+	//const int TreesNumbers[TreesTypeNumber] = { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 };
+	//const float ScaleTree[TreesTypeNumber] = { 0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35 };
+	//const float ModelAxisYMove[TreesTypeNumber] = { 0.5,0.5,0.5,0.5,0.5,0.5,0.5, 0.5,0.5,0.5,0.5,0.5,0.5,0.5 };
+	//const float ModelCutInTerrain[TreesTypeNumber] = { 9,9,9,9,9,9,9,9,9,9,9,9,9,9,9 };
+
+	//---------------------
 	const float ScaleTree[TreesTypeNumber] = { 0.35 };
-	
+	//
 
 
-	//const float ModelAxisYMove[TreesTypeNumber] = { 0.7,0.55,0.45 };
-	//const float ModelAxisYMove[TreesTypeNumber] = { 0.7,0.45,0.45 };
+	////const float ModelAxisYMove[TreesTypeNumber] = { 0.7,0.55,0.45 };
+	////const float ModelAxisYMove[TreesTypeNumber] = { 0.7,0.45,0.45 };
 	const float ModelAxisYMove[TreesTypeNumber] = { 0.5 };
-	//const float ModelAxisYMove[TreesTypeNumber] = { 0.7,0.6,0.45 };
+	////const float ModelAxisYMove[TreesTypeNumber] = { 0.7,0.6,0.45 };
 
 	const float ModelCutInTerrain[TreesTypeNumber] = { 9};
 	//const float ModelCutInTerrain[TreesTypeNumber] = { 9.5,5,5 };

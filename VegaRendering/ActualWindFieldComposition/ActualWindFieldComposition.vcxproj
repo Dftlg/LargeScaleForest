@@ -186,6 +186,8 @@
     <Import Project="..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets" Condition="Exists('..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets')" />
     <Import Project="..\..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets" Condition="Exists('..\..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" />
     <Import Project="..\..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets" Condition="Exists('..\..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\freeglut.redist.2.8.1.15\build\native\freeglut.redist.targets" Condition="Exists('..\..\..\..\..\vc_packages\freeglut.redist.2.8.1.15\build\native\freeglut.redist.targets')" />
+    <Import Project="..\..\..\..\..\vc_packages\freeglut.2.8.1.15\build\native\freeglut.targets" Condition="Exists('..\..\..\..\..\vc_packages\freeglut.2.8.1.15\build\native\freeglut.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -195,5 +197,7 @@
     <Error Condition="!Exists('..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\boost.1.72.0.0\build\boost.targets'))" />
     <Error Condition="!Exists('..\..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets'))" />
     <Error Condition="!Exists('..\..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\Assimp.3.0.0\build\native\Assimp.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\vc_packages\freeglut.redist.2.8.1.15\build\native\freeglut.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\freeglut.redist.2.8.1.15\build\native\freeglut.redist.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\vc_packages\freeglut.2.8.1.15\build\native\freeglut.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\vc_packages\freeglut.2.8.1.15\build\native\freeglut.targets'))" />
   </Target>
 </Project>

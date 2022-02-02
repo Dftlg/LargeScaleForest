@@ -851,7 +851,7 @@ void idleFunction(void)
 		if ((subTimestepCounter+1) % Common::ForcesSampling == 0)
 		{
             //!!!!重要存储KVF文件位置
-			//integratorBase->WriteSpecificKRFextVMattixToFile(outputFilename, subTimestepCounter, KVFVertices, TempExtraForces);
+			integratorBase->WriteSpecificKRFextVMattixToFile(outputFilename, subTimestepCounter, KVFVertices, TempExtraForces);
 			TempExtraForces.clear();
 		}
 		//计算由力产生的结点位移形变
@@ -965,20 +965,20 @@ void idleFunction(void)
 	//deformationsave.SaveDeformationVertexFromBaseModel(deltaSecondaryu, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter-1);
 
     //存储U的形变数据
-	if (subTimestepCounter == 20)
-	{
-		deformationsave.SaveDeformationVertexFromBaseModel(uSecondary, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter - 1);
-	}
+	//if (subTimestepCounter == 20)
+	//{
+	//	deformationsave.SaveDeformationVertexFromBaseModel(uSecondary, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter - 1);
+	//}
 
-    if (subTimestepCounter == 100)
-    {
-        deformationsave.SaveDeformationVertexFromBaseModel(uSecondary, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter - 1);
-    }
+ //   if (subTimestepCounter == 100)
+ //   {
+ //       deformationsave.SaveDeformationVertexFromBaseModel(uSecondary, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter - 1);
+ //   }
 
-    if (subTimestepCounter == 180)
-    {
-        deformationsave.SaveDeformationVertexFromBaseModel(uSecondary, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter - 1);
-    }
+ //   if (subTimestepCounter == 180)
+ //   {
+ //       deformationsave.SaveDeformationVertexFromBaseModel(uSecondary, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter - 1);
+ //   }
 	
 
     /*if (subTimestepCounter % 5 == 0)
