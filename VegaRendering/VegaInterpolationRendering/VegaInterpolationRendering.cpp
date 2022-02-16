@@ -129,7 +129,7 @@ int SearchFrameStep[Common::TreesTypeNumber] = { 0 };
 //int SearchFrameNumber[Common::TreesTypeNumber] = { 0,0 };
 //int SearchFrameStep[Common::TreesTypeNumber] = { 0,0 };
 
-int ALLTreeNumber = 3;
+//int ALLTreeNumber = 3;
 
 float bendScale[] = { 0.3,0.2,0.5 };
 float primaryOffsetScale[] = { 0.1,0.5,0.1 };
@@ -714,10 +714,10 @@ int main()
 #pragma region load tree model
 		//生成树木的随机位置
 
-	for (int i = 0; i < Common::TreesTypeNumber; i++)
-	{
-		ALLTreeNumber += Common::TreesNumbers[i];
-	}
+	//for (int i = 0; i < Common::TreesTypeNumber; i++)
+	//{
+	//	ALLTreeNumber += Common::TreesNumbers[i];
+	//}
 	//CInitMultipleTypeTree MultipleTypeTree(Common::TreesTypeNumber, ALLTreeNumber);
 	////////////////////////////////////////////
 	////MultipleTypeTree.InitShadowCubeMapPara(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, shadowTransforms, lightVertices, lightColors);
@@ -748,7 +748,7 @@ int main()
 	//MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
 	//MultipleTypeTree.InitTreeModel("../../models/apricot_tree/tree.obj", 0);
 
-	CInitMultipleTypeTree MultipleTypeTree(Common::TreesTypeNumber, ALLTreeNumber, Common::GenerateRandomTreePosition);
+	CInitMultipleTypeTree MultipleTypeTree(Common::TreesTypeNumber, Common::AllTreesNumber, Common::GenerateRandomTreePosition);
 	//////////////////////////////////////////
 	//MultipleTypeTree.InitShadowCubeMapPara(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, shadowTransforms, lightVertices, lightColors);
 	MultipleTypeTree.InitShadowMapPara(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, lightSpaceMatrix, lightPosition[0], lightPointColors[0]);
@@ -757,14 +757,18 @@ int main()
 	//MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/deltaU", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt",1);
     MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/Experiment4/motiondata", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt", 2);
 	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[0], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/WindAndTreeConfig/Config.txt");
-	if (Common::UseGeomOrCompCalculateNormal == true)
+	if (Common::CalculateNormalType == Common::ENormalCalculateType::GeomShader)
 	{
 		MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag", "scene_shadows.geom");
 	}
-	else
+	else if(Common::CalculateNormalType==Common::ENormalCalculateType::CompShader)
 	{
 		MultipleTypeTree.InitSceneShadowShader("sence_shadows_RelatedComp.vert", "sence_Shadows_RelatedComp.frag");
 		MultipleTypeTree.InitComputerShaderCalculateNormal("calculateNormal.comp");
+	}
+	else if(Common::CalculateNormalType==Common::ENormalCalculateType::NONE)
+	{
+		MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
 	}
 	//MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag","computerFaceNormal.geom");
 	MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
@@ -822,7 +826,7 @@ int main()
 		EachFormNumberArray.push_back(MultipleTypeTree.getSpecificLoadWindAndTree(i).getEachFormNumberArray());
 
         //因为在updataTreeOnTerrain修改了InstanceMatrix所以写在最后
-        if (Common::UseGeomOrCompCalculateNormal == false)
+        if (Common::CalculateNormalType == Common::ENormalCalculateType::CompShader)
         {
             MultipleTypeTree.InitScenceNormalMatrixData(i);
         }
@@ -1117,10 +1121,10 @@ int main()
 		{
 			bool Success = SearchQueue[i].TryDequeue(tempTreeFileAndFrameIndex);
 
-			std::cout << "[";
-            for (int k = 0; k < EachFormNumberArray[i].size(); k++)
-            {
-                std::cout << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first << "--" << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second << "||";
+			//std::cout << "[";
+   //         for (int k = 0; k < EachFormNumberArray[i].size(); k++)
+   //         {
+   //             std::cout << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first << "--" << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second << "||";
 
 
    ////             //std::string headInfo = "Position" + std::to_string(frameIndex);
@@ -1150,8 +1154,8 @@ int main()
    //                     outputFilePath2 << sumDeltaU[j].z << "\n";
    //                 }
    //             }
-            }
-            std::cout << "]";
+          /*  }
+            std::cout << "]";*/
 
 
 
@@ -1187,7 +1191,7 @@ int main()
 
 		//computerNormal
 
-		if (Common::UseGeomOrCompCalculateNormal == false)
+		if (Common::CalculateNormalType == Common::ENormalCalculateType::CompShader)
 		{
 			
 			for (int i = 0; i < Common::TreesTypeNumber; i++)
@@ -1211,7 +1215,7 @@ int main()
         if(Common::renderingLightSource==true)
             RenderStaticSence.RenderingModel("lightsource", depthMap, false);
 
-        glm::mat4 temp = *MultipleTypeTree.GetFirstTreeModelMatrix();
+        //glm::mat4 temp = *MultipleTypeTree.GetFirstTreeModelMatrix();
         if (Common::renderingSurfaceMesh == true)
         {
             //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -1243,6 +1247,7 @@ int main()
         }
         if (Common::renderAllVeg == true)
         {
+			glm::mat4 temp = *MultipleTypeTree.GetFirstTreeModelMatrix();
             RenderStaticSence.RenderingModelWithWireframe("StemVegLine", false, temp);
             RenderStaticSence.RenderingModelWithWireframe("LeafVegLine", false, temp);
             RenderStaticSence.RenderingModelWithWireframe("FibrousVegLine", false, temp);

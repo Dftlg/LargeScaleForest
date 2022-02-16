@@ -30,6 +30,13 @@ namespace Common
         ORTHOTROPIC_N1
     };
 
+	enum ENormalCalculateType
+	{
+		NONE,
+		GeomShader,
+		CompShader
+	};
+
 	constexpr size_t NumOfBoundingBoxVertices = 8;
 	static inline glm::vec3 vec3_cast(const aiVector3D &vec3) { return glm::vec3(vec3.x, vec3.y, vec3.z); }
 	static inline glm::vec2 vec2_cast(const aiVector3D &vec2) { return glm::vec2(vec2.x, vec2.y); } // it's aiVector3D because assimp's texture coordinates use that
@@ -46,11 +53,11 @@ namespace Common
 
     /////each time change
 
-    const int AllTreesNumber = 2;
+    const int AllTreesNumber =1;
 
     const int TreesTypeNumber =1;
 
-	const int TreesNumbers[TreesTypeNumber] = { 2 };
+	const int TreesNumbers[TreesTypeNumber] = { 1 };
 
     //int SecondTypeTreesNumber = 5;
 
@@ -61,27 +68,28 @@ namespace Common
     //const int TreesNumbers[TreesTypeNumber] = {60,40 };
    
     /*const float ScaleTree[TreesTypeNumber] = { 0.7,1.5,1.0 };*/
-   // const float ScaleTree[TreesTypeNumber] = { 0.3,2,1.0 };
+    //const float ScaleTree[TreesTypeNumber] = { 0.3,2,1.0 };
 
 	//const float ScaleTree[TreesTypeNumber] = { 0.35,0.6,0.5};
 
 	//experiment 4
-	//const int TreesNumbers[TreesTypeNumber] = { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 };
-	//const float ScaleTree[TreesTypeNumber] = { 0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35 };
-	//const float ModelAxisYMove[TreesTypeNumber] = { 0.5,0.5,0.5,0.5,0.5,0.5,0.5, 0.5,0.5,0.5,0.5,0.5,0.5,0.5 };
-	//const float ModelCutInTerrain[TreesTypeNumber] = { 9,9,9,9,9,9,9,9,9,9,9,9,9,9,9 };
+	//const int AllTreesNumber = 2;
 
-	//---------------------
+	//const int TreesTypeNumber = 2;
+
+	//const int TreesNumbers[TreesTypeNumber] = { 1,1};
+	//const float ScaleTree[TreesTypeNumber] = { 0.35,0.35 };
+	//const float ModelAxisYMove[TreesTypeNumber] = { 0.5,0.5 };
+	//const float ModelCutInTerrain[TreesTypeNumber] = { 9,9 };
+	//------------------------------------------------------------
 	const float ScaleTree[TreesTypeNumber] = { 0.35 };
-	//
-
 
 	////const float ModelAxisYMove[TreesTypeNumber] = { 0.7,0.55,0.45 };
 	////const float ModelAxisYMove[TreesTypeNumber] = { 0.7,0.45,0.45 };
 	const float ModelAxisYMove[TreesTypeNumber] = { 0.5 };
 	////const float ModelAxisYMove[TreesTypeNumber] = { 0.7,0.6,0.45 };
 
-	const float ModelCutInTerrain[TreesTypeNumber] = { 9};
+	const float ModelCutInTerrain[TreesTypeNumber] = { 9 };
 	//const float ModelCutInTerrain[TreesTypeNumber] = { 9.5,5,5 };
 
 	static int MaxTimeStep = 60;
@@ -113,6 +121,7 @@ namespace Common
 
 	//use Geom Or Comp Shader calculate Normal
 	static bool UseGeomOrCompCalculateNormal = false;
+	static ENormalCalculateType CalculateNormalType = ENormalCalculateType::GeomShader;
 
 	static bool renderingGrass = false;
 	static bool renderingLightSource = false;

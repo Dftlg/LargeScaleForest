@@ -103,17 +103,17 @@ std::vector<std::pair<double, double>> StableTreePositionGenerate(int vTreesNumb
 		
 	}*/
 
-	std::vector<std::pair<double, double>> tempTreedoublePosition(vTreesNumber);
-	for (int i = 0; i < vTreesNumber; i++)
-	{
-		tempTreedoublePosition.push_back(std::make_pair(0, vTreesNumber));
-	}
+	std::vector<std::pair<double, double>> tempTreedoublePosition;
+	//for (int i = 0; i < vTreesNumber; i++)
+	//{
+	//	tempTreedoublePosition.push_back(std::make_pair(0, vTreesNumber));
+	//}
 
 
-   /* for (int i = 0; i < vTreesNumber; i++)
+    for (int i = 0; i < vTreesNumber; i++)
     {
-        tempTreedoublePosition[i]=(std::make_pair(0, i*20));
-    }*/
+        tempTreedoublePosition.push_back(std::make_pair(0, i*20));
+    }
 
 	
     return tempTreedoublePosition;
