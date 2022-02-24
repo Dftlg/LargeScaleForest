@@ -24,7 +24,8 @@ int main()
 
     std::vector<int> tempBaseGroupVoxel = VegMesh->GetAfterEraseRegionVoxelNumber();
     //70*70*70的体素三个group部分为310，658，733
-    std::vector<int> GroupEraseNumber = { 163,511,586 };
+    //std::vector<int> GroupEraseNumber = { 163,511,586 };
+    std::vector<int> GroupEraseNumber = { 307,655,729 };
     for (int i = 0; i < GroupEraseNumber[0]; i++)
     {
         VegMesh->EraseMaxValueVoxelWithAllChildGroup(0);
@@ -54,7 +55,7 @@ int main()
 
     std::vector<int> tempGroupVoxel= VegMesh->GetAfterEraseRegionVoxelNumber();
 
-    VegMesh->SaveKeyStiffnessVoxel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber440/EachPartSkelCubic_index");
+    VegMesh->SaveKeyStiffnessVoxel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber10/EachPartSkelCubic_index");
 
 
     ///////////////////////////////////////////////////////
@@ -77,7 +78,7 @@ int main()
         VegMeshsec->EraseRandomVoxel();
         //std::vector<int> test = VegMeshsec->GetAfterEraseRegionVoxelNumber();
     }
-    VegMeshsec->SaveKeyStiffnessVoxel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber440/RandomSelectEachPartSkelCubic_index");
+    VegMeshsec->SaveKeyStiffnessVoxel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber10/RandomSelectEachPartSkelCubic_index");
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

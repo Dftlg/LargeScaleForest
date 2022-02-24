@@ -102,6 +102,43 @@ void computerMseError(const std::string& interpolationPath, const std::string& g
 	}
 }
 
+float computerL2Error(const std::string& interpolationPath, const std::string& groundTruth)
+{
+    std::ifstream inputInterpolationFile(interpolationPath);
+    std::ifstream inputGroundTruthFile(groundTruth);
+    if (!inputInterpolationFile.is_open() && !inputGroundTruthFile.is_open())
+    {
+        std::cout << "Can't open the input file!!!" << std::endl;
+    }
+    std::string interpolationLineString;
+    std::string groundTruthLineString;
+    std::string interpolationStr;
+    std::string groundTruthStr;
+    std::string s;
+    glm::vec3 position1;
+    glm::vec3 position2;
+
+    float L2Sum=0;
+    int LineNumber=0;
+    while (getline(inputInterpolationFile, interpolationLineString) && getline(inputGroundTruthFile, groundTruthLineString))
+    {
+        LineNumber++;
+        float tempL2DisPoint=0;
+        std::istringstream interpolationLineData(interpolationLineString);
+        std::istringstream groundTruthLineData(groundTruthLineString);
+        glm::vec3 frameError(0.0);
+        interpolationLineData >> position1.x >> position1.y >> position1.z;
+        groundTruthLineData >> position2.x >> position2.y >> position2.z;
+        tempL2DisPoint += std::pow((position1.x - position2.x),2);
+        tempL2DisPoint += std::pow((position1.y - position2.y), 2);
+        tempL2DisPoint += std::pow((position1.z - position2.z), 2);
+        tempL2DisPoint = std::sqrt(tempL2DisPoint);
+        L2Sum += tempL2DisPoint;       
+    }
+    L2Sum /= LineNumber;
+    return L2Sum;
+}
+
 void write2File(std::string vPath, std::vector<glm::vec3>& framesError)
 {
 	std::cout << "Writing the result to the file !!!" << std::endl;
@@ -134,8 +171,11 @@ int main()
 	//}
 	//writePointPosition2File("G:/GraduationProject/yellow_tree/xyz/FileAndFrameIndex.txt", "G:/GraduationProject/yellow_tree/xyz/Interpolation_1150_33971_deltaU.txt", 33971, vFem);
 
-	std::vector<glm::vec3> framesError;
+	/*std::vector<glm::vec3> framesError;
 	computerMseError("D:/GraduationProject/LargeScaleForest/models/yellow_tree/displaceInterpo21.txt", "D:/GraduationProject/LargeScaleForest/models/yellow_tree/displaceGroundTruth.txt", framesError);
-	write2File("G:/pythonProject2/third/UmseError.txt", framesError);
+	write2File("G:/pythonProject2/third/UmseError.txt", framesError);*/
+
+    float L2Error= computerL2Error("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/experiment4.3/ObjResultIndex1265deltaU.txt", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/experiment4.3/GroundTruth.txt");
+    std::cout << L2Error;
 	return 0;
 }

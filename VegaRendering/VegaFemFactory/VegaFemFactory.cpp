@@ -1142,6 +1142,8 @@ void CVegaFemFactory::searchMatchedOneTreeFrameSequences(std::vector<int> & voMa
 		//当选择了某一个文件的一帧时会应用该帧对下一帧段的KVF导致下一帧段判断的kvf值一定等于1*kvf权重，特殊判定将这以帧权重比更改
 		int NextFrameIndex = voCurrentFrameIndex + 5;
 
+        
+
 		std::vector<std::pair<int, double>> allWeightsSumResults;
 		double forcesWeight = 0.75;
 		double KVfWeight = 0.25;
@@ -1163,7 +1165,14 @@ void CVegaFemFactory::searchMatchedOneTreeFrameSequences(std::vector<int> & voMa
 		}
 		
 		sort(allWeightsSumResults.begin(), allWeightsSumResults.end(), [](const std::pair<int, double>&x, const std::pair<int, double>&y)->double {return x.second > y.second;});
-		
+
+        //test4.3
+        m_allWeightsSumResults.resize(allWeightsSumResults.size());
+        for (int i = 0; i < allWeightsSumResults.size(); i++)
+        {
+            m_allWeightsSumResults[i] = allWeightsSumResults[i];
+        }
+
 		voSpKVData = m_AllReallyLoadConnectedFem[allWeightsSumResults[0].first / Common::SamplingFrameNumber].FemDataset[0]->KVFFrameDatas[(allWeightsSumResults[0].first % Common::SamplingFrameNumber) / 5];
 		voCurrentFrameIndex = allWeightsSumResults[0].first;
 		
@@ -1181,6 +1190,22 @@ void CVegaFemFactory::searchMatchedOneTreeFrameSequences(std::vector<int> & voMa
 
 	}
 	
+}
+
+void CVegaFemFactory::saveAllWeightsSumResults(const std::string & vFilePath)
+{
+    std::ofstream outFile;
+    outFile.open(vFilePath, std::ios::in | std::ios::app);
+    if (!outFile)
+    {
+        std::cout << "Can't open the file!!!" << std::endl;
+        return;
+    }
+    for (int i = m_allWeightsSumResults.size()-1; i >=0; i--)
+    {
+        outFile << m_allWeightsSumResults[i].second << " ";      
+    }
+    outFile.close();
 }
 
 #pragma optimize("",on)

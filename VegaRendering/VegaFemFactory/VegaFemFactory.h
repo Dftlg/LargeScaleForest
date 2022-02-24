@@ -58,6 +58,10 @@ public:
 	std::vector<Common::SFileFrames> searchFileFramesOnAnimation(const int vTheta, const int vPhi, const std::vector<double> & vForceFluctuationSequence);
 	std::vector<Common::SFileFrames> searchFileFrameOnAttribute();
 
+    //实验4.3
+
+    void saveAllWeightsSumResults(const std::string & vFilePath);
+
 	double getKMatrixSumNumber()
 	{
 		double Sum = 0;
@@ -178,4 +182,8 @@ private:
 	std::vector<double> m_VelocityRangeError;
 	std::vector<std::vector<double>> m_KMatrixRangeError;
 	std::vector<double> m_InternalForcesError;
+
+    //用于实验4.3提取权重计算结果
+
+    std::vector<std::pair<int, double>> m_allWeightsSumResults;
 };

@@ -33,7 +33,7 @@
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
-
+#pragma optimize("",off)
 
 #ifdef _DEBUG
 #define new   new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -143,7 +143,8 @@ int frameIndex = 0;
 //渲染 VegGroupVoxelColor
 int VoxelGroupIndex = 11;
 
-
+int test = 0;
+int test1 = 0;
 //前一个std::vector表示匹配树的个数，后一个std::vector表示每一帧中需要的数据
 //vMultipleExtraForces 表示每一帧风的方向，每次用5帧来进行搜索
 //vWindDirection 表示每帧一个风的方向
@@ -178,6 +179,10 @@ void InsertSearchTreeFrameIndex(CVegaFemFactory &vVFF, CSence vSence, std::vecto
 					tempMultipleFiveWindDirection[i].push_back(vWindDirection[i][k]);
 				}
 			}
+            if (test == 5)
+            {
+                test1 = 0;
+            }
 			vVFF.searchMatchedFrameSequences(tempMultipleFiveForces, tempMultipleFiveWindDirection);
 			tempMultipleFiveForces.clear();
 			tempMultipleFiveWindDirection.clear();
@@ -214,6 +219,13 @@ void InsertSearchTreeFrameIndex(CVegaFemFactory &vVFF, CSence vSence, std::vecto
 		SearchQueue[vTreeTypeIndex].Enqueue(tempTreeFileAndFrameIndex);
 		SearchFrameNumber[vTreeTypeIndex]++;
 		tempTreeFileAndFrameIndex.clear();
+
+        /*if (test == 5)
+        {
+            vVFF.saveAllWeightsSumResults("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/experiment4.3/SearchTableResults.txt");
+        }*/
+
+        test++;
 	}
 }
 
@@ -724,12 +736,6 @@ int main()
 	//MultipleTypeTree.InitShadowMapPara(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, lightSpaceMatrix, lightPosition[0], lightPointColors[0]);
 	//MultipleTypeTree.setTerrainPara(TerrainHeigth, TerrainX, TerrainZ, XDensityScale, ZDensityScale, TerrainHeightZDensity);
 
-	//MultipleTypeTree.InitVegaFemFactory("G:/GraduationProject/yellow_tree/deltaU", "../../models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt", 7);
-	//MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[0], "G:/GraduationProject/yellow_tree/WindAndTreeConfig/Config.txt");
-	//MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
-	//MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
-	//MultipleTypeTree.InitTreeModel("../../models/yellow_tree/tree_last_test.obj", 0);
-
 	/*MultipleTypeTree.InitVegaFemFactory("G:/GraduationProject/mini_mapleTree/deltaU", "../../models/mini_mapleTree/tree.obj", "../../models/mini_mapleTree/ObjectVertexIndex.txt", 1);
 	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[0], "G:/GraduationProject/mini_mapleTree/WindAndTreeConfig/Config.txt");
 	MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
@@ -755,7 +761,7 @@ int main()
 	MultipleTypeTree.setTerrainPara(TerrainHeigth, TerrainX, TerrainZ, XDensityScale, ZDensityScale, TerrainHeightZDensity);
 
 	//MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/deltaU", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt",1);
-    MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/Experiment4/motiondata", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt", 2);
+    MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber35/motiondata", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt",9);
 	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[0], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/WindAndTreeConfig/Config.txt");
 	if (Common::CalculateNormalType == Common::ENormalCalculateType::GeomShader)
 	{
@@ -1020,6 +1026,9 @@ int main()
 	std::vector<float> tempFrame;
 	std::vector<Common::SConnectedFemFiles> vAllReallyLoadConnectedFem = (MultipleTypeTree.getSpecificFemFactory(0))->getAllReallyLoadConnectedFem();
 
+    //experiment 4.3
+    std::ofstream outputFilePath;
+    outputFilePath.open("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/experiment4.3/ObjResultIndex1524deltaU.txt", std::ios::in | std::ios::app);
 	/*std::ofstream outputFilePath;
 	outputFilePath.open("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber440/EachPartSkelCubic_index_hausdorffobj/19.txt", std::ios::in | std::ios::app);
 	std::ofstream outputFilePath1;
@@ -1120,46 +1129,51 @@ int main()
 		for (int i = 0; i < Common::TreesTypeNumber; i++)
 		{
 			bool Success = SearchQueue[i].TryDequeue(tempTreeFileAndFrameIndex);
+            if (frameIndex == 5)
+            {
+                tempTreeFileAndFrameIndex[0] = std::make_pair(8, 80);
+            }
 
 			//std::cout << "[";
-   //         for (int k = 0; k < EachFormNumberArray[i].size(); k++)
-   //         {
-   //             std::cout << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first << "--" << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second << "||";
+            for (int k = 0; k < EachFormNumberArray[i].size(); k++)
+            {
+                //std::cout << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first << "--" << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second << "||";
 
 
-   ////             //std::string headInfo = "Position" + std::to_string(frameIndex);
-   ////             //outputFilePath << headInfo << "\n";
-   ////             //outputFilePath << numFramePoints << "\n";
-   //             for (int j = 0; j < numFramePoints; j++)
-   //             {
-   //                 sumDeltaU[j].x += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].x;
-   //                 sumDeltaU[j].y += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].y;
-   //                 sumDeltaU[j].z += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].z;
-   //                 if (frameIndex == 19)
-   //                 {
-   //                     outputFilePath << sumDeltaU[j].x << " ";
-   //                     outputFilePath << sumDeltaU[j].y << " ";
-   //                     outputFilePath << sumDeltaU[j].z << "\n";
-   //                 }
-   //                 else if (frameIndex == 99)
-   //                 {
-   //                     outputFilePath1 << sumDeltaU[j].x << " ";
-   //                     outputFilePath1 << sumDeltaU[j].y << " ";
-   //                     outputFilePath1 << sumDeltaU[j].z << "\n";
-   //                 }
-   //                 else if (frameIndex == 179)
-   //                 {
-   //                     outputFilePath2 << sumDeltaU[j].x << " ";
-   //                     outputFilePath2 << sumDeltaU[j].y << " ";
-   //                     outputFilePath2 << sumDeltaU[j].z << "\n";
-   //                 }
-   //             }
-          /*  }
-            std::cout << "]";*/
+   //             //std::string headInfo = "Position" + std::to_string(frameIndex);
+   //             //outputFilePath << headInfo << "\n";
+   //             //outputFilePath << numFramePoints << "\n";
+                for (int j = 0; j < numFramePoints; j++)
+                {
+                    /*sumDeltaU[j].x += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].x;
+                    sumDeltaU[j].y += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].y;
+                    sumDeltaU[j].z += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].z;*/
+                    if (frameIndex == 5)
+                    {
+                        outputFilePath << vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].x << " ";
+                        outputFilePath << vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].y << " ";
+                        outputFilePath << vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].z << "\n";
+                    }
+                   /* else if (frameIndex == 99)
+                    {
+                        outputFilePath1 << sumDeltaU[j].x << " ";
+                        outputFilePath1 << sumDeltaU[j].y << " ";
+                        outputFilePath1 << sumDeltaU[j].z << "\n";
+                    }
+                    else if (frameIndex == 179)
+                    {
+                        outputFilePath2 << sumDeltaU[j].x << " ";
+                        outputFilePath2 << sumDeltaU[j].y << " ";
+                        outputFilePath2 << sumDeltaU[j].z << "\n";
+                    }*/
+                }
+            //   
+            }
+            //std::cout << "]";
 
 
-
-			MultipleTypeTree.getSpecificTreeModel(i)->UpdataSSBOMeshTreeAndFrameIndex(tempTreeFileAndFrameIndex);
+            MultipleTypeTree.getSpecificTreeModel(i)->UpdataSSBOMeshTreeAndFrameIndex(tempTreeFileAndFrameIndex);
+                   		
 			tempTreeFileAndFrameIndex.clear();
 		}
 
@@ -1308,7 +1322,8 @@ int main()
 		renderSkybox(ourSkyBoxShader, skyboxVAO, cubemapTexture);
 
 
-		//Sleep(50);
+  //      if(frameIndex==10)
+		//Sleep(10000);
 		frameIndex++;
 		glDepthFunc(GL_LESS); // set depth function back to default
 
@@ -1691,4 +1706,4 @@ unsigned int loadCubemap(std::vector<std::string> faces)
 	return textureID;
 }
 
-
+#pragma optimize("",on)

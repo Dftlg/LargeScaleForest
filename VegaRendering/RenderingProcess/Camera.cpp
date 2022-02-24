@@ -76,7 +76,7 @@ void CCamera::__updateCameraVectors()
 	Front.x = cos(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
 	Front.y = sin(glm::radians(m_Pitch));
 	Front.z = sin(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
-	m_Front = glm::normalize(Front);
+	//m_Front = glm::normalize(Front);
 	//std::cout << "Camera:" << " " << m_Position.x << " " << m_Position.y << " " << m_Position.z << std::endl;
 	//std::cout << "m_Front" << m_Front.x << " " << m_Front.y << " " << m_Front.z << std::endl;
 	/*m_Front = glm::vec3(0.0111246, - 0.999848 ,- 0.0134473);
@@ -96,6 +96,8 @@ void CCamera::__updateCameraVectors()
 	//m_Front = glm::vec3(-0.272648 ,0.109387, - 0.955875);
 	//1:50
 	//m_Front = glm::vec3(0.00912665, - 0.249705, - 0.968279);
+
+    m_Front = glm::vec3(0.00000, 0.040829, -0.999166);
 	//
 	m_Right = glm::normalize(glm::cross(m_Front, m_WorldUp));
 	m_Up = glm::normalize(glm::cross(m_Right, m_Front));
