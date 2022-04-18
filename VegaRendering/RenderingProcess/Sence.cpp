@@ -215,7 +215,21 @@ void CSence::setMeshGroupAndAssimpIndex()
 //
 void CSence::setGroupsIndex(CVegaFemFactory& vfemFactoryObject)
 {
-	m_GroupsIndex = vfemFactoryObject.getModelTransformStruct()->getGroupsIndex();
+    //Sence加载的模型定点顺序与CVegaFemFactory中用vega加载的模型顺序不同
+
+    std::vector<std::vector<int>> tempGroupsIndex= vfemFactoryObject.getModelTransformStruct()->getGroupsIndex();
+    for (auto tempMesh : m_Meshes)
+    {
+        for (int i = 0; i < tempGroupsIndex.size(); i++)
+        {
+            if (tempMesh.getVertices().size() == tempGroupsIndex[i].size())
+            {
+                m_GroupsIndex.push_back(tempGroupsIndex[i]);
+            }
+        }
+            
+    }
+	//m_GroupsIndex = vfemFactoryObject.getModelTransformStruct()->getGroupsIndex();
 	if (Common::UseGeomOrCompCalculateNormal == false)
 	{
 		__setVertexRelatedFace();
@@ -271,7 +285,8 @@ void CSence::__setVertexRelatedFace()
         infile.close();
     }
     else if(_access(filePath.c_str(), 0)==-1) {//文件不存在创建
-         std::cout << "VertexRelatedFace not exist" << filePath << std::endl;
+         std::cout <<"\n"<< "VertexRelatedFace not exist" << filePath << std::endl;
+         std::cout << "start create ModelVertexAndFaceRelationFile" << std::endl;
         int SumRelatedPosition = 0;
         int m_GroupIndexSum = 0;
         for (int i = 0; i < m_GroupsIndex.size(); i++)
@@ -323,6 +338,7 @@ void CSence::__setVertexRelatedFace()
         }
         outFile << "\n";
         outFile.close();
+        std::cout << "create File End" << std::endl;
     }
    
 

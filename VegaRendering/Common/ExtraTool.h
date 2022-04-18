@@ -14,6 +14,8 @@
 #include<algorithm>
 #include "common.h"
 #include <glm/glm.hpp>
+#include <string>
+#include <tchar.h>
 
 #define M_PI 3.141592653589793238462643
 
@@ -54,3 +56,8 @@ double GenerateSamlplingForceWithTime(double time, int vAmplitude, float vFreque
 void SetWorldConSyForce(float vforceDegree, double vforceDirectionTheta, double vforceDirectionPhi, double voforce[3]);
 
 int GetRandomNumber(int vMinRange, int vMaxRange);
+
+//chose file
+char* LPWSTR2LPSTR(LPWSTR lpwszStrIn);
+char* ChooseFiles();
+std::string OpenFileName(const char *filter = "All Files (*.*)\0*.*\0", HWND owner = NULL);

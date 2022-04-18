@@ -175,7 +175,7 @@ int main()
 	computerMseError("D:/GraduationProject/LargeScaleForest/models/yellow_tree/displaceInterpo21.txt", "D:/GraduationProject/LargeScaleForest/models/yellow_tree/displaceGroundTruth.txt", framesError);
 	write2File("G:/pythonProject2/third/UmseError.txt", framesError);*/
 
-    float L2Error= computerL2Error("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/experiment4.3/ObjResultIndex1265deltaU.txt", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/experiment4.3/GroundTruth.txt");
+    float L2Error= computerL2Error("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/experiment4.3/ObjResultIndex905deltaU.txt", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/experiment4.3/GroundTruth.txt");
     std::cout << L2Error;
 	return 0;
 }

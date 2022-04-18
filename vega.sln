@@ -397,6 +397,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AuxiliaryProjectFeatures", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ActualWindFieldComposition", "VegaRendering\ActualWindFieldComposition\ActualWindFieldComposition.vcxproj", "{5CD03FCC-2602-4D05-8D5C-A14942707287}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CalculateHausdorffDistance", "CalculateHausdorffDistance\CalculateHausdorffDistance.vcxproj", "{4B699C16-852E-4041-AC56-B75B239349FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -877,6 +879,14 @@ Global
 		{5CD03FCC-2602-4D05-8D5C-A14942707287}.Release|x64.Build.0 = Release|x64
 		{5CD03FCC-2602-4D05-8D5C-A14942707287}.Release|x86.ActiveCfg = Release|Win32
 		{5CD03FCC-2602-4D05-8D5C-A14942707287}.Release|x86.Build.0 = Release|Win32
+		{4B699C16-852E-4041-AC56-B75B239349FD}.Debug|x64.ActiveCfg = Debug|x64
+		{4B699C16-852E-4041-AC56-B75B239349FD}.Debug|x64.Build.0 = Debug|x64
+		{4B699C16-852E-4041-AC56-B75B239349FD}.Debug|x86.ActiveCfg = Debug|Win32
+		{4B699C16-852E-4041-AC56-B75B239349FD}.Debug|x86.Build.0 = Debug|Win32
+		{4B699C16-852E-4041-AC56-B75B239349FD}.Release|x64.ActiveCfg = Release|x64
+		{4B699C16-852E-4041-AC56-B75B239349FD}.Release|x64.Build.0 = Release|x64
+		{4B699C16-852E-4041-AC56-B75B239349FD}.Release|x86.ActiveCfg = Release|Win32
+		{4B699C16-852E-4041-AC56-B75B239349FD}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -957,6 +967,7 @@ Global
 		{7EC54417-BED1-4A94-B508-3EAE5A67920D} = {CA1278B1-FDCB-4C3B-A993-8FE7C38FB1AC}
 		{928AE37F-F15D-446D-BBC1-5E19A3926B61} = {80A490F9-B062-4D56-BE90-1C62B0DF0424}
 		{5CD03FCC-2602-4D05-8D5C-A14942707287} = {CA1278B1-FDCB-4C3B-A993-8FE7C38FB1AC}
+		{4B699C16-852E-4041-AC56-B75B239349FD} = {CA1278B1-FDCB-4C3B-A993-8FE7C38FB1AC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {99173D97-76A2-4076-8802-0EB16E2D5191}

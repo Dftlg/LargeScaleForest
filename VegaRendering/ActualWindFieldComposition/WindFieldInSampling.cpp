@@ -63,7 +63,8 @@ void CWindFieldSampling::GenerateWindFieldExternalForce(SceneObjectDeformable* &
         //这里假设从m_windDirectionLinePoint到2倍的m_BoundBox也就是2倍的m_Side的对角线距离会更改掉pi/2的相位//这里改为了2pi感觉会有更好的效果。
 
         //double vPhase = tempDistance / m_FarthestDistance * M_PI / 2;
-        double vPhase = tempDistance / m_FarthestDistance * M_PI * 2;
+        //double vPhase = tempDistance / m_FarthestDistance * M_PI * 2;
+        double vPhase = tempDistance / m_FarthestDistance * M_PI /3;
         //vPhase = 0;
 
         double SumForce = 0;

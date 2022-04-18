@@ -1,8 +1,12 @@
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 #include <iostream>
 //#define GLFW_EXPOSE_NATIVE_GLX
 #include <GL/glew.h>
 #include<glm/glm.hpp>
 #include<glm/gtc/type_ptr.hpp>
+
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 #include<glm/gtc/matrix_transform.hpp>
@@ -30,14 +34,16 @@
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
 
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
+
 #pragma optimize("",off)
 
 #ifdef _DEBUG
-#define new   new(_NORMAL_BLOCK, __FILE__, __LINE__)
-#endif
+#define MYDEBUG_NEW new( _NORMAL_BLOCK, __FILE__, __LINE__)
+// Replace _NORMAL_BLOCK with _CLIENT_BLOCK if you want the
+//allocations to be of _CLIENT_BLOCK type
+#else
+#define MYDEBUG_NEW
+#endif // _DEBUG
 
 inline void EnableMemLeakCheck()
 {
@@ -68,6 +74,7 @@ void processInput(GLFWwindow* vWindow);
 int captureScreen2Img(const std::string& vFileName, int vQuality);
 unsigned int loadTexture(char const * path);
 unsigned int loadCubemap(std::vector<std::string> faces);
+void saveObjData(const std::string& vPath, std::vector<glm::vec3> & vdata);
 
 //2560 1440
 //1920 1080  960 1080
@@ -101,7 +108,15 @@ bool startsaveCameraPara = false;
 
 //
 //CCamera Camera(glm::vec3(-0.272438, 2.64901 ,4.87207));
-CCamera Camera(glm::vec3(0.026077, 0.669017, 1.610339));
+//正对视角 3月9日yellowtree以前相机位置
+//CCamera Camera(glm::vec3(0.026077, 0.669017, 1.610339));
+//mapletree相机位置实验4.1
+//CCamera Camera(glm::vec3(0.947258, 1.304092, -2.140342));
+
+//3-29日experiment4.1 maple相机位置
+
+CCamera Camera(glm::vec3(0.106298, 1.139172, -2.645638));
+
 float LastX = SCR_WIDTH / 2.0f;
 float LastY = SCR_HEIGHT / 2.0f;
 bool FirstMouse = true;
@@ -148,7 +163,7 @@ int test1 = 0;
 //前一个std::vector表示匹配树的个数，后一个std::vector表示每一帧中需要的数据
 //vMultipleExtraForces 表示每一帧风的方向，每次用5帧来进行搜索
 //vWindDirection 表示每帧一个风的方向
-void InsertSearchTreeFrameIndex(CVegaFemFactory &vVFF, CSence vSence, std::vector<std::vector<int>>& vMultipleExtraForces, std::vector<std::vector<Common::SForceDirection>> & vWindDirection, std::vector<int>& vTreesNumberSubjected2SameWind, int vTreeTypeIndex)
+void InsertSearchTreeFrameIndex(CVegaFemFactory &vVFF, std::vector<std::vector<int>>& vMultipleExtraForces, std::vector<std::vector<Common::SForceDirection>> & vWindDirection, std::vector<int>& vTreesNumberSubjected2SameWind, int vTreeTypeIndex)
 {
 
 	while (true)
@@ -160,7 +175,6 @@ void InsertSearchTreeFrameIndex(CVegaFemFactory &vVFF, CSence vSence, std::vecto
 			vVFF.resetTempMultipleTreeData(vMultipleExtraForces.size());
 			SearchFrameStep = 0;
 		}*/
-
 		if (SearchFrameNumber[vTreeTypeIndex] == Common::ProductFrameNumber)
 		{
 			break;
@@ -179,10 +193,6 @@ void InsertSearchTreeFrameIndex(CVegaFemFactory &vVFF, CSence vSence, std::vecto
 					tempMultipleFiveWindDirection[i].push_back(vWindDirection[i][k]);
 				}
 			}
-            if (test == 5)
-            {
-                test1 = 0;
-            }
 			vVFF.searchMatchedFrameSequences(tempMultipleFiveForces, tempMultipleFiveWindDirection);
 			tempMultipleFiveForces.clear();
 			tempMultipleFiveWindDirection.clear();
@@ -220,12 +230,12 @@ void InsertSearchTreeFrameIndex(CVegaFemFactory &vVFF, CSence vSence, std::vecto
 		SearchFrameNumber[vTreeTypeIndex]++;
 		tempTreeFileAndFrameIndex.clear();
 
-        /*if (test == 5)
-        {
-            vVFF.saveAllWeightsSumResults("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/experiment4.3/SearchTableResults.txt");
-        }*/
+        //if (test == 5)
+        //{
+        //    vVFF.saveAllWeightsSumResults("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/experiment4.3/SearchTableResults.txt");
+        //}
 
-        test++;
+        //test++;
 	}
 }
 
@@ -413,7 +423,7 @@ int main()
 #pragma endregion
 
 
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
 
 #pragma region skybox VAO and VBO and Texture
 	// skybox VAO
@@ -730,29 +740,6 @@ int main()
 	//{
 	//	ALLTreeNumber += Common::TreesNumbers[i];
 	//}
-	//CInitMultipleTypeTree MultipleTypeTree(Common::TreesTypeNumber, ALLTreeNumber);
-	////////////////////////////////////////////
-	////MultipleTypeTree.InitShadowCubeMapPara(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, shadowTransforms, lightVertices, lightColors);
-	//MultipleTypeTree.InitShadowMapPara(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, lightSpaceMatrix, lightPosition[0], lightPointColors[0]);
-	//MultipleTypeTree.setTerrainPara(TerrainHeigth, TerrainX, TerrainZ, XDensityScale, ZDensityScale, TerrainHeightZDensity);
-
-	/*MultipleTypeTree.InitVegaFemFactory("G:/GraduationProject/mini_mapleTree/deltaU", "../../models/mini_mapleTree/tree.obj", "../../models/mini_mapleTree/ObjectVertexIndex.txt", 1);
-	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[0], "G:/GraduationProject/mini_mapleTree/WindAndTreeConfig/Config.txt");
-	MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
-	MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
-	MultipleTypeTree.InitTreeModel("../../models/mini_mapleTree/tree.obj", 0);
-*/
-	/*MultipleTypeTree.InitVegaFemFactory("G:/GraduationProject/mini_mapleTree/deltaU", "../../models/mini_mapleTree/tree.obj", "../../models/mini_mapleTree/ObjectVertexIndex.txt",1);
-	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[0], "G:/GraduationProject/mini_mapleTree/WindAndTreeConfig/Config.txt");
-	MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
-	MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag", "point_shadows_depth.gs");
-	MultipleTypeTree.InitTreeModel("../../models/mini_mapleTree/tree.obj", 0);*/
-
-	//MultipleTypeTree.InitVegaFemFactory("G:/GraduationProject/apricot_tree/deltaU", "../../models/apricot_tree/tree.obj", "../../models/apricot_tree/ObjectVertexIndex.txt", 1);
-	//MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[0], "G:/GraduationProject/apricot_tree/WindAndTreeConfig/Config.txt");
-	//MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
-	//MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
-	//MultipleTypeTree.InitTreeModel("../../models/apricot_tree/tree.obj", 0);
 
 	CInitMultipleTypeTree MultipleTypeTree(Common::TreesTypeNumber, Common::AllTreesNumber, Common::GenerateRandomTreePosition);
 	//////////////////////////////////////////
@@ -760,8 +747,9 @@ int main()
 	MultipleTypeTree.InitShadowMapPara(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, lightSpaceMatrix, lightPosition[0], lightPointColors[0]);
 	MultipleTypeTree.setTerrainPara(TerrainHeigth, TerrainX, TerrainZ, XDensityScale, ZDensityScale, TerrainHeightZDensity);
 
+    //yellow_tree_example
 	//MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/deltaU", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt",1);
-    MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber35/motiondata", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt",9);
+    MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/FixedKOthrVegType/70/experimentforest/voxelnumber35/motiondata", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt",1);
 	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[0], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/WindAndTreeConfig/Config.txt");
 	if (Common::CalculateNormalType == Common::ENormalCalculateType::GeomShader)
 	{
@@ -776,31 +764,54 @@ int main()
 	{
 		MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
 	}
-	//MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag","computerFaceNormal.geom");
 	MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
 	MultipleTypeTree.InitTreeModel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", 0);
-    //MultipleTypeTree.InitTreeModel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/li_final_tree_last.obj", 0);
-
-	/*MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/deltaU", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/tree.obj", "../../models/mini_mapleTree/ObjectVertexIndex.txt",1);
-	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[1], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/WindAndTreeConfig/Config.txt");
-	if (Common::UseGeomOrCompCalculateNormal == true)
-	{
-		MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag", "scene_shadows.geom");
-	}
-	else
-	{
-		MultipleTypeTree.InitSceneShadowShader("sence_shadows_RelatedComp.vert", "sence_Shadows_RelatedComp.frag");
-		MultipleTypeTree.InitComputerShaderCalculateNormal("calculateNormal.comp");
-	}
-	MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
-	MultipleTypeTree.InitTreeModel("../../models/mini_mapleTree/tree.obj", 1);*/
 
 
-	/*MultipleTypeTree.InitVegaFemFactory("G:/GraduationProject/apricot_tree/deltaU", "../../models/apricot_tree/tree.obj", "../../models/apricot_tree/ObjectVertexIndex.txt", 2);
-	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[2], "G:/GraduationProject/apricot_tree/WindAndTreeConfig/Config.txt");
-	MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
-	MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
-	MultipleTypeTree.InitTreeModel("../../models/apricot_tree/tree.obj", 2);*/
+    //maple_tree_example
+	//MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/FixedKOthrVegType/70/experimentforest/voxelnumber35/motiondata", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/tree.obj", "../../models/mini_mapleTree/ObjectVertexIndex.txt",5);
+ //   //记得这个改回来在森林里用的是1
+	//MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[1], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/WindAndTreeConfig/Config.txt");
+ //   if (Common::CalculateNormalType == Common::ENormalCalculateType::GeomShader)
+ //   {
+ //       MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag", "scene_shadows.geom");
+ //   }
+ //   else if (Common::CalculateNormalType == Common::ENormalCalculateType::CompShader)
+ //   {
+ //       MultipleTypeTree.InitSceneShadowShader("sence_shadows_RelatedComp.vert", "sence_Shadows_RelatedComp.frag");
+ //       MultipleTypeTree.InitComputerShaderCalculateNormal("calculateNormal.comp");
+ //   }
+ //   else if (Common::CalculateNormalType == Common::ENormalCalculateType::NONE)
+ //   {
+ //       MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
+ //   }
+	//MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
+ //   //记得这个改回来在森林里用的是1
+
+	//MultipleTypeTree.InitTreeModel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/tree.obj", 1);
+
+    //apericot_tree
+    //MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/FixedKOthrVegType/70/experimentforest/voxelnumber35/motiondata", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/tree.obj", "../../models/mini_mapleTree/ObjectVertexIndex.txt",1);
+    ////记得这个改回来在森林里用的是1
+    //MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[2], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/WindAndTreeConfig/Config.txt");
+    //if (Common::CalculateNormalType == Common::ENormalCalculateType::GeomShader)
+    //{
+    //    MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag", "scene_shadows.geom");
+    //}
+    //else if (Common::CalculateNormalType == Common::ENormalCalculateType::CompShader)
+    //{
+    //    MultipleTypeTree.InitSceneShadowShader("sence_shadows_RelatedComp.vert", "sence_Shadows_RelatedComp.frag");
+    //    MultipleTypeTree.InitComputerShaderCalculateNormal("calculateNormal.comp");
+    //}
+    //else if (Common::CalculateNormalType == Common::ENormalCalculateType::NONE)
+    //{
+    //    MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
+    //}
+    //MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
+    ////记得这个改回来在森林里用的是1
+
+    //MultipleTypeTree.InitTreeModel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/tree.obj", 2);
+
 
 	for (int i = 0; i < Common::TreesTypeNumber; i++)
 	{
@@ -844,9 +855,10 @@ int main()
 	//开启线程进行读取Tree索引
 		/////each time change
 	//boost::thread startInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getFemFactory()), *(MultipleTypeTree.getTreeModel()), *(MultipleTypeTree.getExtraForces()), *(MultipleTypeTree.getExtraDirection()), *(MultipleTypeTree.getTreesNumberSubjected2SameWind()),MultipleTypeTree.getTreeTypeIndex());
-	boost::thread startInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getSpecificFemFactory(0)), *(MultipleTypeTree.getSpecificTreeModel(0)), *(MultipleTypeTree.getSpecificExtraForces(0)), *(MultipleTypeTree.getSpecificExtraDirection(0)), *(MultipleTypeTree.getSpecificTreesNumberSubjected2SameWind(0)), 0);
-	//boost::thread SecondstartInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getSpecificFemFactory(1)), *(MultipleTypeTree.getSpecificTreeModel(1)), *(MultipleTypeTree.getSpecificExtraForces(1)), *(MultipleTypeTree.getSpecificExtraDirection(1)), *(MultipleTypeTree.getSpecificTreesNumberSubjected2SameWind(1)), 1);
-	//boost::thread ThirdstartInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getSpecificFemFactory(2)), *(MultipleTypeTree.getSpecificTreeModel(2)), *(MultipleTypeTree.getSpecificExtraForces(2)), *(MultipleTypeTree.getSpecificExtraDirection(2)), *(MultipleTypeTree.getSpecificTreesNumberSubjected2SameWind(2)), 2);
+	//boost::thread startInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getSpecificFemFactory(0)), *(MultipleTypeTree.getSpecificTreeModel(0)), *(MultipleTypeTree.getSpecificExtraForces(0)), *(MultipleTypeTree.getSpecificExtraDirection(0)), *(MultipleTypeTree.getSpecificTreesNumberSubjected2SameWind(0)), 0);
+    boost::thread startInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getSpecificFemFactory(0)), *(MultipleTypeTree.getSpecificExtraForces(0)), *(MultipleTypeTree.getSpecificExtraDirection(0)), *(MultipleTypeTree.getSpecificTreesNumberSubjected2SameWind(0)), 0);
+	/*boost::thread SecondstartInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getSpecificFemFactory(1)), *(MultipleTypeTree.getSpecificExtraForces(1)), *(MultipleTypeTree.getSpecificExtraDirection(1)), *(MultipleTypeTree.getSpecificTreesNumberSubjected2SameWind(1)), 1);
+    boost::thread ThirdstartInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getSpecificFemFactory(2)), *(MultipleTypeTree.getSpecificExtraForces(2)), *(MultipleTypeTree.getSpecificExtraDirection(2)), *(MultipleTypeTree.getSpecificTreesNumberSubjected2SameWind(2)), 2);*/
 
 	MultipleTypeTree.ComputeSumFaceVerticesBeforeEndMesh(Common::TreesTypeNumber);
 	glm::mat4 model = glm::mat4(1.0f);
@@ -985,7 +997,9 @@ int main()
 
         //VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/100/EachPartSkelCubic_index/tree100Rendering.veg","D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/EachPartSkelCubic_index/treebase.txt",false,true);
         //VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/100/ObjMappingVoxel/tree100RenderingObjMapping.veg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/ObjMappingVoxel/treebase.txt", false, true);
-        VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber110/tree70.veg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber110/EachPartSkelCubic_index/treebase.txt", false, true);
+        //VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber110/tree70.veg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber110/EachPartSkelCubic_index/treebase.txt", false, true);
+
+        VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber71/tree70_exp4.veg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber70/ReSetGraphRandomSelectEachPartSkelCubic_index/treebase.txt", false, false);
         VegMesh->InitVegRenderingProcess();
         VegMesh->InitVegRenderingLabeledVoxel();
         CubicVegShader = new CShader("VegMesh.vert", "VegMesh.frag");
@@ -1027,16 +1041,20 @@ int main()
 	std::vector<Common::SConnectedFemFiles> vAllReallyLoadConnectedFem = (MultipleTypeTree.getSpecificFemFactory(0))->getAllReallyLoadConnectedFem();
 
     //experiment 4.3
-    std::ofstream outputFilePath;
-    outputFilePath.open("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/experiment4.3/ObjResultIndex1524deltaU.txt", std::ios::in | std::ios::app);
+    /*std::ofstream outputFilePath;
+    outputFilePath.open("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/experiment4.3/ObjResultIndex905deltaU.txt", std::ios::in | std::ios::app);*/
 	/*std::ofstream outputFilePath;
-	outputFilePath.open("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber440/EachPartSkelCubic_index_hausdorffobj/19.txt", std::ios::in | std::ios::app);
+	outputFilePath.open("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/FixedKOthrVegType/70/experiment4_3_1/voxelnumber35/motionSearchObj/40.txt", std::ios::in | std::ios::app);
 	std::ofstream outputFilePath1;
-	outputFilePath1.open("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber440/EachPartSkelCubic_index_hausdorffobj/99.txt", std::ios::in | std::ios::app);
+	outputFilePath1.open("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/FixedKOthrVegType/70/experiment4_3_1/voxelnumber35/motionSearchObj/100.txt", std::ios::in | std::ios::app);
     std::ofstream outputFilePath2;
-    outputFilePath2.open("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber440/EachPartSkelCubic_index_hausdorffobj/179.txt", std::ios::in | std::ios::app);*/
-	int numFramePoints = vAllReallyLoadConnectedFem[0].FemDataset[0]->Frames[0].BaseFileDeformations.size();
+    outputFilePath2.open("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/FixedKOthrVegType/70/experiment4_3_1/voxelnumber35/motionSearchObj/160.txt", std::ios::in | std::ios::app);*/
+
+
+    int numFramePoints = vAllReallyLoadConnectedFem[0].FemDataset[0]->Frames[0].BaseFileDeformations.size();
 	std::vector<glm::vec3>sumDeltaU(numFramePoints);
+
+    std::string saveObjVertexPath = "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/FixedKOthrVegType/70/experiment4_3_1/voxelnumber35/groundtruth600frameobj/";
 
 	while (!glfwWindowShouldClose(Window))
 	{
@@ -1047,8 +1065,8 @@ int main()
 		ImGui::NewFrame();
         
 		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-		//if (show_demo_window)
-			//ImGui::ShowDemoWindow(&show_demo_window);
+		if (show_demo_window)
+			ImGui::ShowDemoWindow(&show_demo_window);
 
 		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 		{
@@ -1072,7 +1090,8 @@ int main()
 			ImGui::Text("counter = %d", counter);
             ImGui::Text("CameraPosition: (%f, %f, %f)", Camera.getPositionX(), Camera.getPositionY(), Camera.getPositionZ());
             ImGui::Text("CamerarFront: (%f, %f, %f)",Camera.getFrontX(), Camera.getFrontY(), Camera.getFrontZ()); 
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::Text("Application average %.7f ms/frame (%.1f FPS)", 1.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::Text("Application average %.7f ms/frame ", DeltaTime);
 			ImGui::End();
 		}
 		//std::cout << ImGui::GetIO().Framerate << std::endl;
@@ -1129,47 +1148,53 @@ int main()
 		for (int i = 0; i < Common::TreesTypeNumber; i++)
 		{
 			bool Success = SearchQueue[i].TryDequeue(tempTreeFileAndFrameIndex);
-            if (frameIndex == 5)
+            /*if (frameIndex == 5)
             {
-                tempTreeFileAndFrameIndex[0] = std::make_pair(8, 80);
-            }
+                tempTreeFileAndFrameIndex[0] = std::make_pair(5, 5);
+            }*/
 
 			//std::cout << "[";
-            for (int k = 0; k < EachFormNumberArray[i].size(); k++)
-            {
-                //std::cout << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first << "--" << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second << "||";
+   //         for (int k = 0; k < EachFormNumberArray[i].size(); k++)
+   //         {
+   //             std::cout << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first << "--" << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second << "||";
 
 
    //             //std::string headInfo = "Position" + std::to_string(frameIndex);
    //             //outputFilePath << headInfo << "\n";
    //             //outputFilePath << numFramePoints << "\n";
-                for (int j = 0; j < numFramePoints; j++)
-                {
-                    /*sumDeltaU[j].x += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].x;
-                    sumDeltaU[j].y += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].y;
-                    sumDeltaU[j].z += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].z;*/
-                    if (frameIndex == 5)
-                    {
-                        outputFilePath << vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].x << " ";
-                        outputFilePath << vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].y << " ";
-                        outputFilePath << vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].z << "\n";
-                    }
-                   /* else if (frameIndex == 99)
-                    {
-                        outputFilePath1 << sumDeltaU[j].x << " ";
-                        outputFilePath1 << sumDeltaU[j].y << " ";
-                        outputFilePath1 << sumDeltaU[j].z << "\n";
-                    }
-                    else if (frameIndex == 179)
-                    {
-                        outputFilePath2 << sumDeltaU[j].x << " ";
-                        outputFilePath2 << sumDeltaU[j].y << " ";
-                        outputFilePath2 << sumDeltaU[j].z << "\n";
-                    }*/
-                }
-            //   
-            }
-            //std::cout << "]";
+   //             //for (int j = 0; j < numFramePoints; j++)
+   //             //{
+   //             //    sumDeltaU[j].x += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].x;
+   //             //    sumDeltaU[j].y += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].y;
+   //             //    sumDeltaU[j].z += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].z;
+   //             //    if (frameIndex == 40)
+   //             //    {
+   //             //        /*frameIndex==5
+   //             //        outputFilePath << vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].x << " ";
+   //             //        outputFilePath << vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].y << " ";
+   //             //        outputFilePath << vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].z << "\n";*/
+   //             //        outputFilePath << sumDeltaU[j].x << " ";
+   //             //        outputFilePath << sumDeltaU[j].y << " ";
+   //             //        outputFilePath << sumDeltaU[j].z << "\n";
+   //             //    }
+   //             //    else if (frameIndex == 100)
+   //             //    {
+   //             //        outputFilePath1 << sumDeltaU[j].x << " ";
+   //             //        outputFilePath1 << sumDeltaU[j].y << " ";
+   //             //        outputFilePath1 << sumDeltaU[j].z << "\n";
+   //             //    }
+   //             //    else if (frameIndex == 160)
+   //             //    {
+   //             //        outputFilePath2 << sumDeltaU[j].x << " ";
+   //             //        outputFilePath2 << sumDeltaU[j].y << " ";
+   //             //        outputFilePath2 << sumDeltaU[j].z << "\n";
+   //             //    }
+   //             //}
+   //             /*std::string tempPath = saveObjVertexPath +std::to_string(frameIndex);
+   //             tempPath += ".txt";
+   //             saveObjData(tempPath, sumDeltaU);*/
+   //         }
+   //         std::cout << "]" << std::endl;
 
 
             MultipleTypeTree.getSpecificTreeModel(i)->UpdataSSBOMeshTreeAndFrameIndex(tempTreeFileAndFrameIndex);
@@ -1308,11 +1333,11 @@ int main()
             }
         }
 
-		//if (i < 999)
-		//{
-		//	std::string pathString = "video5/" + std::to_string(i) + ".jpg";
-		//	captureScreen2Img(pathString, 100);
-		//}
+		/*if (i < 999)
+		{
+			std::string pathString = "video5/" + std::to_string(i) + ".jpg";
+			captureScreen2Img(pathString, 100);
+		}*/
 		//Camera.outFront();
 		//i++;
 		//skybox	
@@ -1322,8 +1347,17 @@ int main()
 		renderSkybox(ourSkyBoxShader, skyboxVAO, cubemapTexture);
 
 
-  //      if(frameIndex==10)
-		//Sleep(10000);
+       /* if(frameIndex==40)
+		Sleep(1000);*/
+        /*if (frameIndex==0||frameIndex==40|| frameIndex == 100||frameIndex==160)
+        {
+            std::string pathString = "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/FixedKOthrVegType/70/experiment4_3_1/image/" + std::to_string(frameIndex) + ".jpg";
+            captureScreen2Img(pathString, 100);
+        }*/
+
+        /*if (frameIndex == 601)
+            break;*/
+
 		frameIndex++;
 		glDepthFunc(GL_LESS); // set depth function back to default
 
@@ -1335,7 +1369,7 @@ int main()
 	}
 
 
-   /* outputFilePath.close();
+    /*outputFilePath.close();
     outputFilePath1.close();
     outputFilePath2.close();*/
 	/*int sum = 0;
@@ -1350,7 +1384,7 @@ int main()
 	glDeleteBuffers(1, &planeVBO);
 	glDeleteBuffers(1, &skyboxVBO);
 	//glDeleteBuffers(1, &SSBO);
-	MultipleTypeTree.getSpecificTreeModel(0)->Clear();
+	//MultipleTypeTree.getSpecificTreeModel(0)->Clear();
 	// Cleanup
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
@@ -1360,7 +1394,7 @@ int main()
 
 	
 	glfwTerminate();
-    //_CrtDumpMemoryLeaks();
+    _CrtDumpMemoryLeaks();
 	return 0;
 }
 
@@ -1463,7 +1497,7 @@ bool initWindow(GLFWwindow*& vWindow, int vScreenWidth, int vScreenHeight)
 	glfwSetFramebufferSizeCallback(vWindow, framebufferSizeCallback);
 	glfwSetCursorPosCallback(vWindow, mouseCallback);
 	glfwSetScrollCallback(vWindow, scrollCallback);
-	glfwSetInputMode(vWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(vWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 
 	glewExperimental = true;
@@ -1704,6 +1738,20 @@ unsigned int loadCubemap(std::vector<std::string> faces)
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 	return textureID;
+}
+
+void saveObjData(const std::string& vPath, std::vector<glm::vec3> & vdata)
+{
+    std::ofstream outputFilePath;
+    outputFilePath.open(vPath, std::ios::in | std::ios::app);
+    for (int j = 0; j < vdata.size(); j++)
+    {  
+       outputFilePath << vdata[j].x << " ";
+       outputFilePath << vdata[j].y << " ";
+       outputFilePath << vdata[j].z << "\n";
+    }
+    outputFilePath.close();
+
 }
 
 #pragma optimize("",on)

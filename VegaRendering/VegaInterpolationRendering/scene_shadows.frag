@@ -143,8 +143,8 @@ void main()
         float attenuation = 1.0 / (distance * distance);
         //vec3 radiance = lightColors[i] * attenuation;
 		/////////enenene 有问题
-		//vec3 radiance = lightColors*1.5;
-		vec3 radiance = lightColors;
+		vec3 radiance = lightColors*2;
+		//vec3 radiance = lightColors;
 		//vec3 radiance = lightColors*3;
         // Cook-Torrance BRDF
         float NDF = DistributionGGX(N, H, roughness);   

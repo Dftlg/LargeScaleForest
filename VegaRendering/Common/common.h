@@ -53,7 +53,7 @@ namespace Common
 
     /////each time change
 
-    const int AllTreesNumber =1;
+    const int AllTreesNumber =7;
 
     const int TreesTypeNumber =1;
 
@@ -67,10 +67,12 @@ namespace Common
 
     //const int TreesNumbers[TreesTypeNumber] = {60,40 };
    
-    /*const float ScaleTree[TreesTypeNumber] = { 0.7,1.5,1.0 };*/
+    //const float ScaleTree[TreesTypeNumber] = { 0.7,1.5,1.0 };
     //const float ScaleTree[TreesTypeNumber] = { 0.3,2,1.0 };
 
 	//const float ScaleTree[TreesTypeNumber] = { 0.35,0.6,0.5};
+ //   const float ModelAxisYMove[TreesTypeNumber] = { 0.7,0.45,0.45 };
+ //   const float ModelCutInTerrain[TreesTypeNumber] = { 9.5,5,5 };
 
 	//experiment 4
 	//const int AllTreesNumber = 2;
@@ -82,15 +84,20 @@ namespace Common
 	//const float ModelAxisYMove[TreesTypeNumber] = { 0.5,0.5 };
 	//const float ModelCutInTerrain[TreesTypeNumber] = { 9,9 };
 	//------------------------------------------------------------
-	const float ScaleTree[TreesTypeNumber] = { 0.35 };
+	
 
 	////const float ModelAxisYMove[TreesTypeNumber] = { 0.7,0.55,0.45 };
-	////const float ModelAxisYMove[TreesTypeNumber] = { 0.7,0.45,0.45 };
-	const float ModelAxisYMove[TreesTypeNumber] = { 0.5 };
+	
+	
 	////const float ModelAxisYMove[TreesTypeNumber] = { 0.7,0.6,0.45 };
 
-	const float ModelCutInTerrain[TreesTypeNumber] = { 9 };
-	//const float ModelCutInTerrain[TreesTypeNumber] = { 9.5,5,5 };
+	
+	
+
+    //experiment4.3.1
+    const float ScaleTree[TreesTypeNumber] = { 0.35 };
+    const float ModelAxisYMove[TreesTypeNumber] = { 0.5 };
+    const float ModelCutInTerrain[TreesTypeNumber] = { 9 };
 
 	static int MaxTimeStep = 60;
 
@@ -136,7 +143,7 @@ namespace Common
 
     static bool renderingSameModelMotion = false;
 
-    static bool renderingTerrainOrWhiltScence=false;
+    static bool renderingTerrainOrWhiltScence=true;
 
 
     //参考D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\models\yellow_tree\OtherVegType\100文件夹的Read.me
@@ -475,6 +482,15 @@ namespace Common
             ChildIndex = vChildIndex;
             Value = vValue;
         }
+    };
+
+    struct SVegaInterPolationDataStruct
+    {
+        std::string TreeRelatedDeformationDataPath;
+        std::string TreeObjPath;
+        int UseFileNumber;
+        std::string TreeWindConfig;
+        int SingleTypeTreeAllNumber;
     };
 
 }

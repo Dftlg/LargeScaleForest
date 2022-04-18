@@ -1,5 +1,7 @@
 #include "InitMultipleTypeTree.h"
 
+#pragma optimize("",off)
+
 CInitMultipleTypeTree::CInitMultipleTypeTree(int vTreeTypeNumber, int vAllTreeNumbers, bool vWindFieldType)
 {
     m_TreeTypeNumber = vTreeTypeNumber;
@@ -186,6 +188,7 @@ void CInitMultipleTypeTree::InitASpecificWindSourceWindData(int vTreeTypeIndex)
 
 void CInitMultipleTypeTree::InitFemFrameStruct(int vTreeTypeIndex)
 {
+    std::cout << vTreeTypeIndex << std::endl;
     m_MultipleTypeFem[vTreeTypeIndex]->initMatchedFrameStruct(m_MultipleExtraForces[vTreeTypeIndex].size());
     m_MultipleTypeFem[vTreeTypeIndex]->initKVFDataSearchRangeError();
 }
@@ -431,3 +434,4 @@ void CInitMultipleTypeTree::setTerrainPara(std::vector<double> & vTerrainHeigth,
 	m_TerrainZDensityScale = ZDensityScale;
 	m_TerrainHeightZDensity = vTerrainHeightZDensity;
 };
+#pragma optimize("",on)

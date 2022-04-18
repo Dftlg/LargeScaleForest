@@ -90,55 +90,55 @@ void CModelDeformationTransform::ConvertVertex2mutileVerteices(Common::SFileData
 void CModelDeformationTransform::SaveDeformationVertexFromBaseModel(const double* u, const int vDeformationSize, std::string vSaveFileName, int vtimeStepCounter)
 {
 
-#pragma region sava tree vertices deformations for a frame
-	const size_t last_slash_idx = vSaveFileName.rfind('.txt');
-	std::string FramesBlockFileName = vSaveFileName.substr(0, last_slash_idx - 3);
-	FramesBlockFileName = FramesBlockFileName + "_" + std::to_string(vtimeStepCounter) + ".txt";
-	std::ofstream connectionFile;
-	connectionFile.open(FramesBlockFileName);
-	for (unsigned int i = 0; i < vDeformationSize; i++)
-	{
-		connectionFile << u[3 * i + 0] << " " << u[3 * i + 1] << " " << u[3 * i + 2];
-		connectionFile << "\n";
-	}
-    connectionFile.close();
-#pragma endregion
-
-
-//#pragma region sava tree vertices deformations for all frames
-//	if (!vSaveFileName.empty())
+//#pragma region sava tree vertices deformations for a frame
+//	const size_t last_slash_idx = vSaveFileName.rfind('.txt');
+//	std::string FramesBlockFileName = vSaveFileName.substr(0, last_slash_idx - 3);
+//	FramesBlockFileName = FramesBlockFileName + "_" + std::to_string(vtimeStepCounter) + ".txt";
+//	std::ofstream connectionFile;
+//	connectionFile.open(FramesBlockFileName);
+//	for (unsigned int i = 0; i < vDeformationSize; i++)
 //	{
-//		char s[4096];
-//		FILE * file = fopen(vSaveFileName.c_str(), "ab");
-//		if (!file)
-//		{
-//			printf("Can't open output file: %s.\n", s);
-//		}
-//		else
-//		{
-//			float *deltaU = (float*)malloc(sizeof(float)*vDeformationSize * 3);
-//			for (unsigned int i = 0; i < vDeformationSize; i++)
-//			{
-//				deltaU[3 * i + 0] = float(u[3 * i + 0]);
-//				deltaU[3 * i + 1] = float(u[3 * i + 1]);
-//				deltaU[3 * i + 2] = float(u[3 * i + 2]);
-//			}
-//			
-//			fwrite(deltaU, sizeof(float)*vDeformationSize*3, 1, file);
-//			
-//			//sprintf(s, "Position%d", vtimeStepCounter);
-//			//fprintf(file, "%s \n", s);
-//			//sprintf(s, "%d", vDeformationSize);
-//			//fprintf(file, "%s \n", s);
-//			//for (unsigned int i = 0; i < vDeformationSize; i++)
-//			//{
-//			//	fprintf(file, "%.10lf %.10lf %.10lf ", u[3 * i + 0], u[3 * i + 1], u[3 * i + 2]);
-//			//	//fprintf(file, "\n");
-//			//}
-//			////fprintf(file, "%.10lf %.10lf %.10lf ", u[3 * 32464 + 0], u[3 * 32464 + 1], u[3 * 32464 + 2]);
-//			//fprintf(file, "\n");
-//		}
-//		fclose(file);
+//		connectionFile << u[3 * i + 0] << " " << u[3 * i + 1] << " " << u[3 * i + 2];
+//		connectionFile << "\n";
 //	}
+//    connectionFile.close();
 //#pragma endregion
+
+
+#pragma region sava tree vertices deformations for all frames
+	if (!vSaveFileName.empty())
+	{
+		char s[4096];
+		FILE * file = fopen(vSaveFileName.c_str(), "ab");
+		if (!file)
+		{
+			printf("Can't open output file: %s.\n", s);
+		}
+		else
+		{
+			float *deltaU = (float*)malloc(sizeof(float)*vDeformationSize * 3);
+			for (unsigned int i = 0; i < vDeformationSize; i++)
+			{
+				deltaU[3 * i + 0] = float(u[3 * i + 0]);
+				deltaU[3 * i + 1] = float(u[3 * i + 1]);
+				deltaU[3 * i + 2] = float(u[3 * i + 2]);
+			}
+			
+			fwrite(deltaU, sizeof(float)*vDeformationSize*3, 1, file);
+			
+			//sprintf(s, "Position%d", vtimeStepCounter);
+			//fprintf(file, "%s \n", s);
+			//sprintf(s, "%d", vDeformationSize);
+			//fprintf(file, "%s \n", s);
+			//for (unsigned int i = 0; i < vDeformationSize; i++)
+			//{
+			//	fprintf(file, "%.10lf %.10lf %.10lf ", u[3 * i + 0], u[3 * i + 1], u[3 * i + 2]);
+			//	//fprintf(file, "\n");
+			//}
+			////fprintf(file, "%.10lf %.10lf %.10lf ", u[3 * 32464 + 0], u[3 * 32464 + 1], u[3 * 32464 + 2]);
+			//fprintf(file, "\n");
+		}
+		fclose(file);
+	}
+#pragma endregion
 }

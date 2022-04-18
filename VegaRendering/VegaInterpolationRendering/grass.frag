@@ -206,7 +206,7 @@ void main()
 	color = Lo *(1.0 - shadow) + ambient;
 
     //rendering 
-    color=albedo;
+    //color=albedo;
 	// HDR tonemapping
 	color = color / (color + vec3(1.0));
 	// gamma correct

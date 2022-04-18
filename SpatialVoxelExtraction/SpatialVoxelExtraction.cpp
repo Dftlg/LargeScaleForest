@@ -14,71 +14,94 @@
 int main()
 {
    
-    CubicVegMesh* VegMesh = nullptr;
-    VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/tree70.veg","",true,false);
-    //VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/tree100.veg", true);
-    VegMesh->SetMassAndMaterialCalulacteValueRelated(2, 1);
-    VegMesh->ConstructVoxelGroup();
+    //CubicVegMesh* VegMesh = nullptr;
+    //VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/tree70.veg","",true,false);
+    ////VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/FixedKOthrVegType/70/mapleTree70.veg", "", true, false);
+    ////VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/FixedKOthrVegType/70/apricotree.veg", "", true, false);
 
-    //每个组的体素个数
+    //VegMesh->SetMassAndMaterialCalulacteValueRelated(2, 1);
+    //VegMesh->ConstructVoxelGroup();
 
-    std::vector<int> tempBaseGroupVoxel = VegMesh->GetAfterEraseRegionVoxelNumber();
-    //70*70*70的体素三个group部分为310，658，733
+    ////每个组的体素个数
+
+    //std::vector<int> tempBaseGroupVoxel = VegMesh->GetAfterEraseRegionVoxelNumber();
+    ////yellowtree
+    ////70*70*70的体素三个group部分为310，658，733
     //std::vector<int> GroupEraseNumber = { 163,511,586 };
-    std::vector<int> GroupEraseNumber = { 307,655,729 };
-    for (int i = 0; i < GroupEraseNumber[0]; i++)
-    {
-        VegMesh->EraseMaxValueVoxelWithAllChildGroup(0);
-    }
-    std::cout << std::endl;
-    std::cout << "------------------------------" << std::endl;
-    std::cout << std::endl;
-    for (int i = 0; i < GroupEraseNumber[1]; i++)
-    {
-        if (i == 85)
-        {
-            int k = 0;
-        }
-        VegMesh->EraseMaxValueVoxelWithAllChildGroup(1);
-        
-    }
+    ////std::vector<int> GroupEraseNumber = { 307,655,729 };
+    ////std::vector<int> GroupEraseNumber = { 265,613,688 };
+   
+    ////mapletree
+    ////70*70*70的体素两个group部分为103，1105
+    ////std::vector<int> GroupEraseNumber = { 93,377 };
+    ////std::vector<int> GroupEraseNumber = { 36,1037 };
 
-    std::cout << std::endl;
-    std::cout << "------------------------------" << std::endl;
-    std::cout << std::endl;
-    for (int i = 0; i < GroupEraseNumber[2]; i++)
-    {
-        VegMesh->EraseMaxValueVoxelWithAllChildGroup(2);
-    }
-
-    //前面一半数是没进行剔除的每个group体素个数，后面一半是剔除后的个数
-
-    std::vector<int> tempGroupVoxel= VegMesh->GetAfterEraseRegionVoxelNumber();
-
-    VegMesh->SaveKeyStiffnessVoxel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber10/EachPartSkelCubic_index");
+    ////70*70*70的体素两个group部分为315，1361
+    ////std::vector<int> GroupEraseNumber = { 310,1331 };
+    ////std::vector<int> GroupEraseNumber = { 247,1293 };
 
 
+    //for (int GroupIndex = 0; GroupIndex < GroupEraseNumber.size(); GroupIndex++)
+    //{
+    //    for (int i = 0; i < GroupEraseNumber[GroupIndex]; i++)
+    //    {
+    //        VegMesh->EraseMaxValueVoxelWithAllChildGroup(GroupIndex);
+    //    }
+    //}
+
+
+    ////前面一半数是没进行剔除的每个group体素个数，后面一半是剔除后的个数
+
+    //std::vector<int> tempGroupVoxel= VegMesh->GetAfterEraseRegionVoxelNumber();
+
+    //yellowtree
+    //VegMesh->SaveKeyStiffnessVoxel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber10/EachPartSkelCubic_index");
+    //VegMesh->SaveKeyStiffnessVoxel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/FixedKOthrVegType/70/experiment1/voxelnumber135/EachPartSkelCubic_index");
+
+    //mapletree
+    //VegMesh->SaveKeyStiffnessVoxel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/FixedKOthrVegType/70/experiment1/voxelnumber35/EachPartSkelCubic_index");
+    //VegMesh->SaveKeyStiffnessVoxel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/FixedKOthrVegType/70/experiment1/voxelnumber135/EachPartSkelCubic_index");
+
+    //apricotree
+    //VegMesh->SaveKeyStiffnessVoxel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/FixedKOthrVegType/70/experiment1/voxelnumber35/EachPartSkelCubic_index");
+    //VegMesh->SaveKeyStiffnessVoxel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/FixedKOthrVegType/70/experiment1/voxelnumber135/EachPartSkelCubic_index");
+    //
     ///////////////////////////////////////////////////////
     //前半部分为剔除依靠结构信息剔除部分提速，后半部分为剔除随机体素
 
     CubicVegMesh* VegMeshsec = nullptr;
-    VegMeshsec = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/tree70.veg", "", true, false);
-    //VegMesh = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/100/tree100.veg", true);
+    //VegMeshsec = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/tree70.veg", "", true, false);
+    VegMeshsec = new CubicVegMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/tree70_exp4.veg", "", true, false);
+    
     VegMeshsec->SetMassAndMaterialCalulacteValueRelated(2, 1);
     VegMeshsec->ConstructVoxelGroup();
     int AllErase = 0;
-    for (auto nu : GroupEraseNumber)
-        AllErase += nu;
+    //for (auto nu : GroupEraseNumber)
+    //    AllErase += nu;
     std::vector<int> tempVoxelNumber = VegMeshsec->GetAfterEraseRegionVoxelNumber();
-    int sumnumber = 0;
-    for (auto i : tempVoxelNumber)
-        sumnumber += i;
-    for (int i = 0; i < AllErase; i++)
+    //10037
+    //AllErase = 10002;
+    //AllErase = 9966;
+    //int sumnumber = 0;
+    //for (auto i : tempVoxelNumber)
+    //    sumnumber += i;
+    //for (int i = 0; i < AllErase; i++)
+    //{
+    //    VegMeshsec->EraseRandomVoxel();
+    //    //std::vector<int> test = VegMeshsec->GetAfterEraseRegionVoxelNumber();
+    //}
+
+    //std::vector<int> GroupEraseNumber = { 8291,305,650,720 };
+    std::vector<int> GroupEraseNumber = { 8289,298,645,695 };
+    for (int i = 0; i < GroupEraseNumber.size(); i++)
     {
-        VegMeshsec->EraseRandomVoxel();
-        //std::vector<int> test = VegMeshsec->GetAfterEraseRegionVoxelNumber();
+        for (int k = 0; k < GroupEraseNumber[i]; k++)
+        {
+            VegMeshsec->EraseSpecGroupRandomVoxel(i);
+        }
     }
-    VegMeshsec->SaveKeyStiffnessVoxel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber10/RandomSelectEachPartSkelCubic_index");
+
+    VegMeshsec->SaveKeyStiffnessVoxel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/Hausdorff433/voxelnumber110/ReSetGraphRandomSelectEachPartSkelCubic_index");
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

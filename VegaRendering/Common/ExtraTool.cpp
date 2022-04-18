@@ -344,6 +344,8 @@ void GetStemAndLeafStreePointsConfigurate(const std::string& vFilePath, int& vSt
 double OneNumberRangeError(float vNumber,int vControlFloatPosition,int vRange)
 {
 	float tempNumber = abs(vNumber);
+    if (tempNumber == 0)
+        return 0.5;
 	int BaseNumber = 0;
 	if (tempNumber < 1)
 	{
@@ -402,6 +404,109 @@ int GetRandomNumber(int vMinRange, int vMaxRange)
     std::uniform_int_distribution<unsigned> u(vMinRange, vMaxRange);
     int Random = u(e);
     return Random;
+}
+
+
+char* LPWSTR2LPSTR(LPWSTR lpwszStrIn)
+{
+    LPSTR pszOut = NULL;
+    if (lpwszStrIn != NULL) {
+        int nInputStrLen = wcslen(lpwszStrIn);
+        int nOutputStrLen = WideCharToMultiByte(CP_ACP, 0, lpwszStrIn, nInputStrLen, NULL, 0, 0, 0) + 2;
+        pszOut = new char[nOutputStrLen];
+        if (pszOut != NULL) {
+            memset(pszOut, 0x00, nOutputStrLen);
+            WideCharToMultiByte(CP_ACP, 0, lpwszStrIn, nInputStrLen, pszOut, nOutputStrLen, 0, 0);
+        }
+    }
+    return  pszOut;
+}
+
+//char* ChooseFiles() {
+//
+//    OPENFILENAME ofn;
+//    TCHAR szOpenFileNames[80 * MAX_PATH] = { 0 };
+//    TCHAR szPath[MAX_PATH];
+//    TCHAR szFileName[80 * MAX_PATH];
+//
+//    int nLen = 0;
+//    TCHAR* p = NULL;
+//    ZeroMemory(&ofn, sizeof(ofn));
+//
+//    ofn.lStructSize = sizeof(ofn);
+//
+//    ofn.hwndOwner = NULL;
+//
+//    ofn.lpstrFile = szOpenFileNames;
+//
+//    ofn.nMaxFile = sizeof(szOpenFileNames);
+//
+//    ofn.lpstrFile[0] = _T('\0');
+//
+//    ofn.lpstrFilter = _T("All\0*.*\0.mp4\0*.mp4\0.avi\0*.avi\0.mkv\0*.mkv\0.rmvb\0*.rmvb\0.f4v\0*.f4v\0.flv\0*.flv\0.m4v\0*.m4v\0.mpg\0*.mpg\0\0");
+//    ofn.nFilterIndex = 1;
+//
+//    ofn.lpstrTitle = _T("请选择视频");
+//
+//    ofn.Flags = OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT | OFN_HIDEREADONLY | OFN_EXPLORER;
+//
+//    if (!::GetOpenFileName(&ofn)) {
+//        return new char[0];
+//    }
+//
+//    lstrcpyn(szPath, szOpenFileNames, ofn.nFileOffset);
+//
+//    szPath[ofn.nFileOffset] = '\0';
+//    nLen = lstrlen(szPath);
+//  
+//    if (szPath[nLen - 1] != '\\') {
+//        lstrcat(szPath, _T("\\"));
+//    }
+//
+//    p = szOpenFileNames + ofn.nFileOffset;
+//
+//    ZeroMemory(szFileName, sizeof(szFileName));
+//
+//    std::string str = "";
+//
+//    while (*p) {
+//        std::string fileName = LPWSTR2LPSTR(p);
+//
+//        std::string filePath = LPWSTR2LPSTR(szPath);
+//
+//        std::string completePath = filePath + fileName;
+//
+//        str += completePath + "***";
+//
+//        p += lstrlen(p) + 1;
+//    }
+//
+//    char* strc = new char[strlen(str.c_str()) + 1];
+//    const char* cc = str.c_str();
+//    strcpy_s(strc, str.size() + 1, cc);
+//
+//    return strc;
+//}
+
+std::string OpenFileName(const char *filter, HWND owner) {
+    OPENFILENAME ofn;
+    char fileName[MAX_PATH] = "";
+    ZeroMemory(&ofn, sizeof(ofn));
+
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = owner;
+    ofn.lpstrFilter = filter;
+    ofn.lpstrFile = fileName;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+    ofn.lpstrDefExt = "";
+
+    std::string fileNameStr;
+
+    if (GetOpenFileName(&ofn))
+        fileNameStr = fileName;
+
+    return fileNameStr;
 }
 
 #pragma optimize("",on)

@@ -13,16 +13,23 @@ int main()
     //将模型x,y,z轴分为100个体素
     int VoxelInputData = 70;
     ObjMesh * newObjMesh;
-    newObjMesh = new ObjMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/li_final_tree_last.obj");
+    //newObjMesh = new ObjMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/li_final_tree_last.obj");
+    //newObjMesh = new ObjMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/tree.obj");
+    newObjMesh = new ObjMesh("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/tree.obj");
     double expansionFactor = 1.2;
     int depth = 0;
     int ResolutionArray[3] = { VoxelInputData, VoxelInputData, VoxelInputData };
     CObjMappingVoxel * objMeshVoxels = new CObjMappingVoxel(newObjMesh, ResolutionArray, depth, expansionFactor);
     objMeshVoxels->CalculateEachGroupsVoxels();
-    objMeshVoxels->RemoveOverlappingVoxelsInTwoGroups(1, 3);
-    objMeshVoxels->RemoveOverlappingVoxelsInTwoGroups(2, 0);
-    //objMeshVoxels->RemoveOverlappingVoxelsInTwoGroups(0, 1);
-    objMeshVoxels->SaveCorrespondingVoxelOfTreeGroup("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/ObjMappingVoxel");
+    //yellow_tree
+    //objMeshVoxels->RemoveOverlappingVoxelsInTwoGroups(1, 3);
+    //objMeshVoxels->RemoveOverlappingVoxelsInTwoGroups(2, 0);
+
+    //minimaple
+    objMeshVoxels->RemoveOverlappingVoxelsInTwoGroups(1, 0);
+    objMeshVoxels->RemoveOverlappingVoxelsInTwoGroups(2,1);
+    //objMeshVoxels->SaveCorrespondingVoxelOfTreeGroup("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/ObjMappingVoxel");
+    objMeshVoxels->SaveCorrespondingVoxelOfTreeGroup("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/FixedKOthrVegType/70/ObjMappingVoxel");
 
 }
 

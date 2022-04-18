@@ -102,51 +102,20 @@ void CVegaFemFactory::readFramesDeformationData(std::vector<Common::SFileFrames>
 					std::cout << "Error: could not open vertex file" << m_FilesData[fileIndex].FilePath << std::endl;
 				}
 				int Frameindex = 1;
-				/*int stop = 0;*/
-				//while (getline(positionFile, lineString))
-				//{
-				//	//getline(positionFile, lineString);
-				//	//getline(positionFile, lineString);
-				//	sprintf(s, "Position%d", timeStepCount);
-				//	std::istringstream sin(lineString);
-				//	std::string str;
-				//	sin >> str;//Position%04d后面有空格
-				//	//一帧
-				//	if (str == s)
-				//	{
-				//		std::string VertexSizeStr;
-				//		getline(positionFile, VertexSizeStr);
-				//		int VertexSize = atoi(VertexSizeStr.c_str());
-
-				//		getline(positionFile, lineString);
-				//		std::istringstream dataset(lineString);
-
-				//		//一个位移文件数据中的一帧顶点位移
-				//		Common::SFileData tempFileData(Frameindex);
-				//		for (int j = 0; j < VertexSize; j++)
-				//		{
-				//			dataset >> position[0] >> position[1] >> position[2];
-				//			tempFileData.BaseFileDeformations.push_back(glm::vec3(position[0], position[1], position[2]));
-				//		}
-				//		timeStepCount++;
-				//		Frameindex++;
-				//		m_FilesData[fileIndex].Frames.push_back(tempFileData);
-				//	}
-				//	/*stop++;*/
-				//}
+				
 				FILE *fileDir = fopen(m_FilesData[fileIndex].FilePath.c_str(), "rb");
 				if(fileDir==NULL)
 				{
 					perror("read_file fopen");
 					return;
 				}
-				std::vector<glm::vec3>Udata(35132);//Udata[0]
+				//std::vector<glm::vec3>Udata(35132);//Udata[0]
+                int verticesNum = m_ModelTransformStruct->getVerticesNumber();
 				Common::SFileData singFrame;
-				singFrame.BaseFileDeformations.resize(35132);
+				singFrame.BaseFileDeformations.resize(verticesNum);
 				clock_t start1 = clock();
-				while (fread(reinterpret_cast<char*>(&singFrame.BaseFileDeformations[0]), sizeof(glm::vec3) * 35132, 1, fileDir))
+				while (fread(reinterpret_cast<char*>(&singFrame.BaseFileDeformations[0]), sizeof(glm::vec3) * verticesNum, 1, fileDir))
 				{
-					//
 					m_FilesData[fileIndex].Frames.push_back(singFrame);
 				}
 				clock_t end1 = clock();
@@ -244,109 +213,108 @@ void CVegaFemFactory::readFramesDeformationData(std::vector<Common::SFileFrames>
 
 void CVegaFemFactory::readKVFFileData(const std::string & vFile, Common::SFileFrames & vFileFrame)
 {
-	const size_t last_slash_idx = vFile.rfind('.txt');
-	std::string FramesKVFFileName = vFile.substr(0, last_slash_idx - 3);
-	FramesKVFFileName = FramesKVFFileName + ".spkvf";
-	std::ifstream KVFFile(FramesKVFFileName);
-	std::string lineString;
-	if (!KVFFile.is_open())
-	{
-		std::cout << "Error: could not open vertex file" << FramesKVFFileName << std::endl;
-		return;
-	}
-	
-	double position[3];
-	while (getline(KVFFile, lineString))
-	{
-		getline(KVFFile, lineString);
-		int ElementNumber = atoi(lineString.c_str()) * 8 * 3;
-		Common::SpKVFData tempKVFData;
+    const size_t last_slash_idx = vFile.rfind('.txt');
+    std::string FramesKVFFileName = vFile.substr(0, last_slash_idx - 3);
+    FramesKVFFileName = FramesKVFFileName + ".spkvf";
+    std::ifstream KVFFile(FramesKVFFileName);
+    std::string lineString;
+    if (!KVFFile.is_open())
+    {
+        std::cout << "Error: could not open vertex file" << FramesKVFFileName << std::endl;
+        return;
+    }
+    double position[3];
+    while (getline(KVFFile, lineString))
+    {
+        getline(KVFFile, lineString);
+        int ElementNumber = atoi(lineString.c_str()) * 8 * 3;
+        Common::SpKVFData tempKVFData;
 
-		Common::SForceDirection tempWindDirection(vFileFrame.Theta, vFileFrame.Phi);
-		for (int i = 0; i < 5; i++)
-		{
-			tempKVFData.WindDirection.push_back(tempWindDirection);
-		}
-		getline(KVFFile, lineString);
-		if (lineString == "FrameIndex")
-		{
-			getline(KVFFile, lineString);
-			tempKVFData.FrameIndex = atoi(lineString.c_str());
-		}
-		//getline(KVFFile, lineString);
-		getline(KVFFile, lineString);
-		if (lineString == "Force")
-		{
-			getline(KVFFile, lineString);
-			std::istringstream ForceSet(lineString);
-			std::vector<int> tempForces;
-			for (auto k = 0; k < Common::ForcesSampling; k++)
-			{
-				double tempKnumber;
-				ForceSet >> tempKnumber;
-				tempForces.push_back(tempKnumber);
-				//初始化存在错误
-				//tempKNumbers.push_back(tempKnumber);
-			}
-			tempKVFData.Forces = tempForces;
-		}
-		getline(KVFFile, lineString);
-		for (auto i = 0; i < ElementNumber; i++)
-		{		
-			getline(KVFFile, lineString);
-			std::istringstream DataSet(lineString);
-			int KmatrixOneLineNumber;
-			DataSet >> KmatrixOneLineNumber;
-			tempKVFData.KLengths.push_back(KmatrixOneLineNumber);
-			std::vector<double> tempKNumbers;
-			for (auto k = 0; k < KmatrixOneLineNumber; k++)
-			{
-				double tempKnumber;
-				DataSet >> tempKnumber;
-				//初始化存在错误
-				tempKNumbers.push_back(tempKnumber);
-			}
-			tempKVFData.Kmatrix.push_back(tempKNumbers);
-		}
-		getline(KVFFile, lineString);
-		if (lineString == "internalForces")
-		{
-			getline(KVFFile, lineString);
-			int internalForceNumbers = atoi(lineString.c_str());
-			for (auto i = 0; i < internalForceNumbers; i++)
-			{
-				getline(KVFFile, lineString);
-				std::istringstream InterFace(lineString);
-				double temp;
-				InterFace >> temp;
-				for (int j = 0; j < 3; j++)
-				{
-					InterFace >> position[0] >> position[1] >> position[2];				
-				}
-				tempKVFData.InternalForces.push_back(glm::vec3(position[0], position[1], position[2]));
-			}
-		}
-		getline(KVFFile, lineString);
-		if (lineString == "velocity")
-		{
-			getline(KVFFile, lineString);
-			int velocityNumbers = atoi(lineString.c_str());
-			for (auto i = 0; i < velocityNumbers; i++)
-			{
-				getline(KVFFile, lineString);
-				std::istringstream Velocity(lineString);
-				double temp;
-				Velocity >> temp;
-				for (int j = 0; j < 3; j++)
-				{
-					Velocity >> position[0] >> position[1] >> position[2];
-				}
-				tempKVFData.Velocity.push_back(glm::vec3(position[0], position[1], position[2]));
-			}
-		}
-		vFileFrame.KVFFrameDatas.push_back(tempKVFData);
-	}
-	
+        Common::SForceDirection tempWindDirection(vFileFrame.Theta, vFileFrame.Phi);
+        for (int i = 0; i < 5; i++)
+        {
+            tempKVFData.WindDirection.push_back(tempWindDirection);
+        }
+        getline(KVFFile, lineString);
+        if (lineString == "FrameIndex")
+        {
+            getline(KVFFile, lineString);
+            tempKVFData.FrameIndex = atoi(lineString.c_str());
+        }
+        getline(KVFFile, lineString);
+        if (lineString == "Force")
+        {
+            getline(KVFFile, lineString);
+            std::istringstream ForceSet(lineString);
+            std::vector<int> tempForces;
+            for (auto k = 0; k < Common::ForcesSampling; k++)
+            {
+                double tempKnumber;
+                ForceSet >> tempKnumber;
+                tempForces.push_back(tempKnumber);
+            }
+            tempKVFData.Forces = tempForces;
+        }
+        getline(KVFFile, lineString);
+        if (lineString == "Kmatrix")
+        {
+            getline(KVFFile, lineString);
+            int kMatrixLines = atoi(lineString.c_str());
+            for (auto i = 0; i < kMatrixLines; i++)
+            {
+                getline(KVFFile, lineString);
+                std::istringstream DataSet(lineString);
+                int KmatrixOneLineNumber;
+                DataSet >> KmatrixOneLineNumber;
+                tempKVFData.KLengths.push_back(KmatrixOneLineNumber);
+                std::vector<double> tempKNumbers;
+                for (auto k = 0; k < KmatrixOneLineNumber; k++)
+                {
+                    double tempKnumber;
+                    DataSet >> tempKnumber;
+                    tempKNumbers.push_back(tempKnumber);
+                }
+                tempKVFData.Kmatrix.push_back(tempKNumbers);
+            }
+        }
+        getline(KVFFile, lineString);
+        if (lineString == "internalForces")
+        {
+            getline(KVFFile, lineString);
+            int internalForceNumbers = atoi(lineString.c_str());
+            for (auto i = 0; i < internalForceNumbers; i++)
+            {
+                getline(KVFFile, lineString);
+                std::istringstream InterFace(lineString);
+                double temp;
+                InterFace >> temp;
+                for (int j = 0; j < 3; j++)
+                {
+                    InterFace >> position[0] >> position[1] >> position[2];
+                }
+                tempKVFData.InternalForces.push_back(glm::vec3(position[0], position[1], position[2]));
+            }
+        }
+        getline(KVFFile, lineString);
+        if (lineString == "velocity")
+        {
+            getline(KVFFile, lineString);
+            int velocityNumbers = atoi(lineString.c_str());
+            for (auto i = 0; i < velocityNumbers; i++)
+            {
+                getline(KVFFile, lineString);
+                std::istringstream Velocity(lineString);
+                double temp;
+                Velocity >> temp;
+                for (int j = 0; j < 3; j++)
+                {
+                    Velocity >> position[0] >> position[1] >> position[2];
+                }
+                tempKVFData.Velocity.push_back(glm::vec3(position[0], position[1], position[2]));
+            }
+        }
+        vFileFrame.KVFFrameDatas.push_back(tempKVFData);
+    }
 }
 
 //多线程读取一个文件
@@ -863,18 +831,15 @@ void CVegaFemFactory::initMatchedFrameStruct(int vTreeSize)
 
 void CVegaFemFactory::initKVFDataSearchRangeError()
 {
-	for (int i = 0; i < 5; i++)
-	{
-		int a = 1;
-	}
 	Common::SpKVFData firstKVFData4FirstFile = getFirstKVFDataFromFirstFileFrame();
 	//compute V RangeError
-	for (auto tempv : firstKVFData4FirstFile.Velocity)
-		m_VelocityRangeError.push_back(OneNumberRangeError(tempv.x,1,5));
-
+    for (auto tempv : firstKVFData4FirstFile.Velocity)
+    {
+        m_VelocityRangeError.push_back(OneNumberRangeError(tempv.x, 1, 5));
+    }
+		
 	for (auto tempF : firstKVFData4FirstFile.InternalForces)
 		m_InternalForcesError.push_back(OneNumberRangeError(tempF.x,1,5));
-
 	for (auto tempK : firstKVFData4FirstFile.Kmatrix)
 	{
 		std::vector<double> tempOneVertexRangeError;
@@ -933,7 +898,11 @@ void CVegaFemFactory::searchMatchedFrameSequences(std::vector<std::vector<int>> 
 				m_TempSpKVFData[treeIndex].WindDirection.push_back(vForceDirection[treeIndex][k]);
 			}
 			//可以并行
-			searchMatchedOneTreeFrameSequences(m_MultipleFramesIndex[treeIndex], m_TempSpKVFData[treeIndex], voExtraForces[treeIndex], m_CurrentFrameIndex[treeIndex], m_Flag[treeIndex]);
+           
+            searchMatchedOneTreeFrameSequences(m_MultipleFramesIndex[treeIndex], m_TempSpKVFData[treeIndex], voExtraForces[treeIndex], m_CurrentFrameIndex[treeIndex], m_Flag[treeIndex]);
+
+
+			
 			for (int j = 0; j < 5; j++)
 			{
 				m_MultipleFileAndFramesIndex[treeIndex][j].first = m_MultipleFramesIndex[treeIndex][j] / Common::SamplingFrameNumber;
@@ -1066,6 +1035,7 @@ void CVegaFemFactory::searchMatchedOneTreeFrameSequences(std::vector<int> & voMa
 
 		//k
 	//compare K Martix
+        clock_t start1 = clock();
 #pragma omp parallel for
 		for (int i = 0; i < m_KMartixSequence.size(); i++)
 		{
@@ -1100,6 +1070,9 @@ void CVegaFemFactory::searchMatchedOneTreeFrameSequences(std::vector<int> & voMa
 			}
 			tempKErrorSequence.push_back(std::make_pair(m_KMartixSequence[i].first, count));
 		}
+
+        clock_t end1 = clock();
+        //std::cout << "time is : " << (double)(end1 - start1) / CLOCKS_PER_SEC << "s" << std::endl;
 
 		//compare internalForces
 		for (int i = 0; i < m_InternalForcesSequence.size(); i++)
@@ -1167,11 +1140,11 @@ void CVegaFemFactory::searchMatchedOneTreeFrameSequences(std::vector<int> & voMa
 		sort(allWeightsSumResults.begin(), allWeightsSumResults.end(), [](const std::pair<int, double>&x, const std::pair<int, double>&y)->double {return x.second > y.second;});
 
         //test4.3
-        m_allWeightsSumResults.resize(allWeightsSumResults.size());
-        for (int i = 0; i < allWeightsSumResults.size(); i++)
-        {
-            m_allWeightsSumResults[i] = allWeightsSumResults[i];
-        }
+        //m_allWeightsSumResults.resize(allWeightsSumResults.size());
+        //for (int i = 0; i < allWeightsSumResults.size(); i++)
+        //{
+        //    m_allWeightsSumResults[i] = allWeightsSumResults[i];
+        //}
 
 		voSpKVData = m_AllReallyLoadConnectedFem[allWeightsSumResults[0].first / Common::SamplingFrameNumber].FemDataset[0]->KVFFrameDatas[(allWeightsSumResults[0].first % Common::SamplingFrameNumber) / 5];
 		voCurrentFrameIndex = allWeightsSumResults[0].first;

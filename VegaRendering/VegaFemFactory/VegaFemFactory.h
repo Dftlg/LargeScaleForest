@@ -1,7 +1,7 @@
 #pragma once
-
-
-
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 #include <iostream>
 #include <fstream>
 #include<sstream>
@@ -116,14 +116,14 @@ public:
 	{
 		return (abs(vFirstNumber - vSecondNumber) < vJudgeRange);
 	};
-	inline bool AbsError(glm::vec3 vFirstNumber, glm::vec3 vSecondNumber, double vJudegRange)
-	{
-		if (abs(vFirstNumber.x - vSecondNumber.x) < vJudegRange && 
-			abs(vFirstNumber.y - vSecondNumber.y) < vJudegRange &&
-			abs(vFirstNumber.z - vSecondNumber.z) < vJudegRange)
-			return true;
-		return false;
-	};
+    inline bool AbsError(glm::vec3 vFirstNumber, glm::vec3 vSecondNumber, double vJudegRange)
+    {
+        if (abs(vFirstNumber.x - vSecondNumber.x) <= vJudegRange &&
+            abs(vFirstNumber.y - vSecondNumber.y) <= vJudegRange &&
+            abs(vFirstNumber.z - vSecondNumber.z) <= vJudegRange)
+            return true;
+        return false;
+    };
 	inline bool AbsError(glm::vec3 vFirstNumber, glm::vec3 vSecondNumber, double vJudegRange,int vReduce)
 	{
 		if (abs((vFirstNumber.x - vSecondNumber.x)/vReduce) < vJudegRange &&
@@ -132,6 +132,10 @@ public:
 			return true;
 		return false;
 	};
+
+
+
+
 	inline double GaussianFunction(double vVariable,double vSigma=1, double vMiu=0,double vTruncated=0.001)
 	{
 		double GaussianValue=(1 / (vSigma*sqrt(2 * Common::Pi))*exp(-0.5*pow((vVariable - vMiu) / vSigma, 2)));

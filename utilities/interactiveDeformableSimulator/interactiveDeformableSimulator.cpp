@@ -962,7 +962,7 @@ void idleFunction(void)
 		TempExtraForces.clear();
 	}*/
 	//存储deltaU的形变数据!!!重要需要更改位置
-	//deformationsave.SaveDeformationVertexFromBaseModel(deltaSecondaryu, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter-1);
+	deformationsave.SaveDeformationVertexFromBaseModel(deltaSecondaryu, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter-1);
 
     //存储U的形变数据
 	//if (subTimestepCounter == 20)
@@ -2558,7 +2558,9 @@ int main(int argc, char* argv[])
  /* configFilename = string("D:/GraduationProject/Vega/models/newgrass/voxelizegrass/voxelizegrass.config");*/
   //configFilename = string("../../models/yellow_tree/tree.config");
   //configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree.config");
-  configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OthrVegType/70/tree.config");
+  configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/FixedKOthrVegType/70/tree.config");
+  //configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/FixedKOthrVegType/70/tree.config");
+  //configFilename = string("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/FixedKOthrVegType/70/tree.config");
   printf("Loading scene configuration from %s.\n", configFilename.c_str());
 
   initConfigurations(); // parse the config file同时输出到cmd

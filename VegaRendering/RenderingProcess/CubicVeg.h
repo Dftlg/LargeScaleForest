@@ -54,7 +54,8 @@ public:
 
     //剔除模型的随机体素
 
-    void EraseRandomVoxel();
+    //void EraseRandomVoxel();
+    void EraseSpecGroupRandomVoxel(int vRegionGroup);
 
     void SaveKeyStiffnessVoxel(const std::string & vDirectionPath);
     void ReadBaseVegRegionVoxel(const std::string &vPath);
@@ -90,6 +91,9 @@ private:
     static bool __compSubgroupVoxelValue(Common::SSubgGroupMaxValVoxel& vFirst, Common::SSubgGroupMaxValVoxel& vSecond);
     void __CalculateGroupVoxelValue();
     void __InitColor();
+
+    int RandomNumber(int vMinRange,int vMaxRange);
+
     //void __ResetRegionWithMaterialsDataSet();
     CMaterial* __GetGroupSetRelatedMaterial(int vGroupIndex);
 

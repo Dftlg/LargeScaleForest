@@ -1,5 +1,5 @@
 #include"CubicVeg.h"
-#pragma optimize("", off)
+
 
 //     3 - - - 2
 //    /|      /|
@@ -724,15 +724,26 @@ void CubicVegMesh::EraseMaxValueVoxelWithAllChildGroup(int vIndexRegionNumber)
     }  
 }
 
-void CubicVegMesh::EraseRandomVoxel()
-{
-    int RandomRegionGroup = GetRandomNumber(0,m_VoxelGroups.size()-1);
-    int RandomSubRegionsGroup = GetRandomNumber(0, m_VoxelGroups[RandomRegionGroup].size() - 1);
+//void CubicVegMesh::EraseRandomVoxel()
+//{
+//    int RandomRegionGroup = GetRandomNumber(0,m_VoxelGroups.size()-1);
+//    int RandomSubRegionsGroup = GetRandomNumber(0, m_VoxelGroups[RandomRegionGroup].size() - 1);
+//
+//    bool tempJudge = __eraseMaximumValueVoxels(m_VoxelGroups[RandomRegionGroup][RandomSubRegionsGroup]);
+//    if (tempJudge == false)
+//    {
+//        EraseRandomVoxel();
+//    }
+//}
 
-    bool tempJudge = __eraseMaximumValueVoxels(m_VoxelGroups[RandomRegionGroup][RandomSubRegionsGroup]);
+void CubicVegMesh::EraseSpecGroupRandomVoxel(int vRegionGroup)
+{
+    int RandomSubRegionsGroup = RandomNumber(0, m_VoxelGroups[vRegionGroup].size() - 1);
+
+    bool tempJudge = __eraseMaximumValueVoxels(m_VoxelGroups[vRegionGroup][RandomSubRegionsGroup]);
     if (tempJudge == false)
     {
-        EraseRandomVoxel();
+        EraseSpecGroupRandomVoxel(vRegionGroup);
     }
 }
 
@@ -1112,4 +1123,14 @@ void CubicVegMesh::__InitColor()
     
 }
 
-#pragma optimize("", on)
+int CubicVegMesh::RandomNumber(int vMinRange, int vMaxRange)
+{
+    std::default_random_engine e;
+    LARGE_INTEGER seed;
+    QueryPerformanceFrequency(&seed);
+    QueryPerformanceCounter(&seed);
+    e.seed(seed.QuadPart);
+    std::uniform_int_distribution<unsigned> u(vMinRange, vMaxRange);
+    int Random = u(e);
+    return Random;
+}

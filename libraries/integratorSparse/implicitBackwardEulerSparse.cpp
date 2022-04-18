@@ -390,104 +390,107 @@ void ImplicitBackwardEulerSparse::WriteKRFextVMartixToFile(const std::string & v
 
 }
 
-void ImplicitBackwardEulerSparse::WriteSpecificKRFextVMattixToFile(const std::string &vFilePath, int vFrameIndex, std::vector<int>& vElementIndex,std::vector<int> & vForce)
+void ImplicitBackwardEulerSparse::WriteSpecificKRFextVMattixToFile(const std::string &vFilePath, int vFrameIndex, std::vector<int>& vElementIndex, std::vector<int> & vForce)
 {
-	const size_t last_slash_idx = vFilePath.rfind('.txt');
-	std::string FramesBlockFileName = vFilePath.substr(0, last_slash_idx - 3);
-	FramesBlockFileName = FramesBlockFileName + ".spkvf";
+    const size_t last_slash_idx = vFilePath.rfind('.txt');
+    std::string FramesBlockFileName = vFilePath.substr(0, last_slash_idx - 3);
+    FramesBlockFileName = FramesBlockFileName + ".spkvf";
+    std::ofstream connectionFile;
+    connectionFile.open(FramesBlockFileName, std::ios::in | std::ios::app);
 
-	std::ofstream connectionFile;
-	connectionFile.open(FramesBlockFileName, std::ios::in | std::ios::app);
+    int ElementNumber = forceModel->GetStencilForceModel()->GetNumStencilVertices(0);
 
-	int ElementNumber= forceModel->GetStencilForceModel()->GetNumStencilVertices(0);
+    if (connectionFile.is_open())
+    {
+        //输出体素个数
+        connectionFile << "ElementSize" << std::endl;
+        connectionFile << vElementIndex.size() << std::endl;
+        //输出帧号
+        connectionFile << "FrameIndex" << std::endl;
+        connectionFile << vFrameIndex << std::endl;
 
-	if (connectionFile.is_open())
-	{
-		//输出体素个数
-		connectionFile << "ElementSize" << std::endl;
-		connectionFile << vElementIndex.size() << std::endl;
-		//输出帧号
+        connectionFile << "Force" << std::endl;
+        for (auto forcenumber = 0; forcenumber < vForce.size(); forcenumber++)
+        {
+            connectionFile << vForce[forcenumber] << " ";
+        }
+        connectionFile << "\n";
+        connectionFile << "Kmatrix" << std::endl;
+        std::map<int, std::vector<double>> vertexInternalForce;
+        std::map<int, std::vector<double>> vertexVel;
+        std::map<int, std::vector<double>> vertexPos;
+        std::vector<int>RowLength;
+        std::vector<std::vector<double>>KMatrix;
+        for (int i = 0; i < vElementIndex.size(); i++)
+        {
+            //根据元素的索引号获取元素的八个顶点索引
+            const int *vIndices = forceModel->GetStencilForceModel()->GetStencilVertexIndices(0, vElementIndex[i]);
+            for (int v = 0; v < ElementNumber; v++)
+            {
+                //存储当前ele的某个顶点内力值
+                if (vertexInternalForce.count(vIndices[v]) == 0)
+                {
+                    std::vector<double> tempForcesxyz;
+                    tempForcesxyz.push_back(internalForces[vIndices[v] * 3]);
+                    tempForcesxyz.push_back(internalForces[vIndices[v] * 3 + 1]);
+                    tempForcesxyz.push_back(internalForces[vIndices[v] * 3 + 2]);
+                    vertexInternalForce.insert(std::make_pair(vIndices[v], tempForcesxyz));
 
-		connectionFile << "FrameIndex" << std::endl;
-		connectionFile << vFrameIndex << std::endl;
+                    std::vector<double> tempVelsxyz;
+                    tempVelsxyz.push_back(qvel[vIndices[v] * 3]);
+                    tempVelsxyz.push_back(qvel[vIndices[v] * 3 + 1]);
+                    tempVelsxyz.push_back(qvel[vIndices[v] * 3 + 2]);
+                    vertexVel.insert(std::make_pair(vIndices[v], tempVelsxyz));
 
-		connectionFile << "Force" << std::endl;
-		for (auto forcenumber = 0; forcenumber < vForce.size(); forcenumber++)
-		{
-			connectionFile << vForce[forcenumber] << " ";
-		}
-		connectionFile << "\n";
-		connectionFile << "Kmatrix" << std::endl;
-		std::map<int, std::vector<double>> vertexPos;
-		std::map<int, std::vector<double>> vertexVel;
-		for (int i = 0; i < vElementIndex.size(); i++)
-		{
-			//根据元素的索引号获取元素的八个顶点索引
-			const int *vIndices=forceModel->GetStencilForceModel()->GetStencilVertexIndices(0,vElementIndex[i]);
-			for (int v = 0; v < ElementNumber; v++)
-			{
-				//std::vector<int> RowLengthsInElement;
-				//存储当前ele的某个顶点内力值
-				if (vertexPos.count(vIndices[v]) == 0)
-				{
-					std::vector<double> tempForcesxyz;
-					tempForcesxyz.push_back(internalForces[vIndices[v] * 3]);
-					tempForcesxyz.push_back(internalForces[vIndices[v] * 3+1]);
-					tempForcesxyz.push_back(internalForces[vIndices[v] * 3+2]);
-					vertexPos.insert(std::make_pair(vIndices[v], tempForcesxyz));
-				}
 
-				if (vertexVel.count(vIndices[v]) == 0)
-				{
-					std::vector<double> tempVelsxyz;
-					tempVelsxyz.push_back(qvel[vIndices[v] * 3]);
-					tempVelsxyz.push_back(qvel[vIndices[v] * 3 + 1]);
-					tempVelsxyz.push_back(qvel[vIndices[v] * 3 + 2]);
-					vertexVel.insert(std::make_pair(vIndices[v], tempVelsxyz));
-				}
+                    //存储当前ele的某个顶点相关的某一维度相关顶点维度的数据 KMatrix
+                    for (int j = 0; j < 3; j++)
+                    {
+                        RowLength.push_back(temptangentStiffnessMatrix->GetRowLength(vIndices[v] * 3 + j));
+                        std::vector<double>RowMatrix;
+                        for (int k = 0; k < RowLength.back(); k++)
+                        {
+                            RowMatrix.push_back(temptangentStiffnessMatrix->GetEntry(vIndices[v] * 3 + j, k));
+                            double entry = temptangentStiffnessMatrix->GetEntry(vIndices[v] * 3 + j, k);
+                        }
+                        KMatrix.push_back(RowMatrix);
+                    }
+                }
+            }
+        }
 
-				//存储当前ele的某个顶点相关的某一维度相关顶点维度的数据
-				for (int j = 0; j < 3; j++)
-				{
-					int RowLength= temptangentStiffnessMatrix->GetRowLength(vIndices[v] * 3+j);
-					connectionFile << RowLength << " ";
-					for (int k = 0; k < RowLength; k++)
-					{
-						double entry = temptangentStiffnessMatrix->GetEntry(vIndices[v] * 3 + j, k);
-						connectionFile << entry << " ";
-					}
-					connectionFile << std::endl;
+        connectionFile << RowLength.size() << std::endl;
+        for (int i = 0; i < RowLength.size(); i++)
+        {
+            connectionFile << RowLength[i] << " ";
+            for (int k = 0; k < RowLength[i]; k++)
+            {
+                connectionFile << KMatrix[i][k] << " ";
+            }
+            connectionFile << "\n";
+        }
 
-				}
-			
-			}
-		}
-		connectionFile << "internalForces" << std::endl;
-		connectionFile << vertexPos.size() << std::endl;
-		for (auto it = vertexPos.begin(); it != vertexPos.end(); ++it)
-		{
-			connectionFile << (it)->first << " ";
-			for (int i = 0; i < 3; i++)
-				connectionFile << it->second[i]<<" ";
-			connectionFile << "\n";
-		}
+        connectionFile << "internalForces" << std::endl;
+        connectionFile << vertexInternalForce.size() << std::endl;
+        for (auto it = vertexInternalForce.begin(); it != vertexInternalForce.end(); ++it)
+        {
+            connectionFile << (it)->first << " ";
+            for (int i = 0; i < 3; i++)
+                connectionFile << it->second[i] << " ";
+            connectionFile << "\n";
+        }
 
-		connectionFile << "velocity" << std::endl;
-		connectionFile << vertexVel.size() << std::endl;
-		for (auto it = vertexVel.begin(); it != vertexVel.end(); ++it)
-		{
-			connectionFile << (it)->first << " ";
-			for (int i = 0; i < 3; i++)
-				connectionFile << it->second[i] << " ";
-			connectionFile << "\n";
-		}
-
-		/*connectionFile << "all point deformation" << std::endl;
-		for (int i = 0; i < r; i++)
-			connectionFile << q[i] << " ";
-		connectionFile << std::endl;*/
-	}
-
+        connectionFile << "velocity" << std::endl;
+        connectionFile << vertexVel.size() << std::endl;
+        for (auto it = vertexVel.begin(); it != vertexVel.end(); ++it)
+        {
+            connectionFile << (it)->first << " ";
+            for (int i = 0; i < 3; i++)
+                connectionFile << it->second[i] << " ";
+            connectionFile << "\n";
+        }
+    }
+#pragma endregion
 }
 
 #pragma optimize("", on)
