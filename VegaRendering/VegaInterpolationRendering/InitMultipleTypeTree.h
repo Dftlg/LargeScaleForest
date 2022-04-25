@@ -27,6 +27,8 @@ public:
     void InitSceneShadowShader(const char* vVertexPath, const char* vFragmentPath, const char* vGeometryPath = nullptr);
     void InitSceneDepthShader(const char* vVertexPath, const char* vFragmentPath, const char* vGeometryPath = nullptr);
 
+    void ClearMultipleTreeData();
+
 	void InitComputerShaderCalculateNormal(const char* vCompShader);
 	void InitNormalRelatedDate(int vTreeTypeIndex);
 

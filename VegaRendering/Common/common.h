@@ -37,6 +37,15 @@ namespace Common
 		CompShader
 	};
 
+    enum ETreeType
+    {
+        Polar,
+        Maple,
+        Apricot,
+        Other,
+        None
+    };
+
 	constexpr size_t NumOfBoundingBoxVertices = 8;
 	static inline glm::vec3 vec3_cast(const aiVector3D &vec3) { return glm::vec3(vec3.x, vec3.y, vec3.z); }
 	static inline glm::vec2 vec2_cast(const aiVector3D &vec2) { return glm::vec2(vec2.x, vec2.y); } // it's aiVector3D because assimp's texture coordinates use that
@@ -53,7 +62,7 @@ namespace Common
 
     /////each time change
 
-    const int AllTreesNumber =7;
+    const int AllTreesNumber =1;
 
     const int TreesTypeNumber =1;
 
@@ -124,11 +133,11 @@ namespace Common
 
 	static float Pi = 3.1415926;
 
-	static bool GenerateRandomTreePosition=false;
+	static bool GenerateRandomTreePosition=true;
 
 	//use Geom Or Comp Shader calculate Normal
 	static bool UseGeomOrCompCalculateNormal = false;
-	static ENormalCalculateType CalculateNormalType = ENormalCalculateType::GeomShader;
+	static ENormalCalculateType CalculateNormalType = ENormalCalculateType::CompShader;
 
 	static bool renderingGrass = false;
 	static bool renderingLightSource = false;
@@ -149,6 +158,12 @@ namespace Common
     //参考D:\GraduationProject\New-LargeScaleForest\LargeScaleForest\models\yellow_tree\OtherVegType\100文件夹的Read.me
 
     static bool renderingVegMesh = false;
+
+    //demo
+    static ETreeType treeType = ETreeType::None;
+    //static int frameIndex = 0;
+    static bool RenderingSence = false;
+    static bool AlreadyLoadData = false;
 
     enum DrawType
     {
@@ -491,6 +506,16 @@ namespace Common
         int UseFileNumber;
         std::string TreeWindConfig;
         int SingleTypeTreeAllNumber;
+
+        SVegaInterPolationDataStruct() = default;
+
+        SVegaInterPolationDataStruct(const std::string& vTreeRelatedDeformationDataPath, const int & vUseFileNumber, const std::string& vTreeObjPath, const std::string& vTreeWindConfig)
+        {
+            TreeRelatedDeformationDataPath = vTreeRelatedDeformationDataPath;
+            UseFileNumber = vUseFileNumber;
+            TreeObjPath = vTreeObjPath;
+            TreeWindConfig = vTreeWindConfig;
+        }
     };
 
 }

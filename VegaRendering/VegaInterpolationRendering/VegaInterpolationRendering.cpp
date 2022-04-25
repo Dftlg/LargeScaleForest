@@ -75,6 +75,11 @@ int captureScreen2Img(const std::string& vFileName, int vQuality);
 unsigned int loadTexture(char const * path);
 unsigned int loadCubemap(std::vector<std::string> faces);
 void saveObjData(const std::string& vPath, std::vector<glm::vec3> & vdata);
+void LoadSkyData();
+void LoadTerrainData();
+void LoadTreeData();
+void ShowGUIWindow(bool* p_open);
+void ShowSenceMenuFile();
 
 //2560 1440
 //1920 1080  960 1080
@@ -87,6 +92,8 @@ bool automoveCamera = false;
 bool MouseShow = false;
 
 bool startsaveCameraPara = false;
+
+bool StartRendering=false;
 // camera 0 0.6 1
 //0, 4.0, 0
 //CCamera Camera(glm::vec3(0, 0.6, 1));
@@ -111,11 +118,11 @@ bool startsaveCameraPara = false;
 //正对视角 3月9日yellowtree以前相机位置
 //CCamera Camera(glm::vec3(0.026077, 0.669017, 1.610339));
 //mapletree相机位置实验4.1
-//CCamera Camera(glm::vec3(0.947258, 1.304092, -2.140342));
+CCamera Camera(glm::vec3(0.947258, 1.304092, -2.140342));
 
 //3-29日experiment4.1 maple相机位置
 
-CCamera Camera(glm::vec3(0.106298, 1.139172, -2.645638));
+//CCamera Camera(glm::vec3(0.106298, 1.139172, -2.645638));
 
 float LastX = SCR_WIDTH / 2.0f;
 float LastY = SCR_HEIGHT / 2.0f;
@@ -160,6 +167,139 @@ int VoxelGroupIndex = 11;
 
 int test = 0;
 int test1 = 0;
+
+// skybox VAO
+unsigned int skyboxVAO, skyboxVBO;
+unsigned int cubemapTexture;
+CShader* ourSkyBoxShader;
+
+glm::mat4 lightProjection, lightView;
+glm::mat4 lightSpaceMatrix;
+float near_plane = 1.0f, far_plane = 5.0f;
+CRenderStaticSence* RenderStaticSence;
+CInitMultipleTypeTree* MultipleTypeTree;
+
+//terrain
+std::vector<double> TerrainHeigth;
+double TerrainX;
+double TerrainZ;
+double XDensityScale;
+double ZDensityScale;
+int TerrainHeightZDensity;
+
+const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+unsigned int depthMapFBO;
+unsigned int depthMap;
+#pragma region skybox vertices data
+float skyboxVertices[] = {
+    // positions          
+    -1.0f,  1.0f, -1.0f,
+    -1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+
+    -1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f,  1.0f,
+    -1.0f, -1.0f,  1.0f,
+
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+
+    -1.0f, -1.0f,  1.0f,
+    -1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f,  1.0f,
+
+    -1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+    -1.0f,  1.0f,  1.0f,
+    -1.0f,  1.0f, -1.0f,
+
+    -1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f,  1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f,  1.0f,
+     1.0f, -1.0f,  1.0f
+};
+#pragma endregion
+
+glm::vec3 lightPosition[] = {
+    glm::vec3(0.0f,3.5f,0.0f)
+};
+glm::vec3 lightPointColors[] = {
+    glm::vec3(1.0f, 1.0f, 1.0f),
+};
+
+static bool renderingWhite = false;
+static bool renderingTerrain = false;
+static bool showPolar = false;
+static bool showMaple = false;
+static bool showApricot = false;
+static bool showOther = false;
+std::vector<float> tempFrame;
+
+std::vector<Common::SConnectedFemFiles> vAllReallyLoadConnectedFem;
+std::vector<glm::vec3>sumDeltaU;
+boost::thread startInsertIntoQueue;
+
+std::string ReadDataConfigFilePath;
+Common::SVegaInterPolationDataStruct InterPolationDataStruct;
+
+
+void LoadSkyData()
+{
+    glGenVertexArrays(1, &skyboxVAO);
+    glGenBuffers(1, &skyboxVBO);
+    glBindVertexArray(skyboxVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+    std::vector<std::string> faces;
+    //Each time change*************
+    bool temp = Common::renderingTerrainOrWhiltScence;
+    if (temp)
+    {
+        faces.push_back("resources/textures/sky/FluffballDayLeft.png");
+        faces.push_back("resources/textures/sky/FluffballDayRight.png");
+        faces.push_back("resources/textures/sky/FluffballDayTop.png");
+        faces.push_back("resources/textures/sky/FluffballDayBottom.png");
+        faces.push_back("resources/textures/sky/FluffballDayFront.png");
+        faces.push_back("resources/textures/sky/FluffballDayBack.png");
+    }
+    else
+    {
+        faces.push_back("resources/textures/whitesky/white.png");
+        faces.push_back("resources/textures/whitesky/white.png");
+        faces.push_back("resources/textures/whitesky/white.png");
+        faces.push_back("resources/textures/whitesky/white.png");
+        faces.push_back("resources/textures/whitesky/white.png");
+        faces.push_back("resources/textures/whitesky/white.png");
+    }
+
+    std::cout << "Common::renderingTerrainOrWhiltScence" << temp << std::endl;
+
+    // skybox load textures
+    cubemapTexture = loadCubemap(faces);
+    ourSkyBoxShader->use();
+    ourSkyBoxShader->setInt("skybox", 0);
+}
+
 //前一个std::vector表示匹配树的个数，后一个std::vector表示每一帧中需要的数据
 //vMultipleExtraForces 表示每一帧风的方向，每次用5帧来进行搜索
 //vWindDirection 表示每帧一个风的方向
@@ -283,8 +423,6 @@ int main()
 
 #pragma endregion
 	/////////////////////////////
-#pragma region build and compile shaders
-	CShader ourSkyBoxShader("skybox.vert", "skybox.frag");
 
 
 #pragma endregion
@@ -307,52 +445,6 @@ int main()
 	};
 #pragma endregion
 
-#pragma region skybox vertices data
-	float skyboxVertices[] = {
-		// positions          
-		-1.0f,  1.0f, -1.0f,
-		-1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-
-		-1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
-
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-
-		-1.0f, -1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
-
-		-1.0f,  1.0f, -1.0f,
-		 1.0f,  1.0f, -1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f, -1.0f,
-
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		 1.0f, -1.0f,  1.0f
-	};
-#pragma endregion
 
 #pragma region lights data
 	glm::vec3 lightVertices[] = {
@@ -378,16 +470,11 @@ int main()
 		-1.5f,  2.0f, 1.0f,	1.0f, 1.0f, 1.0f
 	};
 
-	glm::vec3 lightPosition[] = {
-		glm::vec3(0.0f,3.5f,0.0f)
-	};
-	glm::vec3 lightPointColors[] = {
-		glm::vec3(1.0f, 1.0f, 1.0f),
-	};
 
 
 #pragma endregion
-
+    //#pragma region build and compile shaders
+	ourSkyBoxShader=new CShader("skybox.vert", "skybox.frag");
 #pragma region bind light VAO and VBO
 	unsigned int lightVAO, lightPotionVBO;
 	glGenVertexArrays(1, &lightVAO);
@@ -425,54 +512,11 @@ int main()
 
     //glEnable(GL_CULL_FACE);
 
-#pragma region skybox VAO and VBO and Texture
-	// skybox VAO
-	unsigned int skyboxVAO, skyboxVBO;
-	glGenVertexArrays(1, &skyboxVAO);
-	glGenBuffers(1, &skyboxVBO);
-	glBindVertexArray(skyboxVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-    std::vector<std::string> faces;
-	//Each time change*************
-    if (Common::renderingTerrainOrWhiltScence == true)
-    {
-        faces.push_back("resources/textures/sky/FluffballDayLeft.png");
-        faces.push_back("resources/textures/sky/FluffballDayRight.png");
-        faces.push_back("resources/textures/sky/FluffballDayTop.png");
-        faces.push_back("resources/textures/sky/FluffballDayBottom.png");
-        faces.push_back("resources/textures/sky/FluffballDayFront.png");
-        faces.push_back("resources/textures/sky/FluffballDayBack.png");
-    }
-    else
-    {
-        faces.push_back("resources/textures/whitesky/white.png");
-        faces.push_back("resources/textures/whitesky/white.png");
-        faces.push_back("resources/textures/whitesky/white.png");
-        faces.push_back("resources/textures/whitesky/white.png");
-        faces.push_back("resources/textures/whitesky/white.png");
-        faces.push_back("resources/textures/whitesky/white.png");
-    }
-	//End Each time change*************
-	//***************
-	/**/
-	//***************
-
-
-	// skybox load textures
-	unsigned int cubemapTexture = loadCubemap(faces);
-	ourSkyBoxShader.use();
-	ourSkyBoxShader.setInt("skybox", 0);
-#pragma endregion
 
 	/////////////////parpall shadow
-	const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
-	unsigned int depthMapFBO;
+
 	glGenFramebuffers(1, &depthMapFBO);
-	unsigned int depthMap;
+
 	glGenTextures(1, &depthMap);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
@@ -489,245 +533,9 @@ int main()
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	///////////////////////////////
-	glm::mat4 lightProjection, lightView;
-	glm::mat4 lightSpaceMatrix;
-	float near_plane = 1.0f, far_plane = 5.0f;
 
 
-	//Each time change*************
-    if (Common::renderingTerrainOrWhiltScence == true)
-    {
-        lightProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, near_plane, far_plane);
-    }
-    else
-    {
-        lightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, near_plane, far_plane);
-    }
 	
-	//End Each time change*************
-	//
-	//***************
-
-	lightView = glm::lookAt(lightPosition[0], glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.1));
-	lightSpaceMatrix = lightProjection * lightView;
-
-#pragma region bind static
-	std::vector<float> modelscale;
-
-	CRenderStaticSence RenderStaticSence(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, lightSpaceMatrix, lightPosition[0], lightPointColors[0]);
-
-	//FirstTypeTerrain
-	//Each time change*************
-    if (Common::renderingTerrainOrWhiltScence == true)
-    {
-        RenderStaticSence.loadStaticModel("terrain", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/terrain/Mountains2.obj");
-        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
-        RenderStaticSence.setModelScale(0.06f);
-    }
-    else
-    {
-        RenderStaticSence.loadStaticModel("terrain", "G:/model/plane/plane.obj");
-        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
-        RenderStaticSence.setModelScale(1.0f);
-    }
-	
-	//modelscale.push_back(0.06f);
-	//End Each time change*************
-
-	//SecondTypePlane
-	//**********************
-	/**/
-	//********************
-
-	std::vector<float> rotations;
-	std::vector<std::pair<double, double>> transform;
-	std::vector<double> zTransform;
-	//terrain
-	rotations.push_back(0);
-	transform.push_back(std::make_pair(0, 0));
-
-	//Each time change*************
-    if (Common::renderingTerrainOrWhiltScence == true)
-    {
-        zTransform.push_back(-12.0);
-    }
-    else
-    {
-        zTransform.push_back(0.0);
-    }
-	//End Each time change*************
-	//***************
-	//
-	//***************
-
-
-	RenderStaticSence.setTerrain("terrain", zTransform);
-
-	rotations.clear();
-	transform.clear();
-	zTransform.clear();
-
-	RenderStaticSence.initModelShaderPara("terrain");
-	RenderStaticSence.setTerrainHightMesh("terrain",20, 20, 200, 200);
-	RenderStaticSence.getTerrain("terrain");
-
-	//Each time change*************
-    if (Common::renderingTerrainOrWhiltScence == true)
-    {
-        RenderStaticSence.setTerrainHeightYToZero();
-    }
-	//End Each time change*************
-    //lightsource
-    if (Common::renderingLightSource == true)
-    {
-        RenderStaticSence.loadStaticModel("lightsource", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/sphere/sphere.obj");
-        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("lightsource.vert", "lightsource.frag");
-        RenderStaticSence.setModelScale(0.2f);
-        RenderStaticSence.setObjectTransform("lightsource", lightPosition[0], 0);
-        //RenderStaticSence.setObjectTransform("lightsource", glm::vec3(0.0f,0.0f,0.0f), 0);
-        RenderStaticSence.initModelShaderPara("lightsource");
-    }
-
-
-	////grass1
-#pragma region grass load
-    if (Common::renderingGrass == true)
-    {
-        //Grass
-        RenderStaticSence.loadStaticModel("greenGrass", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/grassGrass/greenGrass/file.obj");
-        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
-        RenderStaticSence.setModelScale(0.009f);
-
-        /*RenderStaticSence.loadStaticModel("hay", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/grassGrass/Hay/file.obj");
-        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
-        modelscale.push_back(0.005f);
-        typeStaticNumber++;*/
-
-        float grassnumber = 20;
-        for (int i = 0; i < grassnumber; i++)
-        {
-            rotations.push_back(30 * i);
-            zTransform.push_back(0);
-        }
-        transform.push_back(std::make_pair(500, 500));
-        transform.push_back(std::make_pair(3000, 800));
-        transform.push_back(std::make_pair(-2500, 1500));
-        transform.push_back(std::make_pair(-1550, 1500));
-        transform.push_back(std::make_pair(-500, -500));
-        transform.push_back(std::make_pair(-3000, -800));
-        transform.push_back(std::make_pair(-5000, 4000));
-        transform.push_back(std::make_pair(-450, 1500));
-        transform.push_back(std::make_pair(700, -4000));
-        transform.push_back(std::make_pair(-3000, -5800));
-        transform.push_back(std::make_pair(-3000, 6000));
-        transform.push_back(std::make_pair(-550, 5500));
-        transform.push_back(std::make_pair(-5100, -5200));
-        transform.push_back(std::make_pair(-4000, -2300));
-        transform.push_back(std::make_pair(-3000, 5000));
-        transform.push_back(std::make_pair(-250, 4500));
-
-        transform.push_back(std::make_pair(-300, -400));
-        transform.push_back(std::make_pair(-2300, -600));
-        transform.push_back(std::make_pair(-4500, 4700));
-        transform.push_back(std::make_pair(-3500, 2600));
-        RenderStaticSence.setModelInstanceAndTransform("greenGrass", transform, rotations, grassnumber);
-        rotations.clear();
-        transform.clear();
-        zTransform.clear();
-        ////////grass2
-        /*float haynumber = 200;
-        for (int i = 0; i < haynumber; i++)
-        {
-            rotations.push_back(45 * i);
-            zTransform.push_back(0);
-        }*/
-
-        //std::vector<std::pair<double, double>> tempTransform = RandomTreePositionGenerate(haynumber);
-        //for (int i = 0; i < haynumber; i++)
-        //{
-        //	transform.push_back(std::make_pair((tempTransform[i].first - haynumber / 2) * 400, (tempTransform[i].second - haynumber / 2) * 400));
-        //}
-
-
-
-        //RenderStaticSence.setModelInstanceAndTransform(2, transform, rotations, haynumber);
-        //rotations.clear();
-        //transform.clear();
-        //grass1
-        /*float grassnumber = 20;
-        for (int i = 0; i < grassnumber; i++)
-        {
-            rotations.push_back(30 * i);
-            zTransform.push_back(0);
-        }
-        transform.push_back(std::make_pair(500, 500));
-        transform.push_back(std::make_pair(3000, 800));
-        transform.push_back(std::make_pair(-2500, 1500));
-        transform.push_back(std::make_pair(-1550, 1500));
-        transform.push_back(std::make_pair(-500, -500));
-        transform.push_back(std::make_pair(-3000, -800));
-        transform.push_back(std::make_pair(-5000, 4000));
-        transform.push_back(std::make_pair(-450, 1500));
-        transform.push_back(std::make_pair(700, -4000));
-        transform.push_back(std::make_pair(-3000, -5800));
-        transform.push_back(std::make_pair(-3000, 6000));
-        transform.push_back(std::make_pair(-550, 5500));
-        transform.push_back(std::make_pair(-5100, -5200));
-        transform.push_back(std::make_pair(-4000, -2300));
-        transform.push_back(std::make_pair(-3000, 5000));
-        transform.push_back(std::make_pair(-250, 4500));
-
-        transform.push_back(std::make_pair(-300, -400));
-        transform.push_back(std::make_pair(-2300, -600));
-        transform.push_back(std::make_pair(-4500, 4700));
-        transform.push_back(std::make_pair(-3500, 2600));
-        RenderStaticSence.setModelInstanceAndTransform(1, transform, rotations, grassnumber);
-        rotations.clear();
-        transform.clear();
-        zTransform.clear();*/
-        ////////grass2
-        //float haynumber = 200;
-        //for (int i = 0; i < haynumber; i++)
-        //{
-        //	rotations.push_back(45 * i);
-        //	zTransform.push_back(0);
-        //}
-
-        //std::vector<std::pair<double, double>> tempTransform = RandomTreePositionGenerate(haynumber);
-        //for (int i = 0; i < haynumber; i++)
-        //{
-        //	transform.push_back(std::make_pair((tempTransform[i].first - haynumber / 2) * 400, (tempTransform[i].second - haynumber / 2) * 400));
-        //}
-        RenderStaticSence.initModelShaderPara("greenGrass");
-        RenderStaticSence.setGrassOnTerrain("greenGrass");
-        RenderStaticSence.updataGrassOnTerrain("greenGrass",0);
-
-        //RenderStaticSence.initModelShaderPara("hay");
-        //RenderStaticSence.setGrassOnTerrain(i);
-        //RenderStaticSence.updataGrassOnTerrain(i,1);
-    }
-
-#pragma endregion
-	//RenderStaticSence.setModelInstanceAndTransform(2, transform, rotations, haynumber);
-	//rotations.clear();
-	//transform.clear();
-
-
-	std::vector<double> TerrainHeigth;
-	double TerrainX;
-	double TerrainZ;
-	double XDensityScale;
-	double ZDensityScale;
-	int TerrainHeightZDensity;
-	RenderStaticSence.getTerrainPara(TerrainHeigth, TerrainX, TerrainZ, XDensityScale, ZDensityScale, TerrainHeightZDensity);
-
-
-#pragma endregion
 
 
 	//////////////////////////////
@@ -741,113 +549,8 @@ int main()
 	//	ALLTreeNumber += Common::TreesNumbers[i];
 	//}
 
-	CInitMultipleTypeTree MultipleTypeTree(Common::TreesTypeNumber, Common::AllTreesNumber, Common::GenerateRandomTreePosition);
-	//////////////////////////////////////////
-	//MultipleTypeTree.InitShadowCubeMapPara(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, shadowTransforms, lightVertices, lightColors);
-	MultipleTypeTree.InitShadowMapPara(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, lightSpaceMatrix, lightPosition[0], lightPointColors[0]);
-	MultipleTypeTree.setTerrainPara(TerrainHeigth, TerrainX, TerrainZ, XDensityScale, ZDensityScale, TerrainHeightZDensity);
-
-    //yellow_tree_example
-	//MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/deltaU", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt",1);
-    MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/FixedKOthrVegType/70/experimentforest/voxelnumber35/motiondata", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt",1);
-	MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[0], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/WindAndTreeConfig/Config.txt");
-	if (Common::CalculateNormalType == Common::ENormalCalculateType::GeomShader)
-	{
-		MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag", "scene_shadows.geom");
-	}
-	else if(Common::CalculateNormalType==Common::ENormalCalculateType::CompShader)
-	{
-		MultipleTypeTree.InitSceneShadowShader("sence_shadows_RelatedComp.vert", "sence_Shadows_RelatedComp.frag");
-		MultipleTypeTree.InitComputerShaderCalculateNormal("calculateNormal.comp");
-	}
-	else if(Common::CalculateNormalType==Common::ENormalCalculateType::NONE)
-	{
-		MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
-	}
-	MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
-	MultipleTypeTree.InitTreeModel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", 0);
-
-
-    //maple_tree_example
-	//MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/FixedKOthrVegType/70/experimentforest/voxelnumber35/motiondata", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/tree.obj", "../../models/mini_mapleTree/ObjectVertexIndex.txt",5);
- //   //记得这个改回来在森林里用的是1
-	//MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[1], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/WindAndTreeConfig/Config.txt");
- //   if (Common::CalculateNormalType == Common::ENormalCalculateType::GeomShader)
- //   {
- //       MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag", "scene_shadows.geom");
- //   }
- //   else if (Common::CalculateNormalType == Common::ENormalCalculateType::CompShader)
- //   {
- //       MultipleTypeTree.InitSceneShadowShader("sence_shadows_RelatedComp.vert", "sence_Shadows_RelatedComp.frag");
- //       MultipleTypeTree.InitComputerShaderCalculateNormal("calculateNormal.comp");
- //   }
- //   else if (Common::CalculateNormalType == Common::ENormalCalculateType::NONE)
- //   {
- //       MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
- //   }
-	//MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
- //   //记得这个改回来在森林里用的是1
-
-	//MultipleTypeTree.InitTreeModel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/tree.obj", 1);
-
-    //apericot_tree
-    //MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/FixedKOthrVegType/70/experimentforest/voxelnumber35/motiondata", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/tree.obj", "../../models/mini_mapleTree/ObjectVertexIndex.txt",1);
-    ////记得这个改回来在森林里用的是1
-    //MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[2], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/WindAndTreeConfig/Config.txt");
-    //if (Common::CalculateNormalType == Common::ENormalCalculateType::GeomShader)
-    //{
-    //    MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag", "scene_shadows.geom");
-    //}
-    //else if (Common::CalculateNormalType == Common::ENormalCalculateType::CompShader)
-    //{
-    //    MultipleTypeTree.InitSceneShadowShader("sence_shadows_RelatedComp.vert", "sence_Shadows_RelatedComp.frag");
-    //    MultipleTypeTree.InitComputerShaderCalculateNormal("calculateNormal.comp");
-    //}
-    //else if (Common::CalculateNormalType == Common::ENormalCalculateType::NONE)
-    //{
-    //    MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
-    //}
-    //MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
-    ////记得这个改回来在森林里用的是1
-
-    //MultipleTypeTree.InitTreeModel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/tree.obj", 2);
-
-
-	for (int i = 0; i < Common::TreesTypeNumber; i++)
-	{
-		MultipleTypeTree.InitMultipleExtraWindData(i);
-		MultipleTypeTree.InitFemFrameStruct(i);
-		MultipleTypeTree.InitScenceShaderData(i, Common::ScaleTree[i]);
-		
-
-		//End Each time change*************
-		//***************此处也修改了InstanceMatrix得旋转VAO
-        if (Common::renderingTerrainOrWhiltScence == true)
-        {
-            MultipleTypeTree.calculateTreeDistantWithTerrain(i);
-            MultipleTypeTree.updataTreeOnTerrain(i);
-        }
-           
-		//***************
-
-	}
-	MultipleTypeTree.setTreeAxisYPara();
-
-	for (int i = 0; i < Common::TreesTypeNumber; i++)
-	{
-		MultipleTypeTree.updataTreeOnTerrainByPara(i);
-	}
-
-	for (int i = 0; i < Common::TreesTypeNumber; i++)
-	{
-		EachFormNumberArray.push_back(MultipleTypeTree.getSpecificLoadWindAndTree(i).getEachFormNumberArray());
-
-        //因为在updataTreeOnTerrain修改了InstanceMatrix所以写在最后
-        if (Common::CalculateNormalType == Common::ENormalCalculateType::CompShader)
-        {
-            MultipleTypeTree.InitScenceNormalMatrixData(i);
-        }
-	}
+	
+    //LoadTreeData();
 #pragma endregion
 
 
@@ -856,11 +559,11 @@ int main()
 		/////each time change
 	//boost::thread startInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getFemFactory()), *(MultipleTypeTree.getTreeModel()), *(MultipleTypeTree.getExtraForces()), *(MultipleTypeTree.getExtraDirection()), *(MultipleTypeTree.getTreesNumberSubjected2SameWind()),MultipleTypeTree.getTreeTypeIndex());
 	//boost::thread startInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getSpecificFemFactory(0)), *(MultipleTypeTree.getSpecificTreeModel(0)), *(MultipleTypeTree.getSpecificExtraForces(0)), *(MultipleTypeTree.getSpecificExtraDirection(0)), *(MultipleTypeTree.getSpecificTreesNumberSubjected2SameWind(0)), 0);
-    boost::thread startInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getSpecificFemFactory(0)), *(MultipleTypeTree.getSpecificExtraForces(0)), *(MultipleTypeTree.getSpecificExtraDirection(0)), *(MultipleTypeTree.getSpecificTreesNumberSubjected2SameWind(0)), 0);
+    
 	/*boost::thread SecondstartInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getSpecificFemFactory(1)), *(MultipleTypeTree.getSpecificExtraForces(1)), *(MultipleTypeTree.getSpecificExtraDirection(1)), *(MultipleTypeTree.getSpecificTreesNumberSubjected2SameWind(1)), 1);
     boost::thread ThirdstartInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree.getSpecificFemFactory(2)), *(MultipleTypeTree.getSpecificExtraForces(2)), *(MultipleTypeTree.getSpecificExtraDirection(2)), *(MultipleTypeTree.getSpecificTreesNumberSubjected2SameWind(2)), 2);*/
 
-	MultipleTypeTree.ComputeSumFaceVerticesBeforeEndMesh(Common::TreesTypeNumber);
+
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 projection;
 	glm::mat4 view;
@@ -869,110 +572,110 @@ int main()
     //SET VegMesh
     if (Common::renderingSurfaceMesh == true)
     {
-        RenderStaticSence.loadStaticModel("TreeMeshVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/18/tree18.obj");
-        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
-        RenderStaticSence.setModelScale(0.2f);
-        RenderStaticSence.setObjectTransform("TreeMeshVeg", *MultipleTypeTree.GetFirstTreeModelMatrix());
-        RenderStaticSence.initModelShaderVegPara("TreeMeshVeg", *MultipleTypeTree.GetFirstTreeModelMatrix());
-        RenderStaticSence.setVegMeshFragmentShaderRenderingColor("TreeMeshVeg", glm::vec4(0, 0.9, 0.8, 0));
+        RenderStaticSence->loadStaticModel("TreeMeshVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/OtherVegType/18/tree18.obj");
+        RenderStaticSence->loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence->loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
+        RenderStaticSence->setModelScale(0.2f);
+        RenderStaticSence->setObjectTransform("TreeMeshVeg", *MultipleTypeTree->GetFirstTreeModelMatrix());
+        RenderStaticSence->initModelShaderVegPara("TreeMeshVeg", *MultipleTypeTree->GetFirstTreeModelMatrix());
+        RenderStaticSence->setVegMeshFragmentShaderRenderingColor("TreeMeshVeg", glm::vec4(0, 0.9, 0.8, 0));
     }
 
     if (Common::renderingStemMesh == true)
     {
-        RenderStaticSence.loadStaticModel("StemVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/50/steam/steam50.obj");
-        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
-        RenderStaticSence.setModelScale(0.2f);
-        RenderStaticSence.setObjectTransform("StemVeg", glm::vec3(0,0,0),0);
-        RenderStaticSence.initModelShaderPara("StemVeg");
-        RenderStaticSence.setVegMeshFragmentShaderRenderingColor("StemVeg", glm::vec4(0.73, 0,0, 0));
+        RenderStaticSence->loadStaticModel("StemVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/50/steam/steam50.obj");
+        RenderStaticSence->loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence->loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
+        RenderStaticSence->setModelScale(0.2f);
+        RenderStaticSence->setObjectTransform("StemVeg", glm::vec3(0,0,0),0);
+        RenderStaticSence->initModelShaderPara("StemVeg");
+        RenderStaticSence->setVegMeshFragmentShaderRenderingColor("StemVeg", glm::vec4(0.73, 0,0, 0));
 
-        RenderStaticSence.loadStaticModel("StemObject", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/stem.obj");
-        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
-        RenderStaticSence.setModelScale(0.2f);
-        RenderStaticSence.setObjectTransform("StemObject", glm::vec3(0, 0, 0), 0);
-        RenderStaticSence.initModelShaderPara("StemObject");
+        RenderStaticSence->loadStaticModel("StemObject", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/stem.obj");
+        RenderStaticSence->loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence->loadSenceShader("grass.vert", "grass.frag");
+        RenderStaticSence->setModelScale(0.2f);
+        RenderStaticSence->setObjectTransform("StemObject", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence->initModelShaderPara("StemObject");
         
     }
 
     if (Common::renderingLeafMesh == true)
     {
-        RenderStaticSence.loadStaticModel("LeafVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/90/leaf/leaf90.obj");
-        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
-        RenderStaticSence.setModelScale(0.2f);
-        RenderStaticSence.setObjectTransform("LeafVeg", glm::vec3(0, 0, 0), 0);
-        RenderStaticSence.initModelShaderPara("LeafVeg");
-        RenderStaticSence.setVegMeshFragmentShaderRenderingColor("LeafVeg", glm::vec4(0.278, 0.73, 0, 0));
+        RenderStaticSence->loadStaticModel("LeafVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/90/leaf/leaf90.obj");
+        RenderStaticSence->loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence->loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
+        RenderStaticSence->setModelScale(0.2f);
+        RenderStaticSence->setObjectTransform("LeafVeg", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence->initModelShaderPara("LeafVeg");
+        RenderStaticSence->setVegMeshFragmentShaderRenderingColor("LeafVeg", glm::vec4(0.278, 0.73, 0, 0));
 
-        RenderStaticSence.loadStaticModel("LeafObject", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/leaf.obj");
-        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
-        RenderStaticSence.setModelScale(0.2f);
-        RenderStaticSence.setObjectTransform("LeafObject", glm::vec3(0, 0, 0), 0);
-        RenderStaticSence.initModelShaderPara("LeafObject");
+        RenderStaticSence->loadStaticModel("LeafObject", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/leaf.obj");
+        RenderStaticSence->loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence->loadSenceShader("grass.vert", "grass.frag");
+        RenderStaticSence->setModelScale(0.2f);
+        RenderStaticSence->setObjectTransform("LeafObject", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence->initModelShaderPara("LeafObject");
        
     }
 
     if (Common::renderingFibrous == true)
     {
-        RenderStaticSence.loadStaticModel("FibrousVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/90/fibrous/fibrous90.obj");
-        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
-        RenderStaticSence.setModelScale(0.2f);
-        RenderStaticSence.setObjectTransform("FibrousVeg", glm::vec3(0, 0, 0), 0);
-        RenderStaticSence.initModelShaderPara("FibrousVeg");
-        RenderStaticSence.setVegMeshFragmentShaderRenderingColor("FibrousVeg", glm::vec4(0, 0.474, 1, 0));
+        RenderStaticSence->loadStaticModel("FibrousVeg", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/90/fibrous/fibrous90.obj");
+        RenderStaticSence->loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence->loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
+        RenderStaticSence->setModelScale(0.2f);
+        RenderStaticSence->setObjectTransform("FibrousVeg", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence->initModelShaderPara("FibrousVeg");
+        RenderStaticSence->setVegMeshFragmentShaderRenderingColor("FibrousVeg", glm::vec4(0, 0.474, 1, 0));
 
-        RenderStaticSence.loadStaticModel("FibrousObject", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/fibrous_all.obj");
-        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
-        RenderStaticSence.setModelScale(0.2f);
-        RenderStaticSence.setObjectTransform("FibrousObject", glm::vec3(0, 0, 0), 0);
-        RenderStaticSence.initModelShaderPara("FibrousObject");
+        RenderStaticSence->loadStaticModel("FibrousObject", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/fibrous_all.obj");
+        RenderStaticSence->loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence->loadSenceShader("grass.vert", "grass.frag");
+        RenderStaticSence->setModelScale(0.2f);
+        RenderStaticSence->setObjectTransform("FibrousObject", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence->initModelShaderPara("FibrousObject");
         
     }
 
     //testRenderVegLine
     if (Common::renderAllVeg == true)
     {
-        RenderStaticSence.loadStaticModel("StemVegLine", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/50/steam/steam50.obj");
-        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
-        RenderStaticSence.setModelScale(0.2f);
-        RenderStaticSence.setObjectTransform("StemVegLine", glm::vec3(0, 0, 0), 0);
-        RenderStaticSence.initModelShaderPara("StemVegLine");
-        RenderStaticSence.setVegMeshFragmentShaderRenderingColor("StemVegLine", glm::vec4(0, 0, 0, 0));
+        RenderStaticSence->loadStaticModel("StemVegLine", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/50/steam/steam50.obj");
+        RenderStaticSence->loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence->loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
+        RenderStaticSence->setModelScale(0.2f);
+        RenderStaticSence->setObjectTransform("StemVegLine", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence->initModelShaderPara("StemVegLine");
+        RenderStaticSence->setVegMeshFragmentShaderRenderingColor("StemVegLine", glm::vec4(0, 0, 0, 0));
 
-        RenderStaticSence.loadStaticModel("LeafVegLine", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/90/leaf/leaf90.obj");
-        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
-        RenderStaticSence.setModelScale(0.2f);
-        RenderStaticSence.setObjectTransform("LeafVegLine", glm::vec3(0, 0, 0), 0);
-        RenderStaticSence.initModelShaderPara("LeafVegLine");
-        RenderStaticSence.setVegMeshFragmentShaderRenderingColor("LeafVegLine", glm::vec4(0, 0, 0, 0));
+        RenderStaticSence->loadStaticModel("LeafVegLine", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/90/leaf/leaf90.obj");
+        RenderStaticSence->loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence->loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
+        RenderStaticSence->setModelScale(0.2f);
+        RenderStaticSence->setObjectTransform("LeafVegLine", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence->initModelShaderPara("LeafVegLine");
+        RenderStaticSence->setVegMeshFragmentShaderRenderingColor("LeafVegLine", glm::vec4(0, 0, 0, 0));
 
-        RenderStaticSence.loadStaticModel("FibrousVegLine", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/90/fibrous/fibrous90.obj");
-        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
-        RenderStaticSence.setModelScale(0.2f);
-        RenderStaticSence.setObjectTransform("FibrousVegLine", glm::vec3(0, 0, 0), 0);
-        RenderStaticSence.initModelShaderPara("FibrousVegLine");
-        RenderStaticSence.setVegMeshFragmentShaderRenderingColor("FibrousVegLine", glm::vec4(0, 0, 0, 0));
+        RenderStaticSence->loadStaticModel("FibrousVegLine", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/SplitDifferentPart/90/fibrous/fibrous90.obj");
+        RenderStaticSence->loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence->loadSenceShader("VegSurfaceWireFrame.vert", "VegSurfaceWireFrame.frag");
+        RenderStaticSence->setModelScale(0.2f);
+        RenderStaticSence->setObjectTransform("FibrousVegLine", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence->initModelShaderPara("FibrousVegLine");
+        RenderStaticSence->setVegMeshFragmentShaderRenderingColor("FibrousVegLine", glm::vec4(0, 0, 0, 0));
     }
 
     // Rendering experiment ModelMotion
     if (Common::renderingSameModelMotion == true)
     {
         //RenderStaticSence.loadStaticModel("ModelPosture1", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/ModelMotion/5.obj");
-        RenderStaticSence.loadStaticModel("ModelPosture1", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj");
-        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
-        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
-        RenderStaticSence.setModelScale(0.2f);
-        RenderStaticSence.setObjectTransform("ModelPosture1", glm::vec3(0, 0, 0), 0);
-        RenderStaticSence.initModelShaderPara("ModelPosture1");
+        RenderStaticSence->loadStaticModel("ModelPosture1", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj");
+        RenderStaticSence->loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence->loadSenceShader("grass.vert", "grass.frag");
+        RenderStaticSence->setModelScale(0.2f);
+        RenderStaticSence->setObjectTransform("ModelPosture1", glm::vec3(0, 0, 0), 0);
+        RenderStaticSence->initModelShaderPara("ModelPosture1");
 
         /*RenderStaticSence.loadStaticModel("ModelPosture2", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/ModelMotion/10.obj");
         RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
@@ -1038,7 +741,7 @@ int main()
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	std::vector<float> tempFrame;
-	std::vector<Common::SConnectedFemFiles> vAllReallyLoadConnectedFem = (MultipleTypeTree.getSpecificFemFactory(0))->getAllReallyLoadConnectedFem();
+	
 
     //experiment 4.3
     /*std::ofstream outputFilePath;
@@ -1051,8 +754,7 @@ int main()
     outputFilePath2.open("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/FixedKOthrVegType/70/experiment4_3_1/voxelnumber35/motionSearchObj/160.txt", std::ios::in | std::ios::app);*/
 
 
-    int numFramePoints = vAllReallyLoadConnectedFem[0].FemDataset[0]->Frames[0].BaseFileDeformations.size();
-	std::vector<glm::vec3>sumDeltaU(numFramePoints);
+
 
     std::string saveObjVertexPath = "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/FixedKOthrVegType/70/experiment4_3_1/voxelnumber35/groundtruth600frameobj/";
 
@@ -1066,32 +768,94 @@ int main()
         
 		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 		if (show_demo_window)
-			ImGui::ShowDemoWindow(&show_demo_window);
-
+			ShowGUIWindow(&show_demo_window);
+        //ImGui::ShowDemoWindow(&show_demo_window);
 		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 		{
 			static float f = 0.0f;
 			static int counter = 0;
             
-			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-            float ImguiWeight = 350;
+			//ImGui::Begin("FEMInterpolationRendering!");                          // Create a window called "Hello, world!" and append into it.
+           /* float ImguiWeight = 350;
             float ImguiHight = 250;
-            ImGui::SetWindowSize(ImVec2(ImguiWeight, ImguiHight));
+            ImGui::SetWindowSize(ImVec2(ImguiWeight, ImguiHight));*/
 			ImGui::Text("FrameIndex:%d",frameIndex);               // Display some text (you can use a format strings too)
-			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-			ImGui::Checkbox("Another Window", &show_another_window);
+			//ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+			//ImGui::Checkbox("Another Window", &show_another_window);
 
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+			//ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+			//ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
-			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-				counter++;
+            if (ImGui::Button("Rendering"))
+            {
+                Common::RenderingSence = true;
+                Common::AlreadyLoadData = false;
+            }
+                
 			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
+			//ImGui::Text("counter = %d", counter);
             ImGui::Text("CameraPosition: (%f, %f, %f)", Camera.getPositionX(), Camera.getPositionY(), Camera.getPositionZ());
             ImGui::Text("CamerarFront: (%f, %f, %f)",Camera.getFrontX(), Camera.getFrontY(), Camera.getFrontZ()); 
 			ImGui::Text("Application average %.7f ms/frame (%.1f FPS)", 1.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-            ImGui::Text("Application average %.7f ms/frame ", DeltaTime);
+            //ImGui::Text("Application average %.7f ms/frame ", DeltaTime);
+
+           
+            ImGui::Text("K: control Cursor");
+
+            if (ImGui::Button("SaveImage"))
+            {
+                SaveFileName();
+            }
+
+            ImGui::Text("Space: control Shadows");
+
+            {
+                static int i1 = 1024, i2 = 1024;
+                ImGui::DragInt("SHADOW_WIDTH", &i1, 1);
+                ImGui::SameLine();
+
+                ImGui::DragInt("SHADOW_HEIGHT", &i2, 1);
+                ImGui::SameLine();
+
+
+                //static float f1 = 1.00f, f2 = 0.0067f;
+                //ImGui::DragFloat("drag float", &f1, 0.005f);
+                //ImGui::DragFloat("drag small float", &f2, 0.0001f, 0.0f, 0.0f, "%.06f ns");
+            }
+
+            if (showPolar == true)
+            {
+                showMaple = false; showApricot = false; showPolar = false;
+                Common::treeType = Common::ETreeType::Polar;
+                ReadDataConfigFilePath = OpenFileName();
+                InterPolationDataStruct = ReadInterPolationDataStruct(ReadDataConfigFilePath);
+            }
+            else if (showMaple == true)
+            {
+                showMaple = false; showApricot = false; showPolar = false;
+                Common::treeType = Common::ETreeType::Maple;
+                ReadDataConfigFilePath = OpenFileName();
+                InterPolationDataStruct = ReadInterPolationDataStruct(ReadDataConfigFilePath);
+            }
+            else if (showApricot == true)
+            {
+                showMaple = false; showApricot = false; showPolar = false;
+                Common::treeType = Common::ETreeType::Apricot;
+                ReadDataConfigFilePath = OpenFileName();
+                InterPolationDataStruct = ReadInterPolationDataStruct(ReadDataConfigFilePath);
+            }
+
+            if (renderingTerrain)
+            {
+                renderingTerrain = false; renderingWhite = false;
+                Common::renderingTerrainOrWhiltScence = true;
+
+            }
+            if (renderingWhite)
+            {
+                renderingWhite = false; renderingTerrain = false;
+                Common::renderingTerrainOrWhiltScence = false;               
+            }
 			ImGui::End();
 		}
 		//std::cout << ImGui::GetIO().Framerate << std::endl;
@@ -1105,6 +869,9 @@ int main()
 				show_another_window = false;
 			ImGui::End();
 		}
+        
+
+
 
 		////// Rendering
 		ImGui::Render();
@@ -1128,237 +895,253 @@ int main()
 		LastFrame = currentFrame;
 
 		// input---
-		
+		   
 
 		// render----
-		glClearColor(1.0f, 1.0f, 1.0f, 0.5f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//每给定的总力段进行一次渲染时的帧D_sum reset
-		/*if (FrameNumber%Common::ProductFrameNumber == 0)*/
-		/*if (FrameNumber%180 == 0)
-		{
-			ourModel.resetSSBO4UDeformation();
-
-			std::cout << "//////////////////////////////////////" << std::endl;
-			std::cout << "Reset" << std::endl;
-		}*/
-		std::vector<std::pair<int, int>> tempTreeFileAndFrameIndex;
-
-		for (int i = 0; i < Common::TreesTypeNumber; i++)
-		{
-			bool Success = SearchQueue[i].TryDequeue(tempTreeFileAndFrameIndex);
-            /*if (frameIndex == 5)
+        if (Common::RenderingSence == true)
+        {
+            if (Common::AlreadyLoadData == false)
             {
-                tempTreeFileAndFrameIndex[0] = std::make_pair(5, 5);
-            }*/
-
-			//std::cout << "[";
-   //         for (int k = 0; k < EachFormNumberArray[i].size(); k++)
-   //         {
-   //             std::cout << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first << "--" << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second << "||";
-
-
-   //             //std::string headInfo = "Position" + std::to_string(frameIndex);
-   //             //outputFilePath << headInfo << "\n";
-   //             //outputFilePath << numFramePoints << "\n";
-   //             //for (int j = 0; j < numFramePoints; j++)
-   //             //{
-   //             //    sumDeltaU[j].x += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].x;
-   //             //    sumDeltaU[j].y += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].y;
-   //             //    sumDeltaU[j].z += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].z;
-   //             //    if (frameIndex == 40)
-   //             //    {
-   //             //        /*frameIndex==5
-   //             //        outputFilePath << vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].x << " ";
-   //             //        outputFilePath << vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].y << " ";
-   //             //        outputFilePath << vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].z << "\n";*/
-   //             //        outputFilePath << sumDeltaU[j].x << " ";
-   //             //        outputFilePath << sumDeltaU[j].y << " ";
-   //             //        outputFilePath << sumDeltaU[j].z << "\n";
-   //             //    }
-   //             //    else if (frameIndex == 100)
-   //             //    {
-   //             //        outputFilePath1 << sumDeltaU[j].x << " ";
-   //             //        outputFilePath1 << sumDeltaU[j].y << " ";
-   //             //        outputFilePath1 << sumDeltaU[j].z << "\n";
-   //             //    }
-   //             //    else if (frameIndex == 160)
-   //             //    {
-   //             //        outputFilePath2 << sumDeltaU[j].x << " ";
-   //             //        outputFilePath2 << sumDeltaU[j].y << " ";
-   //             //        outputFilePath2 << sumDeltaU[j].z << "\n";
-   //             //    }
-   //             //}
-   //             /*std::string tempPath = saveObjVertexPath +std::to_string(frameIndex);
-   //             tempPath += ".txt";
-   //             saveObjData(tempPath, sumDeltaU);*/
-   //         }
-   //         std::cout << "]" << std::endl;
-
-
-            MultipleTypeTree.getSpecificTreeModel(i)->UpdataSSBOMeshTreeAndFrameIndex(tempTreeFileAndFrameIndex);
-                   		
-			tempTreeFileAndFrameIndex.clear();
-		}
-
-		//std::cout << std::endl;
-
-		FrameNumber++;
-
-		// 1. render DepthMap
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-
-		//plane
-		RenderStaticSence.setSencePara(Camera, SCR_WIDTH, SCR_HEIGHT);
-		MultipleTypeTree.UpdataSencePara(Camera, SCR_WIDTH, SCR_HEIGHT);
-		//grass
-
-		RenderStaticSence.RenderingDepth("terrain");
-        RenderStaticSence.RenderingDepth("greenGrass");
-
-		//tree
-		for (int i = 0; i < Common::TreesTypeNumber; i++)
-		{
-			MultipleTypeTree.RenderingDepth(i, 1, glfwGetTime(), frameIndex, 9);
-			renderTree(*(MultipleTypeTree.getSpecificScenceDepthShader(i)), *(MultipleTypeTree.getSpecificTreeModel(i)));
-			glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-		}
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		//computerNormal
-
-		if (Common::CalculateNormalType == Common::ENormalCalculateType::CompShader)
-		{
-			
-			for (int i = 0; i < Common::TreesTypeNumber; i++)
-			{
-				//MultipleTypeTree.getSpecificTreeModel(i)->ComputerShaderCalculateNormal(*Ourcomputershader);
-				MultipleTypeTree.ComputeNormal(i);
-				glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-			}
-		}
-
-		//2.render Scene
-		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		////plane  
-		/////////////grass
-
-       
-		RenderStaticSence.RenderingModel("terrain", depthMap, shadows);
-        if (Common::renderingGrass==true)
-            RenderStaticSence.RenderingModel("greenGrass", depthMap, shadows);
-        if(Common::renderingLightSource==true)
-            RenderStaticSence.RenderingModel("lightsource", depthMap, false);
-
-        //glm::mat4 temp = *MultipleTypeTree.GetFirstTreeModelMatrix();
-        if (Common::renderingSurfaceMesh == true)
-        {
-            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            //glDepthFunc(GL_ALWAYS);
-            RenderStaticSence.RenderingModelWithWireframe("TreeMeshVeg",true, *MultipleTypeTree.GetFirstTreeModelMatrix());
-        }
-
-        //experiment one
-        if (Common::renderingStemMesh == true)
-        {
-            RenderStaticSence.RenderingModel("StemObject", depthMap, false);
-            glm::mat4 temp;
-            //RenderStaticSence.RenderingModelWithWireframe("StemVeg",false, temp);
-            RenderStaticSence.RenderingModel("StemVeg", depthMap, false);
-        }
-        if (Common::renderingLeafMesh == true)
-        {
-            RenderStaticSence.RenderingModel("LeafObject", depthMap, false);
-            glm::mat4 temp;
-            //RenderStaticSence.RenderingModelWithWireframe("LeafVeg", false, temp);
-            RenderStaticSence.RenderingModel("LeafVeg", depthMap, false);
-        }
-        if (Common::renderingFibrous == true)
-        {
-            RenderStaticSence.RenderingModel("FibrousObject", depthMap, false);
-            glm::mat4 temp;
-            //RenderStaticSence.RenderingModelWithWireframe("FibrousVeg", false, temp);
-            RenderStaticSence.RenderingModel("FibrousVeg", depthMap, false);
-        }
-        if (Common::renderAllVeg == true)
-        {
-			glm::mat4 temp = *MultipleTypeTree.GetFirstTreeModelMatrix();
-            RenderStaticSence.RenderingModelWithWireframe("StemVegLine", false, temp);
-            RenderStaticSence.RenderingModelWithWireframe("LeafVegLine", false, temp);
-            RenderStaticSence.RenderingModelWithWireframe("FibrousVegLine", false, temp);
-        }
-
-        //experiment two
-        if (Common::renderingSameModelMotion == true)
-        {
-            RenderStaticSence.RenderingModel("ModelPosture1", depthMap, false);
-            //RenderStaticSence.RenderingModel("ModelPosture2", depthMap, false);
-            //RenderStaticSence.RenderingModel("ModelPosture3", depthMap, false);
-        }
-
-        //experiment veg
-        if (Common::renderingVegMesh == true)
-        {
-            CubicVegShader->use();
-            glm::mat4 projection = glm::perspective(glm::radians(Camera.getZoom()), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-            glm::mat4 view = Camera.getViewMatrix();
-            CubicVegShader->setMat4("projection", projection);
-            CubicVegShader->setMat4("view", view);
-            CubicVegShader->setVec4("renderingColor", glm::vec4(0, 0.9, 0.8, 0.3));
-            VegMesh->DrawVegLine(*CubicVegShader);
-
-            CubicFiexedVegShader->use();
-            CubicFiexedVegShader->setMat4("projection", projection);
-            CubicFiexedVegShader->setMat4("view", view);
-            if(VoxelGroupIndex==11)
-            VegMesh->DrawVegFiexedCubic(*CubicFiexedVegShader);
-            else
-            {
-                VegMesh->DrawVegSpecificFixedCubic(*CubicFiexedVegShader, VoxelGroupIndex);
+                LoadSkyData();
+                LoadTerrainData();
+                LoadTreeData();
+                frameIndex = 0;
+                Common::AlreadyLoadData = true;
             }
-        }
-            
-		//tree
-        if (Common::renderingForest == true)
-        {
+
+            glClearColor(1.0f, 1.0f, 1.0f, 0.5f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            //每给定的总力段进行一次渲染时的帧D_sum reset
+            /*if (FrameNumber%Common::ProductFrameNumber == 0)*/
+            /*if (FrameNumber%180 == 0)
+            {
+                ourModel.resetSSBO4UDeformation();
+
+                std::cout << "//////////////////////////////////////" << std::endl;
+                std::cout << "Reset" << std::endl;
+            }*/
+            std::vector<std::pair<int, int>> tempTreeFileAndFrameIndex;
+
             for (int i = 0; i < Common::TreesTypeNumber; i++)
             {
-                MultipleTypeTree.RenderingModel(i, depthMap, 1, glfwGetTime(), frameIndex, 9, bendScale[i], primaryOffsetScale[i], shadows);
+                bool Success = SearchQueue[i].TryDequeue(tempTreeFileAndFrameIndex);
+                /*if (frameIndex == 5)
+                {
+                    tempTreeFileAndFrameIndex[0] = std::make_pair(5, 5);
+                }*/
 
-                renderTree(*(MultipleTypeTree.getSpecificScenceShadowShader(i)), *(MultipleTypeTree.getSpecificTreeModel(i)));
+                //std::cout << "[";
+       //         for (int k = 0; k < EachFormNumberArray[i].size(); k++)
+       //         {
+       //             std::cout << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first << "--" << tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second << "||";
+
+
+       //             //std::string headInfo = "Position" + std::to_string(frameIndex);
+       //             //outputFilePath << headInfo << "\n";
+       //             //outputFilePath << numFramePoints << "\n";
+       //             //for (int j = 0; j < numFramePoints; j++)
+       //             //{
+       //             //    sumDeltaU[j].x += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].x;
+       //             //    sumDeltaU[j].y += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].y;
+       //             //    sumDeltaU[j].z += vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].z;
+       //             //    if (frameIndex == 40)
+       //             //    {
+       //             //        /*frameIndex==5
+       //             //        outputFilePath << vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].x << " ";
+       //             //        outputFilePath << vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].y << " ";
+       //             //        outputFilePath << vAllReallyLoadConnectedFem[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].first].FemDataset[0]->Frames[tempTreeFileAndFrameIndex[EachFormNumberArray[i][k] - 1].second].BaseFileDeformations[j].z << "\n";*/
+       //             //        outputFilePath << sumDeltaU[j].x << " ";
+       //             //        outputFilePath << sumDeltaU[j].y << " ";
+       //             //        outputFilePath << sumDeltaU[j].z << "\n";
+       //             //    }
+       //             //    else if (frameIndex == 100)
+       //             //    {
+       //             //        outputFilePath1 << sumDeltaU[j].x << " ";
+       //             //        outputFilePath1 << sumDeltaU[j].y << " ";
+       //             //        outputFilePath1 << sumDeltaU[j].z << "\n";
+       //             //    }
+       //             //    else if (frameIndex == 160)
+       //             //    {
+       //             //        outputFilePath2 << sumDeltaU[j].x << " ";
+       //             //        outputFilePath2 << sumDeltaU[j].y << " ";
+       //             //        outputFilePath2 << sumDeltaU[j].z << "\n";
+       //             //    }
+       //             //}
+       //             /*std::string tempPath = saveObjVertexPath +std::to_string(frameIndex);
+       //             tempPath += ".txt";
+       //             saveObjData(tempPath, sumDeltaU);*/
+       //         }
+       //         std::cout << "]" << std::endl;
+
+
+                MultipleTypeTree->getSpecificTreeModel(i)->UpdataSSBOMeshTreeAndFrameIndex(tempTreeFileAndFrameIndex);
+
+                tempTreeFileAndFrameIndex.clear();
             }
+
+            //std::cout << std::endl;
+
+            FrameNumber++;
+
+            // 1. render DepthMap
+            glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+            glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+            glClear(GL_DEPTH_BUFFER_BIT);
+
+            //plane
+            RenderStaticSence->setSencePara(Camera, SCR_WIDTH, SCR_HEIGHT);
+            MultipleTypeTree->UpdataSencePara(Camera, SCR_WIDTH, SCR_HEIGHT);
+            //grass
+
+            RenderStaticSence->RenderingDepth("terrain");
+            
+
+            //tree
+            for (int i = 0; i < Common::TreesTypeNumber; i++)
+            {
+                MultipleTypeTree->RenderingDepth(i, 1, glfwGetTime(), frameIndex, 9);
+                renderTree(*(MultipleTypeTree->getSpecificScenceDepthShader(i)), *(MultipleTypeTree->getSpecificTreeModel(i)));
+                glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+            }
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+            //computerNormal
+
+            if (Common::CalculateNormalType == Common::ENormalCalculateType::CompShader)
+            {
+
+                for (int i = 0; i < Common::TreesTypeNumber; i++)
+                {
+                    //MultipleTypeTree.getSpecificTreeModel(i)->ComputerShaderCalculateNormal(*Ourcomputershader);
+                    MultipleTypeTree->ComputeNormal(i);
+                    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+                }
+            }
+
+            //2.render Scene
+            glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            ////plane  
+            /////////////grass
+
+
+            RenderStaticSence->RenderingModel("terrain", depthMap, shadows);
+            if (Common::renderingGrass == true)
+            {
+                RenderStaticSence->RenderingDepth("greenGrass");
+                RenderStaticSence->RenderingModel("greenGrass", depthMap, shadows);
+            }     
+            if (Common::renderingLightSource == true)
+                RenderStaticSence->RenderingModel("lightsource", depthMap, false);
+
+            //glm::mat4 temp = *MultipleTypeTree.GetFirstTreeModelMatrix();
+            if (Common::renderingSurfaceMesh == true)
+            {
+                //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                //glDepthFunc(GL_ALWAYS);
+                RenderStaticSence->RenderingModelWithWireframe("TreeMeshVeg", true, *MultipleTypeTree->GetFirstTreeModelMatrix());
+            }
+
+            //experiment one
+            if (Common::renderingStemMesh == true)
+            {
+                RenderStaticSence->RenderingModel("StemObject", depthMap, false);
+                glm::mat4 temp;
+                //RenderStaticSence.RenderingModelWithWireframe("StemVeg",false, temp);
+                RenderStaticSence->RenderingModel("StemVeg", depthMap, false);
+            }
+            if (Common::renderingLeafMesh == true)
+            {
+                RenderStaticSence->RenderingModel("LeafObject", depthMap, false);
+                glm::mat4 temp;
+                //RenderStaticSence.RenderingModelWithWireframe("LeafVeg", false, temp);
+                RenderStaticSence->RenderingModel("LeafVeg", depthMap, false);
+            }
+            if (Common::renderingFibrous == true)
+            {
+                RenderStaticSence->RenderingModel("FibrousObject", depthMap, false);
+                glm::mat4 temp;
+                //RenderStaticSence.RenderingModelWithWireframe("FibrousVeg", false, temp);
+                RenderStaticSence->RenderingModel("FibrousVeg", depthMap, false);
+            }
+            if (Common::renderAllVeg == true)
+            {
+                glm::mat4 temp = *MultipleTypeTree->GetFirstTreeModelMatrix();
+                RenderStaticSence->RenderingModelWithWireframe("StemVegLine", false, temp);
+                RenderStaticSence->RenderingModelWithWireframe("LeafVegLine", false, temp);
+                RenderStaticSence->RenderingModelWithWireframe("FibrousVegLine", false, temp);
+            }
+
+            //experiment two
+            if (Common::renderingSameModelMotion == true)
+            {
+                RenderStaticSence->RenderingModel("ModelPosture1", depthMap, false);
+                //RenderStaticSence.RenderingModel("ModelPosture2", depthMap, false);
+                //RenderStaticSence.RenderingModel("ModelPosture3", depthMap, false);
+            }
+
+            //experiment veg
+            if (Common::renderingVegMesh == true)
+            {
+                CubicVegShader->use();
+                glm::mat4 projection = glm::perspective(glm::radians(Camera.getZoom()), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+                glm::mat4 view = Camera.getViewMatrix();
+                CubicVegShader->setMat4("projection", projection);
+                CubicVegShader->setMat4("view", view);
+                CubicVegShader->setVec4("renderingColor", glm::vec4(0, 0.9, 0.8, 0.3));
+                VegMesh->DrawVegLine(*CubicVegShader);
+
+                CubicFiexedVegShader->use();
+                CubicFiexedVegShader->setMat4("projection", projection);
+                CubicFiexedVegShader->setMat4("view", view);
+                if (VoxelGroupIndex == 11)
+                    VegMesh->DrawVegFiexedCubic(*CubicFiexedVegShader);
+                else
+                {
+                    VegMesh->DrawVegSpecificFixedCubic(*CubicFiexedVegShader, VoxelGroupIndex);
+                }
+            }
+
+            //tree
+            if (Common::renderingForest == true)
+            {
+                for (int i = 0; i < Common::TreesTypeNumber; i++)
+                {
+                    MultipleTypeTree->RenderingModel(i, depthMap, 1, glfwGetTime(), frameIndex, 9, bendScale[i], primaryOffsetScale[i], shadows);
+
+                    renderTree(*(MultipleTypeTree->getSpecificScenceShadowShader(i)), *(MultipleTypeTree->getSpecificTreeModel(i)));
+                }
+            }
+
+            /*if (i < 999)
+            {
+                std::string pathString = "video5/" + std::to_string(i) + ".jpg";
+                captureScreen2Img(pathString, 100);
+            }*/
+            //Camera.outFront();
+            //i++;
+            //skybox	
+
+            //std::cout << i << std::endl;
+            ourSkyBoxShader->use();
+            renderSkybox(*ourSkyBoxShader, skyboxVAO, cubemapTexture);
+
+            Sleep(500);
+            /* if(frameIndex==40)
+             Sleep(1000);*/
+             /*if (frameIndex==0||frameIndex==40|| frameIndex == 100||frameIndex==160)
+             {
+                 std::string pathString = "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/FixedKOthrVegType/70/experiment4_3_1/image/" + std::to_string(frameIndex) + ".jpg";
+                 captureScreen2Img(pathString, 100);
+             }*/
+            frameIndex++;
+             /*if (frameIndex == 601)
+                 break;*/
         }
 
-		/*if (i < 999)
-		{
-			std::string pathString = "video5/" + std::to_string(i) + ".jpg";
-			captureScreen2Img(pathString, 100);
-		}*/
-		//Camera.outFront();
-		//i++;
-		//skybox	
-
-		//std::cout << i << std::endl;
-		ourSkyBoxShader.use();
-		renderSkybox(ourSkyBoxShader, skyboxVAO, cubemapTexture);
-
-
-       /* if(frameIndex==40)
-		Sleep(1000);*/
-        /*if (frameIndex==0||frameIndex==40|| frameIndex == 100||frameIndex==160)
-        {
-            std::string pathString = "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/FixedKOthrVegType/70/experiment4_3_1/image/" + std::to_string(frameIndex) + ".jpg";
-            captureScreen2Img(pathString, 100);
-        }*/
-
-        /*if (frameIndex == 601)
-            break;*/
-
-		frameIndex++;
+		
 		glDepthFunc(GL_LESS); // set depth function back to default
 
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -1752,6 +1535,502 @@ void saveObjData(const std::string& vPath, std::vector<glm::vec3> & vdata)
     }
     outputFilePath.close();
 
+}
+
+void LoadTerrainData()
+{
+    //Each time change*************
+    if (Common::renderingTerrainOrWhiltScence == true)
+    {
+        lightProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, near_plane, far_plane);
+    }
+    else
+    {
+        lightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, near_plane, far_plane);
+    }
+
+    //End Each time change*************
+    //
+    //***************
+
+    lightView = glm::lookAt(lightPosition[0], glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.1));
+    lightSpaceMatrix = lightProjection * lightView;
+
+#pragma region bind static
+    std::vector<float> modelscale;
+
+    RenderStaticSence = new CRenderStaticSence(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, lightSpaceMatrix, lightPosition[0], lightPointColors[0]);
+
+    //FirstTypeTerrain
+    //Each time change*************
+    if (Common::renderingTerrainOrWhiltScence == true)
+    {
+        RenderStaticSence->loadStaticModel("terrain", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/terrain/Mountains2.obj");
+        RenderStaticSence->loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence->loadSenceShader("grass.vert", "grass.frag");
+        RenderStaticSence->setModelScale(0.06f);
+    }
+    else
+    {
+        RenderStaticSence->loadStaticModel("terrain", "G:/model/plane/plane.obj");
+        RenderStaticSence->loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence->loadSenceShader("grass.vert", "grass.frag");
+        RenderStaticSence->setModelScale(1.0f);
+    }
+
+    //modelscale.push_back(0.06f);
+    //End Each time change*************
+
+    //SecondTypePlane
+    //**********************
+    /**/
+    //********************
+
+    std::vector<float> rotations;
+    std::vector<std::pair<double, double>> transform;
+    std::vector<double> zTransform;
+    //terrain
+    rotations.push_back(0);
+    transform.push_back(std::make_pair(0, 0));
+
+    //Each time change*************
+    if (Common::renderingTerrainOrWhiltScence == true)
+    {
+        zTransform.push_back(-12.0);
+    }
+    else
+    {
+        zTransform.push_back(0.0);
+    }
+    //End Each time change*************
+    //***************
+    //
+    //***************
+
+
+    RenderStaticSence->setTerrain("terrain", zTransform);
+
+    rotations.clear();
+    transform.clear();
+    zTransform.clear();
+
+    RenderStaticSence->initModelShaderPara("terrain");
+    RenderStaticSence->setTerrainHightMesh("terrain", 20, 20, 200, 200);
+    RenderStaticSence->getTerrain("terrain");
+
+    //Each time change*************
+    if (Common::renderingTerrainOrWhiltScence == true)
+    {
+        RenderStaticSence->setTerrainHeightYToZero();
+    }
+    //End Each time change*************
+    //lightsource
+    if (Common::renderingLightSource == true)
+    {
+        RenderStaticSence->loadStaticModel("lightsource", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/sphere/sphere.obj");
+        RenderStaticSence->loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence->loadSenceShader("lightsource.vert", "lightsource.frag");
+        RenderStaticSence->setModelScale(0.2f);
+        RenderStaticSence->setObjectTransform("lightsource", lightPosition[0], 0);
+        //RenderStaticSence.setObjectTransform("lightsource", glm::vec3(0.0f,0.0f,0.0f), 0);
+        RenderStaticSence->initModelShaderPara("lightsource");
+    }
+
+
+    ////grass1
+#pragma region grass load
+    if (Common::renderingGrass == true)
+    {
+        //Grass
+        RenderStaticSence->loadStaticModel("greenGrass", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/grassGrass/greenGrass/file.obj");
+        RenderStaticSence->loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence->loadSenceShader("grass.vert", "grass.frag");
+        RenderStaticSence->setModelScale(0.009f);
+
+        /*RenderStaticSence.loadStaticModel("hay", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/grassGrass/Hay/file.obj");
+        RenderStaticSence.loadDepthShader("grass_shadows_depth.vert", "point_shadows_depth.frag");
+        RenderStaticSence.loadSenceShader("grass.vert", "grass.frag");
+        modelscale.push_back(0.005f);
+        typeStaticNumber++;*/
+
+        float grassnumber = 20;
+        for (int i = 0; i < grassnumber; i++)
+        {
+            rotations.push_back(30 * i);
+            zTransform.push_back(0);
+        }
+        transform.push_back(std::make_pair(500, 500));
+        transform.push_back(std::make_pair(3000, 800));
+        transform.push_back(std::make_pair(-2500, 1500));
+        transform.push_back(std::make_pair(-1550, 1500));
+        transform.push_back(std::make_pair(-500, -500));
+        transform.push_back(std::make_pair(-3000, -800));
+        transform.push_back(std::make_pair(-5000, 4000));
+        transform.push_back(std::make_pair(-450, 1500));
+        transform.push_back(std::make_pair(700, -4000));
+        transform.push_back(std::make_pair(-3000, -5800));
+        transform.push_back(std::make_pair(-3000, 6000));
+        transform.push_back(std::make_pair(-550, 5500));
+        transform.push_back(std::make_pair(-5100, -5200));
+        transform.push_back(std::make_pair(-4000, -2300));
+        transform.push_back(std::make_pair(-3000, 5000));
+        transform.push_back(std::make_pair(-250, 4500));
+
+        transform.push_back(std::make_pair(-300, -400));
+        transform.push_back(std::make_pair(-2300, -600));
+        transform.push_back(std::make_pair(-4500, 4700));
+        transform.push_back(std::make_pair(-3500, 2600));
+        RenderStaticSence->setModelInstanceAndTransform("greenGrass", transform, rotations, grassnumber);
+        rotations.clear();
+        transform.clear();
+        zTransform.clear();
+        ////////grass2
+        /*float haynumber = 200;
+        for (int i = 0; i < haynumber; i++)
+        {
+            rotations.push_back(45 * i);
+            zTransform.push_back(0);
+        }*/
+
+        //std::vector<std::pair<double, double>> tempTransform = RandomTreePositionGenerate(haynumber);
+        //for (int i = 0; i < haynumber; i++)
+        //{
+        //	transform.push_back(std::make_pair((tempTransform[i].first - haynumber / 2) * 400, (tempTransform[i].second - haynumber / 2) * 400));
+        //}
+
+
+
+        //RenderStaticSence.setModelInstanceAndTransform(2, transform, rotations, haynumber);
+        //rotations.clear();
+        //transform.clear();
+        //grass1
+        /*float grassnumber = 20;
+        for (int i = 0; i < grassnumber; i++)
+        {
+            rotations.push_back(30 * i);
+            zTransform.push_back(0);
+        }
+        transform.push_back(std::make_pair(500, 500));
+        transform.push_back(std::make_pair(3000, 800));
+        transform.push_back(std::make_pair(-2500, 1500));
+        transform.push_back(std::make_pair(-1550, 1500));
+        transform.push_back(std::make_pair(-500, -500));
+        transform.push_back(std::make_pair(-3000, -800));
+        transform.push_back(std::make_pair(-5000, 4000));
+        transform.push_back(std::make_pair(-450, 1500));
+        transform.push_back(std::make_pair(700, -4000));
+        transform.push_back(std::make_pair(-3000, -5800));
+        transform.push_back(std::make_pair(-3000, 6000));
+        transform.push_back(std::make_pair(-550, 5500));
+        transform.push_back(std::make_pair(-5100, -5200));
+        transform.push_back(std::make_pair(-4000, -2300));
+        transform.push_back(std::make_pair(-3000, 5000));
+        transform.push_back(std::make_pair(-250, 4500));
+
+        transform.push_back(std::make_pair(-300, -400));
+        transform.push_back(std::make_pair(-2300, -600));
+        transform.push_back(std::make_pair(-4500, 4700));
+        transform.push_back(std::make_pair(-3500, 2600));
+        RenderStaticSence.setModelInstanceAndTransform(1, transform, rotations, grassnumber);
+        rotations.clear();
+        transform.clear();
+        zTransform.clear();*/
+        ////////grass2
+        //float haynumber = 200;
+        //for (int i = 0; i < haynumber; i++)
+        //{
+        //	rotations.push_back(45 * i);
+        //	zTransform.push_back(0);
+        //}
+
+        //std::vector<std::pair<double, double>> tempTransform = RandomTreePositionGenerate(haynumber);
+        //for (int i = 0; i < haynumber; i++)
+        //{
+        //	transform.push_back(std::make_pair((tempTransform[i].first - haynumber / 2) * 400, (tempTransform[i].second - haynumber / 2) * 400));
+        //}
+        RenderStaticSence->initModelShaderPara("greenGrass");
+        RenderStaticSence->setGrassOnTerrain("greenGrass");
+        RenderStaticSence->updataGrassOnTerrain("greenGrass", 0);
+
+        //RenderStaticSence.initModelShaderPara("hay");
+        //RenderStaticSence.setGrassOnTerrain(i);
+        //RenderStaticSence.updataGrassOnTerrain(i,1);
+    }
+
+#pragma endregion
+    //RenderStaticSence.setModelInstanceAndTransform(2, transform, rotations, haynumber);
+    //rotations.clear();
+    //transform.clear();
+
+
+
+    RenderStaticSence->getTerrainPara(TerrainHeigth, TerrainX, TerrainZ, XDensityScale, ZDensityScale, TerrainHeightZDensity);
+
+
+#pragma endregion
+}
+void LoadTreeData()
+{
+    //////////////////////////////////////////
+//MultipleTypeTree.InitShadowCubeMapPara(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, shadowTransforms, lightVertices, lightColors);
+    MultipleTypeTree = new CInitMultipleTypeTree(Common::TreesTypeNumber, Common::AllTreesNumber, Common::GenerateRandomTreePosition);
+    MultipleTypeTree->InitShadowMapPara(near_plane, far_plane, SHADOW_WIDTH, SHADOW_HEIGHT, lightSpaceMatrix, lightPosition[0], lightPointColors[0]);
+    MultipleTypeTree->setTerrainPara(TerrainHeigth, TerrainX, TerrainZ, XDensityScale, ZDensityScale, TerrainHeightZDensity);
+
+    //yellow_tree_example
+    //MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/deltaU", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt",1);
+    //MultipleTypeTree->InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/FixedKOthrVegType/70/experimentforest/voxelnumber35/motiondata", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", "../../models/yellow_tree/ObjectVertexIndex.txt", 1);
+    //MultipleTypeTree->InitWindAndTree(Common::TreesNumbers[0], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/WindAndTreeConfig/Config.txt");
+    //if (Common::CalculateNormalType == Common::ENormalCalculateType::GeomShader)
+    //{
+    //    MultipleTypeTree->InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag", "scene_shadows.geom");
+    //}
+    //else if (Common::CalculateNormalType == Common::ENormalCalculateType::CompShader)
+    //{
+    //    MultipleTypeTree->InitSceneShadowShader("sence_shadows_RelatedComp.vert", "sence_Shadows_RelatedComp.frag");
+    //    MultipleTypeTree->InitComputerShaderCalculateNormal("calculateNormal.comp");
+    //}
+    //else if (Common::CalculateNormalType == Common::ENormalCalculateType::NONE)
+    //{
+    //    MultipleTypeTree->InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
+    //}
+    //MultipleTypeTree->InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
+    //MultipleTypeTree->InitTreeModel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/yellow_tree/tree_last_test.obj", 0);
+
+    //test
+    MultipleTypeTree->InitVegaFemFactory(InterPolationDataStruct.TreeRelatedDeformationDataPath, InterPolationDataStruct.TreeObjPath, "../../models/yellow_tree/ObjectVertexIndex.txt", InterPolationDataStruct.UseFileNumber);
+    MultipleTypeTree->InitWindAndTree(Common::TreesNumbers[0], InterPolationDataStruct.TreeWindConfig);
+    if (Common::CalculateNormalType == Common::ENormalCalculateType::GeomShader)
+    {
+        MultipleTypeTree->InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag", "scene_shadows.geom");
+    }
+    else if (Common::CalculateNormalType == Common::ENormalCalculateType::CompShader)
+    {
+        MultipleTypeTree->InitSceneShadowShader("sence_shadows_RelatedComp.vert", "sence_Shadows_RelatedComp.frag");
+        MultipleTypeTree->InitComputerShaderCalculateNormal("calculateNormal.comp");
+    }
+    else if (Common::CalculateNormalType == Common::ENormalCalculateType::NONE)
+    {
+        MultipleTypeTree->InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
+    }
+    MultipleTypeTree->InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
+    MultipleTypeTree->InitTreeModel(InterPolationDataStruct.TreeObjPath, 0);
+
+
+    //maple_tree_example
+    //MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/FixedKOthrVegType/70/experimentforest/voxelnumber35/motiondata", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/tree.obj", "../../models/mini_mapleTree/ObjectVertexIndex.txt",5);
+ //   //记得这个改回来在森林里用的是1
+    //MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[1], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/WindAndTreeConfig/Config.txt");
+ //   if (Common::CalculateNormalType == Common::ENormalCalculateType::GeomShader)
+ //   {
+ //       MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag", "scene_shadows.geom");
+ //   }
+ //   else if (Common::CalculateNormalType == Common::ENormalCalculateType::CompShader)
+ //   {
+ //       MultipleTypeTree.InitSceneShadowShader("sence_shadows_RelatedComp.vert", "sence_Shadows_RelatedComp.frag");
+ //       MultipleTypeTree.InitComputerShaderCalculateNormal("calculateNormal.comp");
+ //   }
+ //   else if (Common::CalculateNormalType == Common::ENormalCalculateType::NONE)
+ //   {
+ //       MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
+ //   }
+    //MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
+ //   //记得这个改回来在森林里用的是1
+
+    //MultipleTypeTree.InitTreeModel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/mini_mapleTree/tree.obj", 1);
+
+    //apericot_tree
+    //MultipleTypeTree.InitVegaFemFactory("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/FixedKOthrVegType/70/experimentforest/voxelnumber35/motiondata", "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/tree.obj", "../../models/mini_mapleTree/ObjectVertexIndex.txt",1);
+    ////记得这个改回来在森林里用的是1
+    //MultipleTypeTree.InitWindAndTree(Common::TreesNumbers[2], "D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/WindAndTreeConfig/Config.txt");
+    //if (Common::CalculateNormalType == Common::ENormalCalculateType::GeomShader)
+    //{
+    //    MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag", "scene_shadows.geom");
+    //}
+    //else if (Common::CalculateNormalType == Common::ENormalCalculateType::CompShader)
+    //{
+    //    MultipleTypeTree.InitSceneShadowShader("sence_shadows_RelatedComp.vert", "sence_Shadows_RelatedComp.frag");
+    //    MultipleTypeTree.InitComputerShaderCalculateNormal("calculateNormal.comp");
+    //}
+    //else if (Common::CalculateNormalType == Common::ENormalCalculateType::NONE)
+    //{
+    //    MultipleTypeTree.InitSceneShadowShader("scene_shadows.vert", "scene_shadows.frag");
+    //}
+    //MultipleTypeTree.InitSceneDepthShader("point_shadows_depth.vert", "point_shadows_depth.frag");
+    ////记得这个改回来在森林里用的是1
+
+    //MultipleTypeTree.InitTreeModel("D:/GraduationProject/New-LargeScaleForest/LargeScaleForest/models/apricot_tree/tree.obj", 2);
+
+
+    for (int i = 0; i < Common::TreesTypeNumber; i++)
+    {
+        MultipleTypeTree->InitMultipleExtraWindData(i);
+        MultipleTypeTree->InitFemFrameStruct(i);
+        MultipleTypeTree->InitScenceShaderData(i, Common::ScaleTree[i]);
+
+
+        //End Each time change*************
+        //***************此处也修改了InstanceMatrix得旋转VAO
+        if (Common::renderingTerrainOrWhiltScence == true)
+        {
+            MultipleTypeTree->calculateTreeDistantWithTerrain(i);
+            MultipleTypeTree->updataTreeOnTerrain(i);
+        }
+
+        //***************
+
+    }
+    MultipleTypeTree->setTreeAxisYPara();
+
+    for (int i = 0; i < Common::TreesTypeNumber; i++)
+    {
+        MultipleTypeTree->updataTreeOnTerrainByPara(i);
+    }
+
+    for (int i = 0; i < Common::TreesTypeNumber; i++)
+    {
+        EachFormNumberArray.push_back(MultipleTypeTree->getSpecificLoadWindAndTree(i).getEachFormNumberArray());
+
+        //因为在updataTreeOnTerrain修改了InstanceMatrix所以写在最后
+        if (Common::CalculateNormalType == Common::ENormalCalculateType::CompShader)
+        {
+            MultipleTypeTree->InitScenceNormalMatrixData(i);
+        }
+    }
+
+    startInsertIntoQueue = boost::thread(InsertSearchTreeFrameIndex, *(MultipleTypeTree->getSpecificFemFactory(0)), *(MultipleTypeTree->getSpecificExtraForces(0)), *(MultipleTypeTree->getSpecificExtraDirection(0)), *(MultipleTypeTree->getSpecificTreesNumberSubjected2SameWind(0)), 0);
+
+    MultipleTypeTree->ComputeSumFaceVerticesBeforeEndMesh(Common::TreesTypeNumber);
+
+    vAllReallyLoadConnectedFem = (MultipleTypeTree->getSpecificFemFactory(0))->getAllReallyLoadConnectedFem();
+
+    int numFramePoints = vAllReallyLoadConnectedFem[0].FemDataset[0]->Frames[0].BaseFileDeformations.size();
+    sumDeltaU.resize(numFramePoints);
+}
+
+void ShowGUIWindow(bool* p_open)
+{
+    IM_ASSERT(ImGui::GetCurrentContext() != NULL && "Missing dear imgui context. Refer to examples app!");
+
+
+    static bool no_titlebar = false;
+    static bool no_scrollbar = false;
+    static bool no_menu = false;
+    static bool no_move = false;
+    static bool no_resize = false;
+    static bool no_collapse = false;
+    static bool no_close = false;
+    static bool no_nav = false;
+    static bool no_background = false;
+    static bool no_bring_to_front = false;
+
+    ImGuiWindowFlags window_flags = 0;
+    if (no_titlebar)        window_flags |= ImGuiWindowFlags_NoTitleBar;
+    if (no_scrollbar)       window_flags |= ImGuiWindowFlags_NoScrollbar;
+    if (!no_menu)           window_flags |= ImGuiWindowFlags_MenuBar;
+    if (no_move)            window_flags |= ImGuiWindowFlags_NoMove;
+    if (no_resize)          window_flags |= ImGuiWindowFlags_NoResize;
+    if (no_collapse)        window_flags |= ImGuiWindowFlags_NoCollapse;
+    if (no_nav)             window_flags |= ImGuiWindowFlags_NoNav;
+    if (no_background)      window_flags |= ImGuiWindowFlags_NoBackground;
+    if (no_bring_to_front)  window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+    if (no_close)           p_open = NULL; // Don't pass our bool* to Begin
+    ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
+    if (!ImGui::Begin("FEMInterpolationRendering", p_open, window_flags))
+    {
+        // Early out if the window is collapsed, as an optimization.
+        ImGui::End();
+        return;
+    }
+    ImGui::PushItemWidth(ImGui::GetFontSize() * -12);
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::BeginMenu("Sence"))
+        {
+            ShowSenceMenuFile();
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Tree Position Status"))
+        {
+            ImGui::MenuItem("Standard Arrangement");
+            ImGui::MenuItem("Random Arrangement");
+            ImGui::EndMenu();
+        }
+        
+        ImGui::EndMenuBar();
+    }
+
+    if (ImGui::CollapsingHeader("RenderingConfig"))
+    {
+        ImGuiIO& io = ImGui::GetIO();
+
+        if (ImGui::TreeNode("Compute Normal##2"))
+        {
+            ImGui::CheckboxFlags("Geometry Shader", &io.ConfigFlags, ImGuiConfigFlags_NavEnableKeyboard);
+            ImGui::SameLine(); 
+            ImGui::CheckboxFlags("Compute Shader", &io.ConfigFlags, ImGuiConfigFlags_NavEnableGamepad);
+            ImGui::SameLine(); 
+            ImGui::TreePop();
+            ImGui::Separator();
+        }
+        ImGui::CheckboxFlags("Shadow", &io.ConfigFlags, ImGuiConfigFlags_NoMouse);
+
+    }
+
+    if (Common::renderingTerrainOrWhiltScence == true)
+        ImGui::Text("RenderTerraninOrWhiteScence: Terrain");
+    else
+        ImGui::Text("RenderTerraninOrWhiteScence: White");
+
+    if (Common::treeType == Common::ETreeType::Polar)
+    {
+        ImGui::Text("RenderTreeType: Polar ");
+        
+    }
+       
+    else if (Common::treeType == Common::ETreeType::Maple)
+    {
+        ImGui::Text("RenderTreeType: Maple ");
+        
+    }
+        
+    else if (Common::treeType == Common::ETreeType::Apricot)
+    {
+        ImGui::Text("RenderTreeType: Apricot ");
+        /*ReadDataConfigFilePath = OpenFileName();
+        InterPolationDataStruct=ReadInterPolationDataStruct(ReadDataConfigFilePath);*/
+    }
+        
+
+    else if (Common::treeType== Common::ETreeType::Other)
+    {
+        InterPolationDataStruct=ReadInterPolationDataStruct(ReadDataConfigFilePath);
+    }
+
+}
+
+static void ShowSenceMenuFile()
+{
+
+    ImGui::MenuItem("(demo menu)", NULL, false, false);
+    if (ImGui::BeginMenu("Terrain and Sky"))
+    {
+        ImGui::MenuItem("White", NULL, &renderingWhite);
+        ImGui::MenuItem("Mountain", NULL, &renderingTerrain);
+        ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("TreeType"))
+    {
+        ImGui::MenuItem("Polar", NULL, &showPolar);
+        ImGui::MenuItem("Maple", NULL, &showMaple);
+        ImGui::MenuItem("Apricot", NULL, &showApricot);
+        ImGui::MenuItem("Other",NULL,&showOther);
+        ImGui::EndMenu();
+    }
+
+
+    
 }
 
 #pragma optimize("",on)

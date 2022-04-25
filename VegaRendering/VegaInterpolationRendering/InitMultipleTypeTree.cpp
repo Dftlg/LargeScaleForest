@@ -30,6 +30,17 @@ CInitMultipleTypeTree::~CInitMultipleTypeTree()
         p->ClearAllPointer();
 }
 
+void CInitMultipleTypeTree::ClearMultipleTreeData()
+{
+    DELETEAllocPointer(m_MultipleTypeFem);
+    DELETEAllocPointer(m_MultipleSceneShadowShader);
+    DELETEAllocPointer(m_MultipleSceneDepthShader);
+    m_MultipleTypeTree.clear();
+    delete m_ASpecificWindSource;
+    for (auto p : m_MultipleTreeModel)
+        p->ClearAllPointer();
+}
+
 void CInitMultipleTypeTree::__GenerateTreesPosition()
 {
 	//__GenerateStableTreesPosition();

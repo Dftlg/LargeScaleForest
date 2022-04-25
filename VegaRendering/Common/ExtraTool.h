@@ -61,3 +61,7 @@ int GetRandomNumber(int vMinRange, int vMaxRange);
 char* LPWSTR2LPSTR(LPWSTR lpwszStrIn);
 char* ChooseFiles();
 std::string OpenFileName(const char *filter = "All Files (*.*)\0*.*\0", HWND owner = NULL);
+
+std::string SaveFileName(const char *filter = "All Files (*.*)\0*.*\0", HWND owner = NULL);
+
+Common::SVegaInterPolationDataStruct ReadInterPolationDataStruct(const std::string& vpath);

@@ -64,7 +64,7 @@ std::vector<std::pair<double,double>> RandomTreePositionGenerate(int vTreeNumber
 		QueryPerformanceFrequency(&seed);
 		QueryPerformanceCounter(&seed);
 		srand(seed.QuadPart);
-		std::pair<int, int> temppair(rand() % vTreeNumber, rand() % vTreeNumber);
+		std::pair<int, int> temppair(rand() % vTreeNumber*4.5, rand() % vTreeNumber*4.5);
 		tempTreePosition.push_back(temppair);
 
 		//std::sort(tempTreePosition.begin(), tempTreePosition.end());
@@ -507,6 +507,67 @@ std::string OpenFileName(const char *filter, HWND owner) {
         fileNameStr = fileName;
 
     return fileNameStr;
+}
+
+std::string SaveFileName(const char *filter, HWND owner) {
+    OPENFILENAME ofn;
+    char fileName[MAX_PATH] = "";
+    ZeroMemory(&ofn, sizeof(ofn));
+
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = owner;
+    ofn.lpstrFilter = filter;
+    ofn.lpstrFile = fileName;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+    ofn.lpstrDefExt = "";
+
+    std::string fileNameStr;
+
+    if (GetSaveFileName(&ofn))
+        fileNameStr = fileName;
+
+    return fileNameStr;
+}
+
+Common::SVegaInterPolationDataStruct ReadInterPolationDataStruct(const std::string& vpath)
+{
+    std::ifstream positionFile(vpath, std::ios::in);
+    std::string lineString;
+    getline(positionFile, lineString);
+    std::string tempdatapath;
+    std::string MotionDataUseNumber;
+    std::string tempObj;
+    std::string WindConfigAndTreeConfig;
+    if (lineString == "*MotionData")
+    {
+        getline(positionFile, lineString);
+        tempdatapath = lineString;
+        getline(positionFile, lineString);
+    }
+    getline(positionFile, lineString);
+    if (lineString == "*MotionDataUseNumber")
+    {
+        getline(positionFile, lineString);
+        MotionDataUseNumber = lineString;
+        getline(positionFile, lineString);
+    }
+    getline(positionFile, lineString);
+    if (lineString == "*Obj")
+    {
+        getline(positionFile, lineString);
+        tempObj = lineString;
+        getline(positionFile, lineString);
+    }
+    getline(positionFile, lineString);
+    if (lineString == "*WindConfigAndTreeConfig")
+    {
+        getline(positionFile, lineString);
+        WindConfigAndTreeConfig = lineString;
+        getline(positionFile, lineString);
+    }
+    Common::SVegaInterPolationDataStruct tempInterPolationDataStruct(tempdatapath, atoi(MotionDataUseNumber.c_str()), tempObj, WindConfigAndTreeConfig);
+    return tempInterPolationDataStruct;
 }
 
 #pragma optimize("",on)

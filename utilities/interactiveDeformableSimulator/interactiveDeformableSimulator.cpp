@@ -851,7 +851,7 @@ void idleFunction(void)
 		if ((subTimestepCounter+1) % Common::ForcesSampling == 0)
 		{
             //!!!!重要存储KVF文件位置
-			integratorBase->WriteSpecificKRFextVMattixToFile(outputFilename, subTimestepCounter, KVFVertices, TempExtraForces);
+			//integratorBase->WriteSpecificKRFextVMattixToFile(outputFilename, subTimestepCounter, KVFVertices, TempExtraForces);
 			TempExtraForces.clear();
 		}
 		//计算由力产生的结点位移形变
@@ -962,7 +962,7 @@ void idleFunction(void)
 		TempExtraForces.clear();
 	}*/
 	//存储deltaU的形变数据!!!重要需要更改位置
-	deformationsave.SaveDeformationVertexFromBaseModel(deltaSecondaryu, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter-1);
+	//deformationsave.SaveDeformationVertexFromBaseModel(deltaSecondaryu, secondaryDeformableObjectRenderingMesh->GetNumVertices(), outputFilename, subTimestepCounter-1);
 
     //存储U的形变数据
 	//if (subTimestepCounter == 20)

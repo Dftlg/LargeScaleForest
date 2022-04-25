@@ -81,6 +81,9 @@
     <ClCompile Include="VegaInterpolationRendering_Exper4.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Imgui_VegaInterpolationRendering.cpp">
+      <Filter>Imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

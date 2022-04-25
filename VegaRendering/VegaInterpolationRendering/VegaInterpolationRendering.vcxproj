@@ -155,6 +155,7 @@
     <ClCompile Include="..\Imgui\imgui_draw.cpp" />
     <ClCompile Include="..\Imgui\imgui_tables.cpp" />
     <ClCompile Include="..\Imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Imgui_VegaInterpolationRendering.cpp" />
     <ClCompile Include="InitMultipleTypeTree.cpp" />
     <ClCompile Include="LoadWindAndTreeConfig.cpp" />
     <ClCompile Include="RenderStaticSence.cpp" />
